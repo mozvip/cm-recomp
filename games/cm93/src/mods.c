@@ -4,9 +4,9 @@
  * every call. */
 #include "hand.h"
 #include "mod.h"
+#include "rt.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 /* ---- Fast "Latest Results" ----
  * void delay(int n) (1bd3:0dbc) busy-waits until the BIOS tick count x 11 has advanced by 4n,
@@ -34,6 +34,37 @@ static rc_mod fast_results = {
 };
 RC_MOD_REGISTER(fast_results)
 
+/* ---- Fast match ----
+ * A match is paced by delay() too. The clock, 7c74:2cae, moves on half a minute per call
+ * and waits delay(9) each time (180 ms, 220 ms after rounding: 40 s for 90 minutes; holding
+ * space or both mouse buttons already skips it). The commentary waits after each event:
+ * delay(40..100) after a line and delay(100) after a goal in the match engine, 817e, and
+ * delay(50..100) for the halves, injuries, cards and substitutions in 7c74 from 7c74:2043
+ * on. The mod divides these waits by CM_MATCH_SPEED (default 4; 1 is the original speed).
+ * The other delays in 7c74 (the Latest Results screen, 7c74:0000) are left alone.
+ * CM_FAST_MATCH=0 turns it off. */
+#define MATCH_ENGINE_CS 0x817e
+#define MATCH_SCREEN_CS 0x7c74
+#define MATCH_SCREEN_FIRST_IP 0x2043
+
+static rc_mod_setting fast_match_settings[] = {
+    { .key = "speed", .label = "Speed", .env = "CM_MATCH_SPEED",
+      .value = 4, .min = 1, .max = 20, .format = "x%d" },
+};
+static rc_mod fast_match = {
+    .key = "fast_match", .name = "Fast match",
+    .desc = "Speeds up the match clock and the pauses after the commentary.",
+    .env = "CM_FAST_MATCH", .on = 1, .settings = fast_match_settings, .nsettings = 1,
+};
+RC_MOD_REGISTER(fast_match)
+
+/* called from the match (the return address is on top of the stack) */
+static int is_match_delay(void)
+{
+    uint16_t ip = RW(cpu.ss, cpu.sp), cs = RW(cpu.ss, (uint16_t)(cpu.sp + 2));
+    return cs == MATCH_ENGINE_CS || (cs == MATCH_SCREEN_CS && ip >= MATCH_SCREEN_FIRST_IP);
+}
+
 void f_1bd3_0dbc_orig(void);
 
 void f_1bd3_0dbc(void)
@@ -52,7 +83,15 @@ void f_1bd3_0dbc(void)
         /* last character: wait once for the whole line (the caller pops the argument) */
         WW(cpu.ss, (uint16_t)(cpu.sp + 4), line_n);
     }
-    if (getenv("CM_DEBUG_DELAY")) fprintf(stderr, "[DELAY] %04x:%04x n=%d\n", RW(cpu.ss, (uint16_t)(cpu.sp + 2)), RW(cpu.ss, cpu.sp), RW(cpu.ss, (uint16_t)(cpu.sp + 4)));
+    if (fast_match.on && fast_match_settings[0].value > 1 && is_match_delay()) {
+        /* delay(n) waits about 20n ms; wait on the host clock so short waits are not rounded
+           up to a 55 ms timer tick */
+        uint32_t end = plat_ms() + (uint32_t)FAR_ARG(0) * 20 / (uint32_t)fast_match_settings[0].value;
+        while ((int32_t)(plat_ms() - end) < 0)
+            POLL();
+        RET_FAR();
+        return;
+    }
     f_1bd3_0dbc_orig();
 }
 
@@ -83,15 +122,6 @@ static uint16_t mouse_clicks(void)
 
 void f_7c74_00eb(void)
 {
-    {
-        static int day;
-        void f_9e77_2c88(void);
-        if (getenv("CM_DEBUG_LOAD") && ++day == 1) {
-            fprintf(stderr, "[DEBUG] loading\n");
-            PUSH(0); CALLF(0x9e77, 0, f_9e77_2c88()); POP();
-            return;
-        }
-    }
     f_7c74_00eb_orig();
     if (results_wait.on && RW(cpu.ds, RESULTS_NEXT_LINE) > 1) {
         mouse_clicks();

@@ -40,3 +40,4 @@ in the game directory. The variables below override that file.
 |---|---|---|
 | Fast Latest Results | `CM_FAST_RESULTS=0` turns it off | The evening's results are typed one character at a time, about 18 a second (20 s for one screen). The mod draws each line at once and pauses `CM_RESULTS_LINE_MS` ms after it (default 150; 0 for no pause, but then the screen scrolls past faster than it can be read) |
 | Wait after Latest Results | `CM_RESULTS_WAIT=0` turns it off | Once all of a match day's results are shown, the Latest Results screen stays up until a mouse click, instead of moving on by itself |
+| Fast match | `CM_FAST_MATCH=0` turns it off | The match clock and the pauses after each commentary line, goal, card, injury and substitution are `CM_MATCH_SPEED` times shorter (default 4; 1 is the original speed). At the original speed the clock alone takes 40 s |
