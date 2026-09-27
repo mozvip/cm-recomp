@@ -1,2 +1,13 @@
 # names for translated functions (SEG:OFS name): emitted as fn_<name>, see docs/handwritten.md
+# (functions in overrides.txt take their name from there)
+
+# Borland C runtime (same code as in CM1's 1000:4179 / 41a9 / 41d2)
+1000:40ea strcmp
+1000:411a strcpy
+1000:4184 strlen
+
+# input
+1bd3:0c16 get_mouse_clicks
+
+# Latest Results screen
 7c74:0769 print_result_line

@@ -54,3 +54,34 @@ void f_1bd3_0dbc(void)
     }
     f_1bd3_0dbc_orig();
 }
+
+/* ---- Wait for a click after the Latest Results ----
+ * 7c74:00eb plays one match day and prints its results on the Latest Results screen, then
+ * returns and the game moves on by itself. The mod waits for a mouse click once the last
+ * result is shown, if the screen showed any (DS:dc78, the next line to print, is set to 1 at
+ * the start). The wait uses the game's own mouse poll, 1bd3:0c16, which returns the buttons
+ * pressed since the last poll in AX; a click made while the results were still printing is
+ * dropped. CM_RESULTS_WAIT=0 turns it off. */
+#define RESULTS_NEXT_LINE 0xdc78
+
+void f_7c74_00eb_orig(void);
+void f_1bd3_0c16(void);
+
+static uint16_t mouse_clicks(void)
+{
+    CALLF(0x1bd3, 0, f_1bd3_0c16());
+    return cpu.ax;
+}
+
+void f_7c74_00eb(void)
+{
+    static int wait = -1;
+    if (wait < 0)
+        wait = mod_enabled("CM_RESULTS_WAIT");
+    f_7c74_00eb_orig();
+    if (wait && RW(cpu.ds, RESULTS_NEXT_LINE) > 1) {
+        mouse_clicks();
+        while (!mouse_clicks())
+            POLL();
+    }
+}
