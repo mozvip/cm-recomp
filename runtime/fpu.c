@@ -166,7 +166,27 @@ void rc_fpu_m(int esc, int reg, uint16_t s, uint16_t o)
             WD(s, o, (uint32_t)r); WD(s, (uint16_t)(o + 4), (uint32_t)((uint64_t)r >> 32)); pop();
             return;
         }
-        case 4: case 6: break;                                                      /* BCD */
+        case 4: {                                                                   /* fbld */
+            long double r = 0;
+            int i;
+            for (i = 8; i >= 0; i--) { uint8_t b = RB(s, (uint16_t)(o + i)); r = r * 100 + (b >> 4) * 10 + (b & 15); }
+            push(RB(s, (uint16_t)(o + 9)) & 0x80 ? -r : r);
+            return;
+        }
+        case 6: {                                                                   /* fbstp: 18 digits, sign in byte 9 */
+            long double r = round_cw(ST(0));
+            int i;
+            if (isnan(r) || fabsl(r) > 999999999999999999.0L) {                    /* packed BCD indefinite */
+                for (i = 0; i < 7; i++) WB(s, (uint16_t)(o + i), 0);
+                WB(s, (uint16_t)(o + 7), 0xc0); WB(s, (uint16_t)(o + 8), 0xff); WB(s, (uint16_t)(o + 9), 0xff);
+            } else {
+                uint64_t u = (uint64_t)fabsl(r);
+                for (i = 0; i < 9; i++) { WB(s, (uint16_t)(o + i), (uint8_t)((u % 10) | ((u / 10 % 10) << 4))); u /= 100; }
+                WB(s, (uint16_t)(o + 9), signbit(r) ? 0x80 : 0);
+            }
+            pop();
+            return;
+        }
         }
         break;
     }

@@ -136,9 +136,21 @@ def find_table(f, ins):
             if p.op == 'cmp' and p.ops[1].kind == 'imm' and p.ops[0].kind == 'reg':
                 count = p.ops[1].val + 1
                 break
+    code = code_of(f.cs)
+    if count is None and base == (ins.addr + ins.len) & 0xffff:
+        # table placed right after the jmp (e.g. the runtime's float-size dispatch): the code
+        # of the first case starts where the table ends
+        end, n = 0x10000, 0
+        while base + 2 * n < end and n < 64:
+            t = code[base + 2 * n] | (code[base + 2 * n + 1] << 8)
+            if t <= ins.addr:
+                break
+            end = min(end, t)
+            n += 1
+        if base + 2 * n == end:
+            count = n
     if count is None or count > 512:
         return None
-    code = code_of(f.cs)
     return [code[(base + 2 * i) & 0xffff] | (code[(base + 2 * i + 1) & 0xffff] << 8) for i in range(count)]
 
 

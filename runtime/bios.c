@@ -10,6 +10,7 @@
 int rc_video_mode = 3;
 int rc_mouse_visible = -1;            /* INT 33h cursor counter: visible when 0 */
 int plat_mouse_x = 160, plat_mouse_y = 100, plat_mouse_buttons;
+static int mouse_clicks;               /* button presses not yet reported by INT 33h AX=3 */
 static int mouse_xmin = 0, mouse_xmax = 639, mouse_ymin = 0, mouse_ymax = 199;
 
 static SDL_Window *win;
@@ -114,7 +115,8 @@ void plat_pump(void)
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP: {
             int bit = e.button.button == SDL_BUTTON_LEFT ? 1 : e.button.button == SDL_BUTTON_RIGHT ? 2 : 4;
-            if (e.type == SDL_MOUSEBUTTONDOWN) plat_mouse_buttons |= bit; else plat_mouse_buttons &= ~bit;
+            if (e.type == SDL_MOUSEBUTTONDOWN) { plat_mouse_buttons |= bit; mouse_clicks |= bit; }
+            else plat_mouse_buttons &= ~bit;
             break;
         }
         case SDL_KEYDOWN: key_event(&e.key); break;
@@ -152,7 +154,7 @@ void plat_pump(void)
         if (!init) { script = getenv("CM_TEST_CLICKS"); init = 1; }
         if (release_at && plat_ms() >= release_at) { plat_mouse_buttons &= ~1; release_at = 0; }
         if (script && *script && !release_at && sscanf(script, "%d,%d@%u%n", &x, &y, &at, &used) == 3 && plat_ms() >= at) {
-            plat_mouse_x = x; plat_mouse_y = y; plat_mouse_buttons |= 1; release_at = plat_ms() + 80;
+            plat_mouse_x = x; plat_mouse_y = y; plat_mouse_buttons |= 1; mouse_clicks |= 1; release_at = plat_ms() + 80;
             fprintf(stderr, "[TEST] click %d,%d at %u ms\n", x, y, plat_ms());
             script += used;
             if (*script == ';') script++;
@@ -330,7 +332,7 @@ static void int33(void)
 {
     switch (cpu.ax) {
     case 0x00: case 0x21:
-        cpu.ax = 0xffff; cpu.bx = 2; rc_mouse_visible = -1;
+        cpu.ax = 0xffff; cpu.bx = 2; rc_mouse_visible = -1; mouse_clicks = 0;
         mouse_xmin = 0; mouse_xmax = 639; mouse_ymin = 0; mouse_ymax = 199;
         return;
     case 0x01: if (rc_mouse_visible < 0) rc_mouse_visible++; return;
@@ -343,7 +345,11 @@ static void int33(void)
         x = plat_mouse_x * 2; y = plat_mouse_y;
         if (x < mouse_xmin) x = mouse_xmin; if (x > mouse_xmax) x = mouse_xmax;
         if (y < mouse_ymin) y = mouse_ymin; if (y > mouse_ymax) y = mouse_ymax;
-        cpu.bx = (uint16_t)plat_mouse_buttons; cpu.cx = (uint16_t)x; cpu.dx = (uint16_t)y;
+        /* Both games poll the button level and act on the first "down" without waiting for
+           the release, so a held button would also click whatever the next screen puts under
+           the cursor. Report each physical press exactly once instead. */
+        cpu.bx = (uint16_t)mouse_clicks; mouse_clicks = 0;
+        cpu.cx = (uint16_t)x; cpu.dx = (uint16_t)y;
         return;
     }
     case 0x04: plat_mouse_x = cpu.cx / 2; plat_mouse_y = cpu.dx; return;
