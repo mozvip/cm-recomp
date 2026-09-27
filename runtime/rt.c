@@ -58,6 +58,25 @@ static rc_fn lookup(uint32_t lin)
     return NULL;
 }
 
+/* the nearest function starting at or below the address; a guess, since functions are not
+ * contiguous. Returns one of 4 static buffers. */
+const char *rc_where(uint16_t seg, uint16_t ofs)
+{
+    static char buf[4][80];
+    static int k;
+    uint32_t lin = ((uint32_t)seg << 4) + ofs;
+    int lo = 0, hi = rc_nfuncs - 1, best = -1;
+    char *b = buf[k = (k + 1) & 3];
+    while (lo <= hi) {
+        int m = (lo + hi) / 2;
+        if (rc_funcs[m].lin <= lin) { best = m; lo = m + 1; } else hi = m - 1;
+    }
+    if (best < 0 || lin - rc_funcs[best].lin > 0xffff) return "?";
+    if (lin == rc_funcs[best].lin) return rc_funcs[best].name;
+    snprintf(b, sizeof buf[0], "%s+0x%x", rc_funcs[best].name, (unsigned)(lin - rc_funcs[best].lin));
+    return b;
+}
+
 /* unknown call targets are logged here for tools/discover.sh */
 static const char *missing_path(void)
 {
@@ -125,7 +144,7 @@ void rc_call(uint16_t seg, uint16_t ofs)
 
 void rc_bad_jump(uint16_t cs, uint16_t from, uint16_t to)
 {
-    rc_fatal("indirect jump at %04x:%04x to unknown target %04x", cs, from, to);
+    rc_fatal("indirect jump at %04x:%04x (%s) to unknown target %04x", cs, from, rc_where(cs, from), to);
 }
 
 /* ---------------------------------------------------------------- interrupts */

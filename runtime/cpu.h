@@ -204,9 +204,10 @@ DEF_SHIFT(16, uint16_t, 16)
 
 /* ---- runtime services (rt.c) ---- */
 typedef void (*rc_fn)(void);
-typedef struct { uint32_t lin; rc_fn fn; } rc_entry;           /* lin = linear address, or offset for drivers */
+typedef struct { uint32_t lin; rc_fn fn; const char *name; } rc_entry;  /* lin = linear address, or offset for drivers */
 typedef struct { const char *name; const uint8_t *sig; int siglen; const rc_entry *tab; int n; } rc_driver;
 void rc_call(uint16_t seg, uint16_t ofs);     /* dispatch to translated code (CS already set) */
+const char *rc_where(uint16_t seg, uint16_t ofs); /* "name+0xN" of the function around an address */
 void rc_int(uint8_t n);                       /* software interrupt */
 void rc_poll(void);                           /* safe point: timers, input, display */
 uint8_t rc_in8(uint16_t port);

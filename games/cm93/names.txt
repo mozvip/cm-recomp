@@ -1,0 +1,2 @@
+# names for translated functions (SEG:OFS name): emitted as fn_<name>, see docs/handwritten.md
+7c74:0769 print_result_line

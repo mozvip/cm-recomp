@@ -10,7 +10,7 @@ game keeps working at every step.
 |---|---|
 | `games/<game>/overrides.txt` | One `SEG:OFS name` per line: the functions that are hand-written |
 | `games/<game>/src/*.c` | The hand-written functions (compiled with warnings, unlike `gen/`) |
-| `games/<game>/names.txt` | Optional `SEG:OFS name` lines: names shown as comments in `gen/` |
+| `games/<game>/names.txt` | Optional `SEG:OFS name` lines: names for translated functions (see [Naming functions](#naming-functions)) |
 | [`runtime/hand.h`](../runtime/hand.h) | `RC_REPLACE`, argument and return helpers |
 | [`runtime/verify.c`](../runtime/verify.c) | The `RC_VERIFY` differential check |
 
@@ -19,6 +19,25 @@ For a function listed in `overrides.txt`, `recomp.py` emits the translation as
 dispatch table used for calls through pointers still name `f_SSSS_OOOO`, which is now the
 hand-written one. `RC_REPLACE` defines it as a small wrapper that runs the body, or, under
 `RC_VERIFY`, runs both versions and compares them.
+
+## Naming functions
+
+A function named in `names.txt`, or in `overrides.txt`, is emitted as `fn_<name>`: the
+translation defines it, and every call and the dispatch table use it. `f_SSSS_OOOO` stays a
+symbol too, an alias of the same code, so hand-written code can use either name, and a
+name can be changed without touching `src/`. The `fn_` prefix keeps names such as `strlen`
+or `delay` from clashing with the C library.
+
+For a function in `overrides.txt`, `funcs.h` defines `fn_<name>` as `f_SSSS_OOOO`, so the
+calls reach the hand-written version, and the translation is `fn_<name>_orig` (alias
+`f_SSSS_OOOO_orig`).
+
+Names are only a change of spelling: the compiled code is the same with or without them.
+They show in `gen/`, in gdb and profilers, and in the runtime's messages, which give an
+address as `name+0xN` (the function starting nearest below it; functions are not always
+contiguous, so it is a guess). A name must be a C identifier and unique, and the two files
+must not give one function different names. A name for an address where no function
+starts is reported and ignored.
 
 ## The calling convention
 

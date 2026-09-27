@@ -124,8 +124,9 @@ void rc_verified_call(const char *name, rc_fn fn, rc_fn orig, unsigned regs)
     if (rc_fpu_differs(1)) bad = 1;
     if (!bad) { stats[s].ok++; return; }
 
-    fprintf(stderr, "[VERIFY] %s differs from the translation (call %u), returning to %04x:%04x "
-            "(the segment is the caller's for a far call)\n", name, stats[s].ok + 1, RW(in.ss, (uint16_t)(in.sp + 2)), RW(in.ss, in.sp));
+    fprintf(stderr, "[VERIFY] %s differs from the translation (call %u), returning to %04x:%04x %s "
+            "(the segment, and so the function, are the caller's for a far call)\n", name, stats[s].ok + 1,
+            RW(in.ss, (uint16_t)(in.sp + 2)), RW(in.ss, in.sp), rc_where(RW(in.ss, (uint16_t)(in.sp + 2)), RW(in.ss, in.sp)));
     fprintf(stderr, "[VERIFY]   stack at entry (return address, arguments):");
     for (i = 0; i < 10; i++) fprintf(stderr, " %04x", RW(in.ss, (uint16_t)(in.sp + 2 * i)));
     fprintf(stderr, "\n");
