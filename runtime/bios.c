@@ -237,7 +237,9 @@ uint32_t rc_pit_counter(void)
 void rc_poll(void)
 {
     static int in_poll;
-    uint32_t now = plat_ms();
+    uint32_t now;
+    if (rc_verifying) return;       /* stays pending until the comparison is done */
+    now = plat_ms();
     rc_poll_pending = 0;
     if (in_poll) return;
     in_poll = 1;

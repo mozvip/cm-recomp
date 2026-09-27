@@ -70,6 +70,14 @@ Functions that are only reached through pointers cannot all be found statically.
 They are listed per game in `games/<game>/entries.txt`, which `make discover` extends
 by running the game headless (see [docs/recompiler.md](docs/recompiler.md#discovering-indirect-call-targets)).
 
+## Hand-written replacements
+
+Translated functions can be replaced one at a time by C written by hand: list them in
+`games/<game>/overrides.txt` and write them in `games/<game>/src/`. `RC_VERIFY=all` runs
+each replacement against the translation it replaces and stops at the first difference.
+See [docs/handwritten.md](docs/handwritten.md). The first ones are Championship Manager's
+runtime `strlen`, `strcpy` and `strcmp` ([games/cm1/src/string.c](games/cm1/src/string.c)).
+
 ## Repository layout
 
 | Path | Content |
@@ -79,7 +87,7 @@ by running the game headless (see [docs/recompiler.md](docs/recompiler.md#discov
 | `tools/discover.sh` | Finds pointer-only entry points by running the game headless |
 | `tools/emudis.py` | Disassembler for the relocated image, with emulator FPU ops decoded |
 | `runtime/` | CPU helpers, FPU, DOS/BIOS/mouse/VGA services, OPL2 emulation, SDL output, shared makefile |
-| `games/cm1/`, `games/cm93/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points |
+| `games/cm1/`, `games/cm93/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points, hand-written replacements (`overrides.txt`, `src/`) |
 | `docs/` | Technical documentation |
 
 ## Debug and test options
@@ -95,6 +103,7 @@ Environment variables read by the recompiled games:
 | `CM_OPL_LOG=1` | Log every OPL register write |
 | `RC_TRACE=1` | Log every software interrupt |
 | `RC_MISSING=file` | Where unknown call targets are logged (default `rc_missing_entries.txt`) |
+| `RC_VERIFY=all` or `=name,...` | Check hand-written replacements against the translation ([docs/handwritten.md](docs/handwritten.md)) |
 
 `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy` runs a game headless.
 

@@ -13,6 +13,7 @@ uint32_t rc_sh_ret[RC_SHADOW];
 uint16_t rc_sh_sp[RC_SHADOW];
 int rc_sh;
 int rc_trace;
+unsigned rc_io_count;
 
 const uint8_t rc_parity[256] = {
 #define P2(n) n, n ^ 1, n ^ 1, n
@@ -110,6 +111,7 @@ void rc_call(uint16_t seg, uint16_t ofs)
 {
     rc_fn fn;
     if (seg == RC_BIOS_SEG) {
+        rc_io_count++;
         /* reached by call/jmp far to a default interrupt vector: service + iret */
         rc_hle_int((uint8_t)ofs);
         POP(); cpu.cs = POP(); SETFLAGS(POP());
@@ -145,6 +147,7 @@ static void do_interrupt(uint8_t n)
 
 void rc_int(uint8_t n)
 {
+    rc_io_count++;
     if (rc_trace) fprintf(stderr, "[INT %02x] ax=%04x bx=%04x cx=%04x dx=%04x\n", n, cpu.ax, cpu.bx, cpu.cx, cpu.dx);
     do_interrupt(n);
 }
@@ -183,6 +186,7 @@ double rc_pit_hz(void) { return 1193182.0 / (pit_div ? pit_div : 65536); }
 
 uint8_t rc_in8(uint16_t port)
 {
+    rc_io_count++;
     switch (port) {
     case 0x3da:                        /* input status 1: toggle retrace/display enable */
         retrace++;
@@ -216,6 +220,7 @@ uint16_t rc_in16(uint16_t port) { return rc_in8(port) | (rc_in8(port + 1) << 8);
 
 void rc_out8(uint16_t port, uint8_t v)
 {
+    rc_io_count++;
     switch (port) {
     case 0x3c8: dac_widx = v; dac_wsub = 0; return;
     case 0x3c7: dac_ridx = v; dac_rsub = 0; return;

@@ -1,0 +1,4 @@
+# functions replaced by hand-written C in src/ (SEG:OFS name); see docs/handwritten.md
+1000:4179 strcmp
+1000:41a9 strcpy
+1000:41d2 strlen

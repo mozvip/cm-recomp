@@ -12,12 +12,17 @@
 typedef void (*rc_hook_t)(void);
 
 extern int rc_trace;
+extern unsigned rc_io_count;   /* software interrupts and port accesses so far (verify.c) */
+extern int rc_verifying;       /* inside an RC_VERIFY comparison: timer interrupts are deferred */
 extern int rc_dac_dirty;
 
 void rc_dump_stack(void);
 void rc_irq(uint8_t n);
 void rc_hle_int(uint8_t n);
 void rc_emu3e(uint8_t code);
+void rc_fpu_save(int slot);
+void rc_fpu_restore(int slot);
+int rc_fpu_differs(int slot);
 
 /* ports / VGA */
 const uint8_t *rc_dac(void);

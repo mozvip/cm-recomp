@@ -298,3 +298,30 @@ void rc_emu3e(uint8_t code)
     }
     rc_fatal("emulator shortcut INT 3Eh %02x not implemented", code);
 }
+
+/* ---- state snapshot for RC_VERIFY (verify.c) */
+struct rc_fpu_state { long double st[8]; int top; uint16_t cw, sw; uint8_t empty[8]; };
+static struct rc_fpu_state fpu_saved[2];
+
+void rc_fpu_save(int slot)
+{
+    struct rc_fpu_state *s = &fpu_saved[slot];
+    memcpy(s->st, st, sizeof st); s->top = top; s->cw = cw; s->sw = sw; memcpy(s->empty, empty, sizeof empty);
+}
+
+void rc_fpu_restore(int slot)
+{
+    struct rc_fpu_state *s = &fpu_saved[slot];
+    memcpy(st, s->st, sizeof st); top = s->top; cw = s->cw; sw = s->sw; memcpy(empty, s->empty, sizeof empty);
+}
+
+/* 1 if the current state differs from the saved one (values of empty registers ignored) */
+int rc_fpu_differs(int slot)
+{
+    struct rc_fpu_state *s = &fpu_saved[slot];
+    int i;
+    if (s->top != top || s->cw != cw || s->sw != sw || memcmp(s->empty, empty, sizeof empty)) return 1;
+    for (i = 0; i < 8; i++)
+        if (!empty[i] && !(st[i] == s->st[i] || (isnan(st[i]) && isnan(s->st[i])))) return 1;
+    return 0;
+}

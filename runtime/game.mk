@@ -2,8 +2,9 @@
 #   EXE_NAME  the game's executable (file name inside GAME_DIR, any case)
 #   DRIVERS   runtime-loaded drivers as FILE:NAME (space separated, files inside GAME_DIR)
 #   TARGET    binary to build
-# and provides hooks.c and entries.txt. GAME_DIR (your copy of the game) is given on the
-# command line or in the environment:  make GAME_DIR=/path/to/game
+# and provides hooks.c and entries.txt, and optionally overrides.txt + src/*.c (functions
+# replaced by hand-written C, see docs/handwritten.md) and names.txt. GAME_DIR (your copy
+# of the game) is given on the command line or in the environment:  make GAME_DIR=/path/to/game
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 RT := $(ROOT)/runtime
 TOOLS := $(ROOT)/tools
@@ -25,17 +26,20 @@ DRV_SPEC := $(subst $(space),$(comma),$(foreach d,$(DRIVERS),$(call findfile,$(f
 DRV_FILES := $(foreach d,$(subst $(comma), ,$(DRV_SPEC)),$(firstword $(subst :, ,$(d))))
 
 GEN := $(wildcard gen/seg_*.c) gen/dispatch.c gen/image.c $(wildcard gen/drv_*.c) gen/drivers.c
-RTSRC := rt fpu dos bios main opl2 audio
-OBJ := $(patsubst %.c,build/%.o,$(GEN)) $(RTSRC:%=build/rt/%.o) build/hooks.o
+HAND := $(wildcard src/*.c)
+RTSRC := rt fpu dos bios main opl2 audio verify
+OBJ := $(patsubst %.c,build/%.o,$(GEN) $(HAND)) $(RTSRC:%=build/rt/%.o) build/hooks.o
+META := $(wildcard overrides.txt names.txt)
+RECOMP_OPTS := $(if $(wildcard overrides.txt),--overrides overrides.txt) $(if $(wildcard names.txt),--names names.txt)
 
 all: gen/.stamp
 	@$(MAKE) --no-print-directory $(TARGET)
 
 # generation is a separate make pass so the object list sees the new sources
-gen/.stamp: $(TOOLS)/recomp.py $(TOOLS)/x86.py $(TOOLS)/unfbov.py $(EXE) entries.txt $(DRV_FILES)
+gen/.stamp: $(TOOLS)/recomp.py $(TOOLS)/x86.py $(TOOLS)/unfbov.py $(EXE) entries.txt $(META) $(DRV_FILES)
 	@test -n "$(GAME_DIR)" || { echo "set GAME_DIR to your copy of the game, e.g. make GAME_DIR=~/dos/cm93"; exit 1; }
 	@test -n "$(EXE)" || { echo "$(EXE_NAME) not found in $(GAME_DIR)"; exit 1; }
-	python3 $(TOOLS)/recomp.py --exe $(EXE) --out gen --entries entries.txt
+	python3 $(TOOLS)/recomp.py --exe $(EXE) --out gen --entries entries.txt $(RECOMP_OPTS)
 	python3 $(TOOLS)/recomp.py --exe $(EXE) --drivers "$(DRV_SPEC)" --out gen --entries entries.txt
 	@touch $@
 
@@ -47,7 +51,12 @@ build/gen/%.o: gen/%.c $(RT)/cpu.h
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -I$(RT) -Igen -c $< -o $@
 
-build/rt/%.o: $(RT)/%.c $(RT)/cpu.h $(RT)/rt.h $(RT)/opl2.h
+# hand-written replacements: compiled with warnings, unlike the generated code
+build/src/%.o: src/%.c $(RT)/cpu.h $(RT)/hand.h gen/.stamp
+	@mkdir -p build/src
+	$(CC) $(RT_CFLAGS) -Wextra -I$(RT) -Igen -c $< -o $@
+
+build/rt/%.o: $(RT)/%.c $(RT)/cpu.h $(RT)/rt.h $(RT)/opl2.h $(RT)/hand.h
 	@mkdir -p build/rt
 	$(CC) $(RT_CFLAGS) -I$(RT) $(SDL_CFLAGS) -c $< -o $@
 
