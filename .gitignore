@@ -1,0 +1,21 @@
+# generated from the user's game files - never commit
+games/*/gen/
+games/*/build/
+games/*/*_rc
+games/*/missing_entries.txt
+games/*/last_run.log
+rc_missing_entries.txt
+tools/_emu.bin
+__pycache__/
+*.pyc
+*.wav
+*.ppm
+# game files, in case a game directory is placed inside the repository
+*.EXE
+*.exe
+*.DRV
+*.LBM
+*.lbm
+*.ALB
+*.RLD
+VM.$$$

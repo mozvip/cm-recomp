@@ -1,0 +1,15 @@
+# runtime-discovered entry points (SEG:OFS)
+1e7b:0d2b
+1000:0298
+1000:160e
+1000:2b5b
+1000:1f14
+1000:02fc
+1000:4028
+adlib:0161
+adlib:04d9
+adlib:02aa
+adlib:032c
+adlib:0d1e
+adlib:0813
+adlib:091f
