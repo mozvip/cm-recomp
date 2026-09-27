@@ -29,3 +29,11 @@ cd /path/to/cm93 && SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy \
 ```
 The protection screen asks for a match result from the manual; the keys given at 7.5 s
 are typed as the answer.
+
+## Mods
+
+Changes to the game's behaviour, in [src/mods.c](src/mods.c). They are on by default.
+
+| Mod | Variable | Effect |
+|---|---|---|
+| Fast Latest Results | `CM_FAST_RESULTS=0` turns it off | The evening's results are typed one character at a time, about 18 a second (20 s for one screen). The mod draws each line at once and pauses `CM_RESULTS_LINE_MS` ms after it (default 150; 0 for no pause, but then the screen scrolls past faster than it can be read) |

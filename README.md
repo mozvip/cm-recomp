@@ -103,6 +103,7 @@ Environment variables read by the recompiled games:
 | `CM_OPL_LOG=1` | Log every OPL register write |
 | `RC_TRACE=1` | Log every software interrupt |
 | `RC_MISSING=file` | Where unknown call targets are logged (default `rc_missing_entries.txt`) |
+| `CM_FAST_RESULTS=0`, `CM_RESULTS_LINE_MS=n` | CM93: original speed for the Latest Results screen, or the pause after each line (see [games/cm93/README.md](games/cm93/README.md#mods)) |
 | `RC_VERIFY=all` or `=name,...` | Check hand-written replacements against the translation ([docs/handwritten.md](docs/handwritten.md)) |
 
 `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy` runs a game headless.
