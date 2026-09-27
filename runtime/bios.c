@@ -1,5 +1,6 @@
 /* BIOS / mouse / timer services and the SDL platform layer. */
 #include "rt.h"
+#include "ui.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,6 +101,7 @@ void plat_init(void)
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     if (!ren) ren = SDL_CreateRenderer(win, -1, 0);
     tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 320, 200);
+    if (!headless) ui_init(win, ren);
     SDL_AddTimer(1, tick_cb, NULL);
 }
 
@@ -109,6 +111,7 @@ void plat_pump(void)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
+        if (ui_event(&e)) continue;
         switch (e.type) {
         case SDL_QUIT: exit(0);
         case SDL_MOUSEMOTION: plat_mouse_x = e.motion.x / SCALE; plat_mouse_y = e.motion.y / SCALE; break;
@@ -216,6 +219,7 @@ void plat_present(void)
     SDL_UpdateTexture(tex, NULL, frame, 320 * 4);
     SDL_RenderClear(ren);
     SDL_RenderCopy(ren, tex, NULL, NULL);
+    ui_draw();
     SDL_RenderPresent(ren);
 }
 

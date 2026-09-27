@@ -8,11 +8,14 @@
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 RT := $(ROOT)/runtime
 TOOLS := $(ROOT)/tools
+IMGUI := $(ROOT)/third_party/imgui
 CC ?= gcc
+CXX ?= g++
 SDL_CFLAGS := $(shell pkg-config --cflags sdl2)
 SDL_LIBS := $(shell pkg-config --libs sdl2)
 CFLAGS ?= -O1 -g -w -fno-strict-aliasing
 RT_CFLAGS ?= -O2 -g -Wall -Wno-unused -Wno-format-truncation -Wno-misleading-indentation -fno-strict-aliasing
+UI_CXXFLAGS ?= -O2 -g -fno-strict-aliasing
 DRIVERS ?=
 GAME_DIR ?=
 
@@ -27,8 +30,11 @@ DRV_FILES := $(foreach d,$(subst $(comma), ,$(DRV_SPEC)),$(firstword $(subst :, 
 
 GEN := $(wildcard gen/seg_*.c) gen/dispatch.c gen/image.c $(wildcard gen/drv_*.c) gen/drivers.c
 HAND := $(wildcard src/*.c)
-RTSRC := rt fpu dos bios main opl2 audio verify
-OBJ := $(patsubst %.c,build/%.o,$(GEN) $(HAND)) $(RTSRC:%=build/rt/%.o) build/hooks.o
+RTSRC := rt fpu dos bios main opl2 audio verify mod
+# the overlay (Dear ImGui, a git submodule)
+IMGUI_SRC := imgui imgui_draw imgui_tables imgui_widgets backends/imgui_impl_sdl2 backends/imgui_impl_sdlrenderer2
+UI_OBJ := build/rt/ui.o $(IMGUI_SRC:%=build/imgui/%.o)
+OBJ := $(patsubst %.c,build/%.o,$(GEN) $(HAND)) $(RTSRC:%=build/rt/%.o) $(UI_OBJ) build/hooks.o
 META := $(wildcard overrides.txt names.txt)
 RECOMP_OPTS := $(if $(wildcard overrides.txt),--overrides overrides.txt) $(if $(wildcard names.txt),--names names.txt)
 
@@ -44,7 +50,7 @@ gen/.stamp: $(TOOLS)/recomp.py $(TOOLS)/x86.py $(TOOLS)/unfbov.py $(EXE) entries
 	@touch $@
 
 $(TARGET): $(OBJ)
-	$(CC) -o $@ $(OBJ) $(SDL_LIBS) -lm
+	$(CXX) -o $@ $(OBJ) $(SDL_LIBS) -lm
 
 build/gen/%.o: gen/%.c $(RT)/cpu.h
 	@mkdir -p build/gen
@@ -52,13 +58,25 @@ build/gen/%.o: gen/%.c $(RT)/cpu.h
 	@$(CC) $(CFLAGS) -I$(RT) -Igen -c $< -o $@
 
 # hand-written replacements: compiled with warnings, unlike the generated code
-build/src/%.o: src/%.c $(RT)/cpu.h $(RT)/hand.h gen/.stamp
+build/src/%.o: src/%.c $(RT)/cpu.h $(RT)/hand.h $(RT)/mod.h gen/.stamp
 	@mkdir -p build/src
 	$(CC) $(RT_CFLAGS) -Wextra -I$(RT) -Igen -c $< -o $@
 
-build/rt/%.o: $(RT)/%.c $(RT)/cpu.h $(RT)/rt.h $(RT)/opl2.h $(RT)/hand.h
+build/rt/%.o: $(RT)/%.c $(RT)/cpu.h $(RT)/rt.h $(RT)/opl2.h $(RT)/hand.h $(RT)/mod.h $(RT)/ui.h
 	@mkdir -p build/rt
 	$(CC) $(RT_CFLAGS) -I$(RT) $(SDL_CFLAGS) -c $< -o $@
+
+build/rt/ui.o: $(RT)/ui.cpp $(RT)/ui.h $(RT)/mod.h $(IMGUI)/imgui.h
+	@mkdir -p build/rt
+	$(CXX) $(UI_CXXFLAGS) -Wall -I$(RT) -I$(IMGUI) -I$(IMGUI)/backends $(SDL_CFLAGS) -c $< -o $@
+
+build/imgui/%.o: $(IMGUI)/%.cpp
+	@mkdir -p $(dir $@)
+	@echo "CXX $(notdir $<)"
+	@$(CXX) $(UI_CXXFLAGS) -I$(IMGUI) $(SDL_CFLAGS) -c $< -o $@
+
+$(IMGUI)/imgui.h:
+	@echo "Dear ImGui is missing: run  git submodule update --init"; exit 1
 
 build/hooks.o: hooks.c $(RT)/cpu.h $(RT)/rt.h
 	@mkdir -p build

@@ -22,8 +22,9 @@ yet: see [Status](#status).
 
 ## Building
 
-Requirements: `gcc` (or `clang`), GNU make, Python 3, SDL2 development files
-(`pkg-config sdl2`).
+Requirements: `gcc` and `g++` (or `clang`), GNU make, Python 3, SDL2 development files
+(`pkg-config sdl2`). The in-game overlay uses [Dear ImGui](https://github.com/ocornut/imgui),
+a git submodule: clone with `--recursive`, or run `git submodule update --init`.
 
 ```bash
 # Championship Manager (1992)
@@ -46,6 +47,17 @@ original `MANAGER.BAT` / `CM.BAT`. Any other letter, e.g. `make run ARGS=n`, sta
 without sound. The MT-32 option (`r`) is not supported.
 
 The copy-protection screen asks for information from the game's manual or box.
+
+### Overlay and mods
+
+**F12** opens an overlay over the game with the game's mods (see
+[games/cm93/README.md](games/cm93/README.md#mods)). They can be switched on and off, and
+their settings changed, while the game runs; changes apply at once. The overlay keeps
+the mouse and keyboard while the pointer is over it or one of its fields is being edited.
+
+The choices are saved to `rc_mods.ini` in the game directory (`RC_MODS_FILE` for another
+file). At start-up each mod takes its default, then the value in that file, then its
+environment variable if set.
 
 ## How it works
 
@@ -86,7 +98,8 @@ runtime `strlen`, `strcpy` and `strcmp` ([games/cm1/src/string.c](games/cm1/src/
 | `tools/x86.py`, `tools/recomp.py` | 8086/80186 + x87 decoder, and the translator |
 | `tools/discover.sh` | Finds pointer-only entry points by running the game headless |
 | `tools/emudis.py` | Disassembler for the relocated image, with emulator FPU ops decoded |
-| `runtime/` | CPU helpers, FPU, DOS/BIOS/mouse/VGA services, OPL2 emulation, SDL output, shared makefile |
+| `runtime/` | CPU helpers, FPU, DOS/BIOS/mouse/VGA services, OPL2 emulation, SDL output, mod registry (`mod.h`), ImGui overlay (`ui.cpp`), shared makefile |
+| `third_party/imgui` | Dear ImGui (submodule) |
 | `games/cm1/`, `games/cm93/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points, hand-written replacements (`overrides.txt`, `src/`) |
 | `docs/` | Technical documentation |
 
@@ -104,6 +117,7 @@ Environment variables read by the recompiled games:
 | `RC_TRACE=1` | Log every software interrupt |
 | `RC_MISSING=file` | Where unknown call targets are logged (default `rc_missing_entries.txt`) |
 | `CM_FAST_RESULTS=0`, `CM_RESULTS_LINE_MS=n` | CM93: original speed for the Latest Results screen, or the pause after each line (see [games/cm93/README.md](games/cm93/README.md#mods)) |
+| `RC_MODS_FILE=file` | Mods file (default `rc_mods.ini` in the game directory) |
 | `RC_VERIFY=all` or `=name,...` | Check hand-written replacements against the translation ([docs/handwritten.md](docs/handwritten.md)) |
 
 `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy` runs a game headless.

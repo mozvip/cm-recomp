@@ -117,3 +117,25 @@ emulated stack. Game variables can then move from emulated memory to C globals a
 structs, with accessors while translated code still uses them. Championship Manager and
 CM93 share much of their code, so a replacement can often be listed in both games'
 `overrides.txt`, under each game's own address.
+
+## Mods
+
+Code that changes the game's behaviour on purpose (games/cm93/src/mods.c) is not an
+`RC_REPLACE` replacement: it wraps the translation (`f_SSSS_OOOO_orig`) and is never
+verified. Its switch and settings are declared as an `rc_mod` and registered with
+`RC_MOD_REGISTER` ([`runtime/mod.h`](../runtime/mod.h)), which puts it in the F12 overlay
+and the mods file:
+
+```c
+static rc_mod_setting pause_settings[] = {
+    { .key = "ms", .label = "Pause", .env = "CM_PAUSE_MS", .value = 150, .min = 0, .max = 1000, .format = "%d ms" },
+};
+static rc_mod pause_mod = {
+    .key = "pause", .name = "Pause", .desc = "What the mod does.",
+    .env = "CM_PAUSE", .on = 1, .settings = pause_settings, .nsettings = 1,
+};
+RC_MOD_REGISTER(pause_mod)
+```
+
+The overlay can change `on` and the settings at any time, so the mod reads them on every
+call rather than once.

@@ -1,5 +1,6 @@
 /* Loader for the recompiled EUROPE.EXE: builds the DOS machine state and jumps to the entry point. */
 #include "rt.h"
+#include "mod.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +30,7 @@ int main(int argc, char **argv)
 
     setvbuf(stdout, NULL, _IONBF, 0);
     rc_trace = getenv("RC_TRACE") != NULL;
+    rc_mods_load();
     plat_init();
     audio_init();
     load_image(&cs, &ip, &ss, &sp);

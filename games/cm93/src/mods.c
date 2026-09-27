@@ -1,15 +1,12 @@
 /* Championship Manager 93: gameplay mods. These change the game's behaviour on purpose, so
- * they are plain wrappers around the translation, not RC_REPLACE replacements. */
+ * they are plain wrappers around the translation, not RC_REPLACE replacements. They can be
+ * switched while the game runs (F12, see runtime/mod.h), so they read their settings on
+ * every call. */
 #include "hand.h"
+#include "mod.h"
 #include <stdlib.h>
 #include <string.h>
-
-/* on unless the variable is set to 0 */
-static int mod_enabled(const char *var)
-{
-    const char *e = getenv(var);
-    return !e || strcmp(e, "0") != 0;
-}
+#include <stdio.h>
 
 /* ---- Fast "Latest Results" ----
  * void delay(int n) (1bd3:0dbc) busy-waits until the BIOS tick count x 11 has advanced by 4n,
@@ -26,23 +23,26 @@ static int mod_enabled(const char *var)
 #define RESULTS_CHAR_RET_CS 0x7c74
 #define RESULTS_CHAR_INDEX 0xdd48 /* DS: 1-based index of the character just printed */
 
+static rc_mod_setting fast_results_settings[] = {
+    { .key = "line_ms", .label = "Pause after each line", .env = "CM_RESULTS_LINE_MS",
+      .value = 150, .min = 0, .max = 1000, .format = "%d ms" },
+};
+static rc_mod fast_results = {
+    .key = "fast_results", .name = "Fast Latest Results",
+    .desc = "Draws each result line at once instead of one character at a time, then pauses.",
+    .env = "CM_FAST_RESULTS", .on = 1, .settings = fast_results_settings, .nsettings = 1,
+};
+RC_MOD_REGISTER(fast_results)
+
 void f_1bd3_0dbc_orig(void);
 
 void f_1bd3_0dbc(void)
 {
-    static int fast = -1, line_n;
-    if (fast < 0) {
-        const char *ms = getenv("CM_RESULTS_LINE_MS");
-        fast = mod_enabled("CM_FAST_RESULTS");
-        line_n = ms ? (atoi(ms) + 19) / 20 : 8; /* delay() counts in 20 ms units */
-        if (line_n < 0)
-            line_n = 0;
-    }
-    if (fast && RW(cpu.ss, cpu.sp) == RESULTS_CHAR_RET_IP &&
+    if (fast_results.on && RW(cpu.ss, cpu.sp) == RESULTS_CHAR_RET_IP &&
         RW(cpu.ss, (uint16_t)(cpu.sp + 2)) == RESULTS_CHAR_RET_CS) {
         /* the caller's frame: void print_line(char instant, char far *line) */
         rc_ptr line = { RW(cpu.ss, (uint16_t)(cpu.bp + 0xa)), RW(cpu.ss, (uint16_t)(cpu.bp + 8)) };
-        uint16_t len = 0;
+        uint16_t len = 0, line_n = (uint16_t)((fast_results_settings[0].value + 19) / 20); /* 20 ms units */
         while (PTR_RB(line, len))
             len++;
         if (line_n == 0 || RW(cpu.ds, RESULTS_CHAR_INDEX) < len) {
@@ -50,8 +50,9 @@ void f_1bd3_0dbc(void)
             return;
         }
         /* last character: wait once for the whole line (the caller pops the argument) */
-        WW(cpu.ss, (uint16_t)(cpu.sp + 4), (uint16_t)line_n);
+        WW(cpu.ss, (uint16_t)(cpu.sp + 4), line_n);
     }
+    if (getenv("CM_DEBUG_DELAY")) fprintf(stderr, "[DELAY] %04x:%04x n=%d\n", RW(cpu.ss, (uint16_t)(cpu.sp + 2)), RW(cpu.ss, cpu.sp), RW(cpu.ss, (uint16_t)(cpu.sp + 4)));
     f_1bd3_0dbc_orig();
 }
 
@@ -64,6 +65,13 @@ void f_1bd3_0dbc(void)
  * dropped. CM_RESULTS_WAIT=0 turns it off. */
 #define RESULTS_NEXT_LINE 0xdc78
 
+static rc_mod results_wait = {
+    .key = "results_wait", .name = "Wait after Latest Results",
+    .desc = "Keeps the Latest Results screen up until a mouse click once all results are shown.",
+    .env = "CM_RESULTS_WAIT", .on = 1,
+};
+RC_MOD_REGISTER(results_wait)
+
 void f_7c74_00eb_orig(void);
 void f_1bd3_0c16(void);
 
@@ -75,11 +83,17 @@ static uint16_t mouse_clicks(void)
 
 void f_7c74_00eb(void)
 {
-    static int wait = -1;
-    if (wait < 0)
-        wait = mod_enabled("CM_RESULTS_WAIT");
+    {
+        static int day;
+        void f_9e77_2c88(void);
+        if (getenv("CM_DEBUG_LOAD") && ++day == 1) {
+            fprintf(stderr, "[DEBUG] loading\n");
+            PUSH(0); CALLF(0x9e77, 0, f_9e77_2c88()); POP();
+            return;
+        }
+    }
     f_7c74_00eb_orig();
-    if (wait && RW(cpu.ds, RESULTS_NEXT_LINE) > 1) {
+    if (results_wait.on && RW(cpu.ds, RESULTS_NEXT_LINE) > 1) {
         mouse_clicks();
         while (!mouse_clicks())
             POLL();

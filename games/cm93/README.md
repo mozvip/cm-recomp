@@ -32,7 +32,9 @@ are typed as the answer.
 
 ## Mods
 
-Changes to the game's behaviour, in [src/mods.c](src/mods.c). They are on by default.
+Changes to the game's behaviour, in [src/mods.c](src/mods.c). They are on by default, and
+can be changed while the game runs from the F12 overlay, which saves them to `rc_mods.ini`
+in the game directory. The variables below override that file.
 
 | Mod | Variable | Effect |
 |---|---|---|

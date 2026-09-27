@@ -5,6 +5,7 @@ games/*/*_rc
 games/*/missing_entries.txt
 games/*/last_run.log
 rc_missing_entries.txt
+rc_mods.ini
 tools/_emu.bin
 __pycache__/
 *.pyc
