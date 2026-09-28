@@ -36,6 +36,7 @@ def flatten(d, verbose=True):
     image += bytes((-len(image)) % 16)
 
     new_relocs = []
+    overlays = {}       # stub segment -> overlay segment (image paragraphs)
     nfix = nent = 0
     stubs = [e[0] for e in table if e[2] == 3]
     for s in stubs:
@@ -46,6 +47,7 @@ def flatten(d, verbose=True):
         seg = base + fileoff // 16
         if fileoff % 16:
             raise SystemExit('overlay at stub %04x not paragraph aligned' % s)
+        overlays[s] = seg
         co = seg * 16
         fix = [struct.unpack('<H', image[co + codesize + 2 * k: co + codesize + 2 * k + 2])[0] for k in range(relsize // 2)]
         for f in fix:
@@ -81,11 +83,11 @@ def flatten(d, verbose=True):
     struct.pack_into('<H', head, 6, len(relocs))
     struct.pack_into('<H', head, 8, head_len // 16)
     out = head + rel + bytes(head_len - relofs - len(rel)) + image
-    return bytes(out), base
+    return bytes(out), base, overlays
 
 
 if __name__ == '__main__':
     src, dst = sys.argv[1], sys.argv[2]
-    out, base = flatten(open(src, 'rb').read())
+    out, base, _ = flatten(open(src, 'rb').read())
     open(dst, 'wb').write(out)
     print('wrote %s (%d bytes), overlays from paragraph %04x' % (dst, len(out), base))

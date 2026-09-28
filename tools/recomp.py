@@ -15,7 +15,7 @@ the runtime appends unknown call targets to missing_entries.txt, see discover.sh
   --names FILE      "SEG:OFS name" per line: a named function is emitted as fn_<name>, with
                     f_SSSS_OOOO kept as an alias of it (names in --overrides count too)
 """
-import os, re, sys, glob, struct, collections
+import os, re, sys, glob, struct, bisect, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from x86 import decode, DecodeError, CC
 
@@ -35,18 +35,23 @@ _h = struct.unpack('<2s13H', exe[:28])
 _loaded = _h[2] * 512 - ((512 - _h[1]) if _h[1] else 0)
 if exe[_loaded:_loaded + 4] == b'FBOV':
     import unfbov
-    exe, _ = unfbov.flatten(exe, verbose=False)
+    exe, _, _ovl = unfbov.flatten(exe, verbose=False)
+    OVERLAYS = {st + LOAD_SEG: ov + LOAD_SEG for st, ov in _ovl.items()}   # stub seg -> overlay seg
+else:
+    OVERLAYS = {}
 hdr = struct.unpack('<2s13H', exe[:28])
 nrel, hdr_paras, relofs = hdr[3], hdr[4], hdr[12]
 entry_cs, entry_ip = hdr[11] + LOAD_SEG, hdr[10]
 mem = bytearray(0x110000)
 img = exe[hdr_paras * 16:]
+reloc_sites = {}       # linear address of each fixed-up word -> its segment value (for image.c)
 mem[LOAD_SEG * 16: LOAD_SEG * 16 + len(img)] = img
 for i in range(nrel):
     o, s = struct.unpack('<HH', exe[relofs + 4 * i: relofs + 4 * i + 4])
     a = LOAD_SEG * 16 + s * 16 + o
     w = (mem[a] | (mem[a + 1] << 8)) + LOAD_SEG
     mem[a], mem[a + 1] = w & 0xff, (w >> 8) & 0xff
+    reloc_sites[a] = w
 IMAGE_END = LOAD_SEG * 16 + len(img)
 
 
@@ -73,6 +78,7 @@ class Func:
         self.cs, self.ip = cs, ip
         self.insns = {}
         self.tables = {}      # jmpi addr -> [targets]
+        self.tabloc = {}      # jmpi addr -> (offset in cs, entries) of the table in memory
         self.targets = set()  # label targets
         self.calls = set()    # (cs, ip)
         self.errors = []
@@ -108,6 +114,7 @@ def find_reg_table(f, ins):
         return None
     code = code_of(f.cs)
     d = load[-1].ops[1].disp
+    f.tabloc[ins.addr] = (d, max(bounds) + 1)
     return [code[(d + 2 * i) & 0xffff] | (code[(d + 2 * i + 1) & 0xffff] << 8) for i in range(max(bounds) + 1)]
 
 
@@ -158,6 +165,7 @@ def find_table(f, ins):
             count = n
     if count is None or count > 512:
         return None
+    f.tabloc[ins.addr] = (base & 0xffff, count)
     return [code[(base + 2 * i) & 0xffff] | (code[(base + 2 * i + 1) & 0xffff] << 8) for i in range(count)]
 
 
@@ -575,6 +583,111 @@ def drivers_main(spec, outdir, ef):
     open(os.path.join(outdir, 'drivers.c'), 'w').write('\n'.join(out) + '\n')
 
 
+def image_listing(funcs, byseg, by_lin, overrides):
+    """the rows of rc_image in image.c: hex bytes annotated with what the recompiler knows"""
+    base, end = LOAD_SEG * 16, IMAGE_END
+    ss = hdr[7] + LOAD_SEG
+    # Borland start-up: the entry's first instruction is `mov dx, DGROUP`
+    elin = entry_cs * 16 + entry_ip
+    dgroup = mem[elin + 1] | (mem[elin + 2] << 8) if mem[elin] == 0xba else None
+    segs = sorted(sg for sg in set(byseg) | set(reloc_sites.values()) | {entry_cs, ss}
+                  if LOAD_SEG <= sg and sg * 16 < end)
+    stub_of = {ov: st for st, ov in OVERLAYS.items()}
+
+    owner = {}         # linear address of each code byte -> its function
+    for f in funcs.values():
+        for a, ins in f.insns.items():
+            ln = ins.len if ins is not None else 1
+            for k in range(ln):
+                owner.setdefault((f.cs * 16 + ((a + k) & 0xffff)) & 0xfffff, f)
+
+    def fname(f):
+        lin = (f.cs * 16 + f.ip) & 0xfffff
+        n = f.name + (' = %s' % f.alias if f.alias else '')
+        return n + (' (hand-written)' if lin in overrides else '')
+
+    marks = collections.defaultdict(list)     # linear -> comment lines before the row
+    for lin, f in by_lin.items():
+        marks[lin].append('%04x:%04x %s' % (f.cs, f.ip, fname(f)))
+    tables = {}
+    for f in funcs.values():
+        for ja, (tb, cnt) in f.tabloc.items():
+            lin = (f.cs * 16 + tb) & 0xfffff
+            tables[lin] = lin + 2 * cnt
+            marks[lin].append('%04x:%04x jump table of %s at %04x, %d entries' % (f.cs, tb, f.name, ja, cnt))
+    # data runs inside code segments (4 bytes or more, not already a jump table), and where
+    # code resumes inside a function after one
+    run = None
+    for lin in range(base, end + 1):
+        if lin not in owner:
+            if run is None:
+                run = lin
+            continue
+        if run is not None and lin - run >= 4 and row_seg(run, segs) in byseg \
+                and not any(t <= run < e for t, e in tables.items()):
+            same = row_seg(run, segs) == row_seg(lin, segs)
+            marks[run].append('%s not translated%s: data, or code only reached indirectly' % (
+                segofs(run, segs), ' (%d bytes)' % (lin - run) if same else ''))
+            if same and lin not in by_lin:
+                marks[lin].append('%s code of %s' % (segofs(lin, segs), owner[lin].name))
+        run = None
+
+    lines, cur = [
+        '/* Each line: SEG:OFS, 16 bytes, the bytes as text. A banner opens each segment the',
+        '   code or a fixup names; "/* > ..." lines mark function starts (f_SSSS_OOOO = fn_<name>',
+        '   from names.txt), jump tables, and bytes of a code segment no translated function',
+        '   covers. "far ptr at +N" is a guess: outside code segments, a word the load fixups',
+        '   set to a segment, with the word below it as the offset. */'], None
+    for lin in range(base, end, 16):
+        sg = row_seg(lin, segs)
+        if sg != cur:
+            cur = sg
+            what = []
+            if sg in byseg:
+                nf = len(byseg[sg])
+                what.append('code, %d function%s' % (nf, 's' if nf != 1 else ''))
+            if sg in OVERLAYS:
+                what.append('overlay stubs, the code is in segment %04x' % OVERLAYS[sg])
+            if sg in stub_of:
+                what.append('overlay, flattened (stubs in segment %04x)' % stub_of[sg])
+            if sg == dgroup:
+                what.append('DGROUP (DS)')
+            if sg == ss:
+                what.append('stack (SS)')
+            if not what:
+                what.append('no translated code')
+            lines.append('')
+            lines.append('/* ======== segment %04x: %s ======== */' % (sg, ', '.join(what)))
+        for a in range(lin, lin + 16):
+            for m in marks.get(a, ()):
+                lines.append('/* > %s */' % m)
+        row = mem[lin: min(lin + 16, end)]
+        text = ''.join(chr(b) if 32 <= b < 127 else '.' for b in row).replace('*/', '*.')
+        far = []
+        for a in range(lin, lin + 16 if sg not in byseg else lin):
+            # in a data segment, a fixed-up word with the word below it: a far pointer
+            if a + 2 in reloc_sites:
+                s2, o2 = reloc_sites[a + 2], mem[a] | (mem[a + 1] << 8)
+                f = by_lin.get((s2 * 16 + o2) & 0xfffff)
+                far.append('+%x: %04x:%04x%s' % (a - lin, s2, o2, ' ' + f.cname if f else ''))
+        lines.append('/* %s */ %s,%s /* %s */%s' % (
+            segofs(lin, segs), ','.join('0x%02x' % b for b in row), '     ' * (16 - len(row)), text,
+            ' /* far ptr at %s */' % ', '.join(far) if far else ''))
+    return '\n'.join(lines) + '\n'
+
+
+def row_seg(lin, segs):
+    """the segment an image.c line is shown in: the nearest listed one at or below it"""
+    lin &= ~15
+    k = bisect.bisect_right(segs, lin >> 4) - 1
+    return segs[k] if k >= 0 and lin - segs[k] * 16 < 0x10000 else lin >> 4
+
+
+def segofs(lin, segs):
+    sg = row_seg(lin, segs)
+    return '%04x:%04x' % (sg, lin - sg * 16)
+
+
 def main():
     outdir = arg('--out', os.path.join('recomp', 'gen'))
     if '--drivers' in sys.argv:
@@ -674,9 +787,11 @@ def main():
         out.write('const uint16_t rc_image_entry[4] = { 0x%04x, 0x%04x, 0x%04x, 0x%04x };  /* cs ip ss sp */\n'
                   % (entry_cs, entry_ip, hdr[7] + LOAD_SEG, hdr[8]))
         out.write('const uint8_t rc_image[%d] = {\n' % n)
-        img_bytes = mem[LOAD_SEG * 16: IMAGE_END]
-        for k in range(0, n, 32):
-            out.write(','.join(str(b) for b in img_bytes[k:k + 32]) + ',\n')
+        # hexdump layout: 16 bytes a line with its SEG:OFS and the bytes as text. The line's
+        # segment is the nearest one at or below it that the code or a fixup names; a banner
+        # opens each segment, and comment lines mark function starts, data inside code
+        # segments and jump tables. Far pointers in data segments are listed after a line.
+        out.write(image_listing(funcs, byseg, by_lin, overrides))
         out.write('};\n')
 
     errs = [(f.name, e) for f in funcs.values() for e in f.errors]
