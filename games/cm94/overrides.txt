@@ -1,0 +1,3 @@
+# functions replaced by hand-written C in src/ (SEG:OFS name); see docs/handwritten.md
+2162:0dfb delay
+829f:00ba play_match_day
