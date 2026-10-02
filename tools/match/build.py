@@ -495,6 +495,7 @@ def main():
         for part in p.parts:
             data, fx = convert_fixups(p, part, model, symtab)
             model.piece_at(part.where).replace(part.lo, data, fx, p.c.name)
+    model.place_movable()
     linkdir = os.path.join(ddir, 'build', 'link')
     for old in glob.glob(os.path.join(linkdir, '*')):
         os.remove(old)

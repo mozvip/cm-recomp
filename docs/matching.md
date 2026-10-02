@@ -201,8 +201,16 @@ makes those relocations, which keeps their order as long as no other relocations
 between. A code segment without relocations has no unit of its own (U00 holds it with
 the other ones): U00 keeps it as an empty piece, which still declares the segment in its
 place, and the object is linked right after the blob piece holding its data, whose tail
-follows it in a new unit (1a51). Other `@module`
+follows it in a new unit (1a51, 1ab2, 1ab9). This is done last, in address order, once the
+modules that have units of their own have split the data: their data then sits between
+them in the right order (1b05's palette follows 1a51's and 1ab2's data but its code unit
+comes before the data blob). Other `@module`
 objects' publics are not redefined in `U00`, so whole modules can call each other.
+
+An overlay's object goes right after the blob piece holding its data. TLINK numbers the
+overlays in link order, so the lower overlays not placed yet are linked just before it;
+those already placed by their own data stay where they are (67ee, then 7eeb, both in the
+big `_DATA` piece).
 
 `_DATA` is word aligned: a module's data starts at an even address, and an odd byte before
 it is the previous module's padding. Borland lays out all of a file's variables first and
@@ -246,8 +254,10 @@ segment `CSEG_`, which the build defines (`/dCSEG_=S05_TEXT`) as the original mo
 segment name, and declares `DGROUP group _DATA` with `_DATA segment word public 'DATA'`.
 Publics and externals follow the C names (`_f_14b7_0004`, `_d_5d9c_1d46`).
 
-`src/14B7.ASM` and `src/1A51.ASM` (James W. Birdsall's EMS interface library 2.16, whose
-version and copyright strings end its data) are linked this way. TASM 3.0 and 3.1 give the
+`src/14B7.ASM`, `src/1A51.ASM` (James W. Birdsall's EMS interface library 2.16, whose
+version and copyright strings end its data), `src/1AB2.ASM` (the music driver interface),
+`src/1AB9.ASM` (lines, glyphs and screen saves) and `src/1B05.ASM` (the ILBM loader) are
+linked this way; 1ab9 and 1b05 were assembled with `/m2`. TASM 3.0 and 3.1 give the
 same executable for 14b7.
 
 A call to a `far` procedure of the same segment is `0E E8` (push cs / call near), made by

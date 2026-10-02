@@ -46,7 +46,9 @@ When a C file covers a whole original module (all its code segment, from its fir
 function, and its data block), add `/* @module */`. The build then links BCC's own object
 instead of merging it into the blobs (see docs/matching.md). An identical executable then
 also proves the relocation order, that is the function order and layout of the original
-source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C` and `src/1A51.ASM`
+source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C`, `src/1A51.ASM`, `src/1AB2.ASM`,
+`src/1AB9.ASM`, `src/1B05.ASM`
+and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C` and `src/7EEB.C`
 are linked this way.
 
 - An overlay can be `@module` too (all its code, `@at` its first function). Only the
@@ -70,14 +72,20 @@ the C names (`_f_…`, `_d_5d9c_…`) as publics and `extrn`s. It is assembled w
 
 - A forward `jmp` with no `NOP` after it is `jmp short`: in its single pass TASM
   reserves 3 bytes for a plain forward `jmp` and pads the short form with `NOP` (`EB xx
-  90`). `/m2` (two passes) would drop the padding.
+  90`). `/m2` (two passes) drops the padding: a module whose forward jumps are short
+  with no `NOP` was assembled that way (`; @flags /m2`, as 1ab9).
+- Code addresses stored as data (`mov word ptr [bp-6], 0A7h` then `jmp word ptr
+  [bp-6]`) are `offset label`; the value is the segment's runtime offset (1ab9's code
+  starts at offset 4 of its paragraph).
 - Register-to-register forms show the operand order: `xchg al, ah` is `86 C4`, `xchg ah,
   al` is `86 E0`.
 - `mov ax, 0` stays `B8 00 00`; TASM picks the short forms itself (`83` with an 8-bit
   immediate, `A1`/`A3` for `AX` with a direct address).
 - A call to a `far` proc of the same segment is `0E E8` (TASM makes it near). A forward
   one needs `call far ptr name` and leaves a `NOP` after it (`0E E8 rel 90`); a `90 0E E8`
-  can then just be a `jmp` padding followed by a backward call.
+  can then just be a `jmp` padding followed by a backward call. The `push cs` is part of
+  the call: don't write it as well (`0E 0E E8`). Under `/m2` a forward call needs no
+  `far ptr` and gets no `NOP` (1b05).
 - `jnc ok / jmp err` pairs (`73 03 EB xx 90`) were written that way; TASM does not expand
   conditional jumps without `JUMPS`.
 - An asm module's data can hold variables that C modules use (14b7's holds 14d2's flags
@@ -200,6 +208,28 @@ segment that do not fit.
   that is only reached through a pointer (`1680:1A82`, `1680:331C`). Some listed starts
   are really in the middle of a function (bad `entries.txt` lines, like `1680:2D8E`).
   Follow the code, not the list.
+- **Initialised tables** (pointer tables, button positions) come first in `_DATA`, in
+  definition order, but their initialiser strings go into the literal pool where the
+  definition appears in the source. A table whose strings sit between two functions'
+  literals was defined between them: write it there (`static` in an overlay, whose only
+  publics are its stub entries). 67EE.C has five.
+- **Float constants are shared by their bytes**: a constant whose 4 bytes already sit in
+  the pool (the end of a string and the start of another float) takes no slot of its
+  own (6e68's 2.0 at 43df). Write it as a literal; BCC does the same.
+- **A table read from entry 1** (`t[i - 1]`, or `(t - 1)[i]`) is folded into positive
+  displacements in the original, but BCC computes a negative odd field offset at run
+  time (`mov dx,-6 / inc dx`): read it through an `extern` one entry before the table
+  (6E68.C's `d_5d9c_3afe`, the linker resolves it by address).
+- **A call with more arguments than the callee reads** (`38b3` passes two to `4165(int)`)
+  had no prototype in scope: declare the callee `void f();` (7555.C).
+- **Register order SI/DI** that no declaration order gives: an old-style definition with
+  `register` parameters (`f(a, b, team, n) int a, b; register int team; int n;`, 7555:38b3).
+- **Tail merging:** when BCC merges identical call tails into the *first* copy where the
+  original kept the *last*, a code-free statement (`0;`) after a `for` loop that ends its
+  block changes the choice (67ee:4060).
+- **Locals:** later declarations get lower addresses; a local declared in an inner block
+  is placed below the function's own temporaries (`FILE *fp` in 67ee:4e10, `k` in
+  67ee:0e4c).
 - **Literals** go to the file's `_DATA` in the order the functions use them: exact
   float constants as 4 bytes, others (0.1) as 8, strings not merged (no `-d`). Give the
   address with `/* @data 5d9c:OOOO */`: the first literal of the module's pool.

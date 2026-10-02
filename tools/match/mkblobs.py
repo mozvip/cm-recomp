@@ -192,6 +192,7 @@ class Model:
         self.startup_linked = False                          # the startup object is linked
         self.library_code = []                               # code linked from libraries
         self.cut_at = list(cut_at)
+        self.movable = []                 # (lo, hi, unit) for place_movable
         self._build(keep_together)
 
     def overlay_rt_seg(self, st):
@@ -371,34 +372,46 @@ class Model:
         and the range's own ones (which the object then makes) must be the module's own data
         visit, with no relocations in between.
         A unit link_object made for a segment without relocations has no place of its own
-        in the link order: it goes right after the piece holding the data, whose tail
-        (relocations included) follows it in a new unit, which keeps the relocation order."""
+        in the link order: place_movable puts it next to its data, once the other modules
+        are in place."""
         if getattr(unit, 'movable', False):
-            for k, u in enumerate(self.units):
-                for p in u.pieces:
-                    if not (p.seg is self.seg_of(lo) and p.lo <= lo and hi <= p.hi):
-                        continue
-                    if len(u.pieces) > 1 or any(lo <= f.at < hi for f in p.fixups + p.extras):
-                        raise SystemExit('%05x-%05x: cannot place the module in its blob piece' % (lo, hi))
-                    unit.movable = False
-                    self.units.remove(unit)
-                    k = self.units.index(u)
-                    self.units.insert(k + 1, unit)
-                    if hi < p.hi:
-                        t = Piece(p.seg, hi, p.hi, p.data[hi - p.lo:])
-                        t.fixups = [f for f in p.fixups if f.at >= hi]
-                        t.extras = [f for f in p.extras if f.at >= hi]
-                        v = Unit('X%02d' % sum(w.name.startswith('X') for w in self.units))
-                        v.pieces.append(t)
-                        self.units.insert(k + 2, v)
-                    p.data = p.data[:lo - p.lo]
-                    p.fixups = [f for f in p.fixups if f.at < lo]
-                    p.extras = [f for f in p.extras if f.at < lo]
-                    p.hi = lo
-                    if p.lo == p.hi:
-                        self.units.remove(u)
-                    return
-            raise SystemExit('no piece holds %05x-%05x' % (lo, hi))
+            self.movable.append((lo, hi, unit))
+            return
+        self._cut_out(lo, hi, unit)
+
+    def place_movable(self):
+        """Link each unit of a module without relocations right after the blob piece
+        holding its data, whose tail (relocations included) follows it in a new unit: the
+        relocation order stays. Done after the other modules have split the data, in address
+        order, so the piece is the one between the modules linked before and after it."""
+        for lo, hi, unit in sorted(self.movable, key=lambda m: m[0]):
+            found = [(u, p) for u in self.units for p in u.pieces
+                     if p.seg is self.seg_of(lo) and p.lo <= lo and hi <= p.hi]
+            if not found:
+                raise SystemExit('no piece holds %05x-%05x' % (lo, hi))
+            u, p = found[0]
+            if len(u.pieces) > 1 or any(lo <= f.at < hi for f in p.fixups + p.extras):
+                raise SystemExit('%05x-%05x: cannot place the module in its blob piece' % (lo, hi))
+            unit.movable = False
+            self.units.remove(unit)
+            k = self.units.index(u)
+            self.units.insert(k + 1, unit)
+            if hi < p.hi:
+                t = Piece(p.seg, hi, p.hi, p.data[hi - p.lo:])
+                t.fixups = [f for f in p.fixups if f.at >= hi]
+                t.extras = [f for f in p.extras if f.at >= hi]
+                v = Unit('X%02d' % sum(w.name.startswith('X') for w in self.units))
+                v.pieces.append(t)
+                self.units.insert(k + 2, v)
+            p.data = p.data[:lo - p.lo]
+            p.fixups = [f for f in p.fixups if f.at < lo]
+            p.extras = [f for f in p.extras if f.at < lo]
+            p.hi = lo
+            if p.lo == p.hi:
+                self.units.remove(u)
+        self.movable = []
+
+    def _cut_out(self, lo, hi, unit):
         ui = self.units.index(unit)
         for k, u in enumerate(self.units):
             for p in u.pieces:
@@ -496,10 +509,14 @@ class Model:
         p.data = p.data[:lo - p.lo]
         p.hi = lo
         idx = self.ovl_units.index(unit)
-        before = [v for v in self.ovl_units[:idx + 1]]
+        # the lower overlays an earlier call placed (next to their own data) stay there
+        before = [v for v in self.ovl_units[:idx + 1] if v is unit or not getattr(v, 'placed', False)]
         for v in before:
             self.units.remove(v)
         at = self.units.index(u) + 1
+        if any(self.units.index(v) >= at for v in self.ovl_units[:idx] if getattr(v, 'placed', False)):
+            raise SystemExit('%05x-%05x: a lower overlay\'s data comes after it' % (lo, hi))
+        unit.placed = True
         self.units[at:at] = before
         if tail.hi > tail.lo:
             t = Unit('X%02d' % sum(v.name.startswith('X') for v in self.units))
