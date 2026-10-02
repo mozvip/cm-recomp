@@ -118,3 +118,12 @@ games/cmitalia/MHSTP*
 games/cmitalia/PLHIST
 games/cmitalia/SVGAME
 games/cmitalia/TEAM.DAT
+games/*/decomp/wip/
+tools/BC30/
+tools/BC4/
+tools/BCC31/
+tools/TASM/
+tools/TC/
+tools/TCTOOLS/
+tools/TURBOC2/
+tools/WATCOM/
