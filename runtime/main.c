@@ -22,6 +22,10 @@ static void load_image(uint16_t *cs, uint16_t *ip, uint16_t *ss, uint16_t *sp)
             rc_image_size, *cs, *ip, *ss, *sp);
 }
 
+/* the command line when none is given, like MANAGER.BAT / CM.BAT: AdLib music. A game's
+ * hooks.c can define its own (this one is weak). */
+__attribute__((weak)) const char *rc_game_default_args = " a";
+
 int main(int argc, char **argv)
 {
     uint16_t cs, ip, ss, sp;
@@ -50,7 +54,7 @@ int main(int argc, char **argv)
         strncat(tail, " ", sizeof(tail) - strlen(tail) - 1);
         strncat(tail, argv[i], sizeof(tail) - strlen(tail) - 1);
     }
-    if (argc == 1) strcpy(tail, " a");     /* like MANAGER.BAT / CM.BAT: AdLib music */
+    if (argc == 1) snprintf(tail, sizeof(tail), "%s", rc_game_default_args);
     dos_set_cmdline(tail);
     rc_hooks_init();
 
