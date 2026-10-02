@@ -7,8 +7,6 @@
 #include "rt.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-static unsigned tr_res, tr_match, tr_wait;
 
 /* ---- Fast "Latest Results" ----
  * void delay(int n) (2162:0dfb) busy-waits until the BIOS tick count x 11 has advanced by 4n,
@@ -71,7 +69,6 @@ void f_2162_0dfb_orig(void);
 
 void f_2162_0dfb(void)
 {
-    fprintf(stderr, "TRACE delay n=%u from %04x:%04x\n", FAR_ARG(0), RW(cpu.ss, (uint16_t)(cpu.sp + 2)), RW(cpu.ss, cpu.sp));
     if (fast_results.on && RW(cpu.ss, cpu.sp) == RESULTS_CHAR_RET_IP &&
         RW(cpu.ss, (uint16_t)(cpu.sp + 2)) == RESULTS_CHAR_RET_CS) {
         /* the caller's frame: void print_line(char instant, char far *line) */
@@ -79,7 +76,6 @@ void f_2162_0dfb(void)
         uint16_t len = 0, line_n = (uint16_t)((fast_results_settings[0].value + 19) / 20); /* 20 ms units */
         while (PTR_RB(line, len))
             len++;
-        if (!(tr_res++ % 50)) fprintf(stderr, "TRACE results char %u\n", tr_res);
         if (line_n == 0 || RW(cpu.ds, RESULTS_CHAR_INDEX) < len) {
             RET_FAR();
             return;
@@ -90,7 +86,6 @@ void f_2162_0dfb(void)
     if (fast_match.on && fast_match_settings[0].value > 1 && is_match_delay()) {
         /* delay(n) waits about 20n ms; wait on the host clock so short waits are not rounded
            up to a 55 ms timer tick */
-        if (1) fprintf(stderr, "TRACE match delay %u n=%u from %04x:%04x\n", tr_match, FAR_ARG(0), RW(cpu.ss, (uint16_t)(cpu.sp + 2)), RW(cpu.ss, cpu.sp));
         uint32_t end = plat_ms() + (uint32_t)FAR_ARG(0) * 20 / (uint32_t)fast_match_settings[0].value;
         while ((int32_t)(plat_ms() - end) < 0)
             POLL();
@@ -128,7 +123,6 @@ static uint16_t mouse_clicks(void)
 void f_829f_00ba(void)
 {
     f_829f_00ba_orig();
-    fprintf(stderr, "TRACE match day done, next line %u\n", RW(cpu.ds, RESULTS_NEXT_LINE));
     if (results_wait.on && RW(cpu.ds, RESULTS_NEXT_LINE) > 1) {
         mouse_clicks();
         while (!mouse_clicks())
