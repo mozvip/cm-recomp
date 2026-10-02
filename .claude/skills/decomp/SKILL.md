@@ -46,7 +46,8 @@ When a C file covers a whole original module (all its code segment, from its fir
 function, and its data block), add `/* @module */`. The build then links BCC's own object
 instead of merging it into the blobs (see docs/matching.md). An identical executable then
 also proves the relocation order, that is the function order and layout of the original
-source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C` and `src/1680.C` are linked this way.
+source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C` and `src/1A51.ASM`
+are linked this way.
 
 - An overlay can be `@module` too (all its code, `@at` its first function). Only the
   functions with a stub entry in the original may be public: make the others `static`
@@ -74,6 +75,11 @@ the C names (`_f_…`, `_d_5d9c_…`) as publics and `extrn`s. It is assembled w
   al` is `86 E0`.
 - `mov ax, 0` stays `B8 00 00`; TASM picks the short forms itself (`83` with an 8-bit
   immediate, `A1`/`A3` for `AX` with a direct address).
+- A call to a `far` proc of the same segment is `0E E8` (TASM makes it near). A forward
+  one needs `call far ptr name` and leaves a `NOP` after it (`0E E8 rel 90`); a `90 0E E8`
+  can then just be a `jmp` padding followed by a backward call.
+- `jnc ok / jmp err` pairs (`73 03 EB xx 90`) were written that way; TASM does not expand
+  conditional jumps without `JUMPS`.
 - An asm module's data can hold variables that C modules use (14b7's holds 14d2's flags
   at `1cea`-`1cee`): make those `public`.
 

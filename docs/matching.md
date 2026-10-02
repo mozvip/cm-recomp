@@ -198,7 +198,10 @@ into a new unit linked just before the object, and the bytes after it into one j
 as needed, so DGROUP keeps the link order. The part moved never has relocations. A module
 whose data holds pointers has its own DGROUP relocation run after its code; the object then
 makes those relocations, which keeps their order as long as no other relocations lie in
-between. Other `@module`
+between. A code segment without relocations has no unit of its own (U00 holds it with
+the other ones): U00 keeps it as an empty piece, which still declares the segment in its
+place, and the object is linked right after the blob piece holding its data, whose tail
+follows it in a new unit (1a51). Other `@module`
 objects' publics are not redefined in `U00`, so whole modules can call each other.
 
 `_DATA` is word aligned: a module's data starts at an even address, and an odd byte before
@@ -243,7 +246,13 @@ segment `CSEG_`, which the build defines (`/dCSEG_=S05_TEXT`) as the original mo
 segment name, and declares `DGROUP group _DATA` with `_DATA segment word public 'DATA'`.
 Publics and externals follow the C names (`_f_14b7_0004`, `_d_5d9c_1d46`).
 
-`src/14B7.ASM` is linked this way. TASM 3.0 and 3.1 give the same executable for it.
+`src/14B7.ASM` and `src/1A51.ASM` (James W. Birdsall's EMS interface library 2.16, whose
+version and copyright strings end its data) are linked this way. TASM 3.0 and 3.1 give the
+same executable for 14b7.
+
+A call to a `far` procedure of the same segment is `0E E8` (push cs / call near), made by
+TASM: backward, `call name`; forward, `call far ptr name`, which leaves a `NOP` after it
+(`0E E8 rel 90`, the 5 bytes it reserved).
 
 TASM is no way into a C module: `BCC -B` (compile via assembly) changes the code (for one,
 TASM writes a call to a later function in the segment as `90 0E E8` itself, where BCC writes

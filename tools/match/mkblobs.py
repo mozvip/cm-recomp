@@ -345,6 +345,20 @@ class Model:
                 u.pieces = []
                 u.external = obj_path
                 return u
+        # a segment without relocations is one of U00's pieces: U00 keeps it, empty, so that
+        # it still defines the segment in its place, and the object becomes a unit of its own,
+        # linked after the root modules until cut_out moves it next to its data
+        for u in self.units:
+            for k, p in enumerate(u.pieces):
+                if not u.overlay and p.lo == code_lo and p.hi == code_hi and not p.fixups:
+                    u.pieces[k] = Piece(p.seg, code_lo, code_lo, b'')
+                    m = Unit('M%02d' % sum(v.name.startswith('M') for v in self.units))
+                    m.external = obj_path
+                    m.movable = True
+                    ends = [i for i, v in enumerate(self.units)
+                            if i > 0 and (v.overlay or getattr(v, 'library', False))]
+                    self.units.insert(min(ends + [len(self.units)]), m)
+                    return m
         found = [(u.name, '%05x-%05x' % (p.lo, p.hi)) for u in self.units for p in u.pieces
                  if p.lo < code_hi and p.hi > code_lo]
         raise SystemExit('no unit holds exactly %05x-%05x (the original module): %s' % (code_lo, code_hi, found))
@@ -355,7 +369,36 @@ class Model:
         so the piece holding it is split, and the part on the wrong side of the unit goes
         into a new unit next to it. Relocations keep their order: the part moved has none,
         and the range's own ones (which the object then makes) must be the module's own data
-        visit, with no relocations in between."""
+        visit, with no relocations in between.
+        A unit link_object made for a segment without relocations has no place of its own
+        in the link order: it goes right after the piece holding the data, whose tail
+        (relocations included) follows it in a new unit, which keeps the relocation order."""
+        if getattr(unit, 'movable', False):
+            for k, u in enumerate(self.units):
+                for p in u.pieces:
+                    if not (p.seg is self.seg_of(lo) and p.lo <= lo and hi <= p.hi):
+                        continue
+                    if len(u.pieces) > 1 or any(lo <= f.at < hi for f in p.fixups + p.extras):
+                        raise SystemExit('%05x-%05x: cannot place the module in its blob piece' % (lo, hi))
+                    unit.movable = False
+                    self.units.remove(unit)
+                    k = self.units.index(u)
+                    self.units.insert(k + 1, unit)
+                    if hi < p.hi:
+                        t = Piece(p.seg, hi, p.hi, p.data[hi - p.lo:])
+                        t.fixups = [f for f in p.fixups if f.at >= hi]
+                        t.extras = [f for f in p.extras if f.at >= hi]
+                        v = Unit('X%02d' % sum(w.name.startswith('X') for w in self.units))
+                        v.pieces.append(t)
+                        self.units.insert(k + 2, v)
+                    p.data = p.data[:lo - p.lo]
+                    p.fixups = [f for f in p.fixups if f.at < lo]
+                    p.extras = [f for f in p.extras if f.at < lo]
+                    p.hi = lo
+                    if p.lo == p.hi:
+                        self.units.remove(u)
+                    return
+            raise SystemExit('no piece holds %05x-%05x' % (lo, hi))
         ui = self.units.index(unit)
         for k, u in enumerate(self.units):
             for p in u.pieces:
