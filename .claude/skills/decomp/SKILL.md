@@ -49,6 +49,8 @@ also proves the relocation order, that is the function order and layout of the o
 source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C`, `src/1A51.ASM`, `src/1AB2.ASM`,
 `src/1AB9.ASM`, `src/1B05.ASM`
 and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C` and `src/7EEB.C`
+(`src/8352.C` is placed without `@module`: its last function, 46de, is still the original
+bytes)
 are linked this way.
 
 - An overlay can be `@module` too (all its code, `@at` its first function). Only the
