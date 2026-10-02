@@ -48,7 +48,7 @@ instead of merging it into the blobs (see docs/matching.md). An identical execut
 also proves the relocation order, that is the function order and layout of the original
 source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C`, `src/1A51.ASM`, `src/1AB2.ASM`,
 `src/1AB9.ASM`, `src/1B05.ASM`
-and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C` and `src/7EEB.C`
+and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C` and `src/7EEB.C`
 are linked this way.
 
 - An overlay can be `@module` too (all its code, `@at` its first function). Only the
@@ -224,6 +224,10 @@ segment that do not fit.
   had no prototype in scope: declare the callee `void f();` (7555.C).
 - **Register order SI/DI** that no declaration order gives: an old-style definition with
   `register` parameters (`f(a, b, team, n) int a, b; register int team; int n;`, 7555:38b3).
+- **fcheck does not compare fixup targets**: a wrong literal or float constant (or two
+  swapped float arguments) passes it as long as the instructions are the same. Check every
+  constant's address against the original's; the full build shows it as a few differing
+  bytes in an otherwise matching function (7a28:360e).
 - **Tail merging:** when BCC merges identical call tails into the *first* copy where the
   original kept the *last*, a code-free statement (`0;`) after a `for` loop that ends its
   block changes the choice (67ee:4060).
