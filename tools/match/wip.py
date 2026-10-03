@@ -31,8 +31,8 @@ description of header.txt; the parts' preprocessor lines; a prototype of each of
 module's functions, in the order of the overlay's stub entries (BCC writes the publics in
 the order of their first declaration and TLINK makes an overlay's stub entries from them,
 in reverse); the parts' declarations, one per name (a name the parts declare differently
-takes the declaration of the parts whose functions use it; if those differ too, the first
-is kept and they are listed); the module's initialised tables from
+takes the declaration most of the parts whose functions use it have; on a tie the first is
+kept and they are listed); the module's initialised tables from
 tables.c; and the functions in address order with the comment before each. tables.c
 holds sections that start with a line `/* @top */` (before the first function) or
 `/* @before f_SSSS_OOOO */`. A module function's prototype is the parts' declaration of it
@@ -495,14 +495,22 @@ def merge(a):
     unsettled = []
     for nm, v in conflicts.items():
         users = [(k, d) for k, d in v if k in uses.get(nm, ())]
-        if users and len({decl_key(' '.join(d.split())) for _, d in users}) == 1:
-            decls[nm] = (users[0][0], users[0][1], None)
+        votes = collections.Counter(decl_key(' '.join(d.split())) for _, d in users).most_common()
+        if votes and (len(votes) == 1 or votes[0][1] > votes[1][1]):   # all, or most, of its users
+            k, d = next((k, d) for k, d in users if decl_key(' '.join(d.split())) == votes[0][0])
+            decls[nm] = (k, d, None)
+            if len(votes) > 1:
+                print('  %s: the declaration of most of the parts that use it (part%d): %s' % (nm, k, d))
         else:
             unsettled.append(nm)
-    for nm, (k, d, kk) in decls.items():
-        if func_off(nm, seg) is not None or nm in tnames:
-            continue
-        out.append(d)
+    kept = [d for nm, (k, d, kk) in decls.items() if func_off(nm, seg) is None and nm not in tnames]
+    for i in range(len(kept)):                      # a struct defined after a declaration using it
+        mo = re.match(r'struct\s+(\w+)\s*\{', kept[i])
+        if mo:
+            first = next(j for j in range(i + 1) if re.search(r'\bstruct\s+%s\b' % mo.group(1), kept[j]))
+            if first < i:
+                kept.insert(first, kept.pop(i))
+    out += kept
     out.append('')
     out.append(tables.get('top', ''))
     for n in order:
