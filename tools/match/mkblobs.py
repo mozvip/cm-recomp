@@ -311,7 +311,9 @@ class Model:
             units[0].pieces.append(p)
         self.units = units
         # relocation slots TLINK reserves besides the relocations: one per far call or jump
-        # it makes near (the blobs hand them all back)
+        # it makes near (the blobs hand them all back). An assembly module linked whole
+        # takes its share out (build.py): TASM made its same-segment calls near itself, and
+        # a 90 0E E8 there is a jump's padding before a call, which reserved nothing
         self.reserved = sum(1 for u in units for p in u.pieces for f in p.extras if f.call)
         self.ovl_units = []
         for k, st in enumerate(e.stubs):
@@ -343,6 +345,7 @@ class Model:
         """Link an object file in place of the unit holding exactly [code_lo, code_hi)."""
         for u in self.units[1:]:
             if not u.overlay and len(u.pieces) == 1 and u.pieces[0].lo == code_lo and u.pieces[0].hi == code_hi:
+                u.near_calls = sum(1 for f in u.pieces[0].extras if f.call)
                 u.pieces = []
                 u.external = obj_path
                 return u
@@ -354,6 +357,7 @@ class Model:
                 if not u.overlay and p.lo == code_lo and p.hi == code_hi and not p.fixups:
                     u.pieces[k] = Piece(p.seg, code_lo, code_lo, b'')
                     m = Unit('M%02d' % sum(v.name.startswith('M') for v in self.units))
+                    m.near_calls = sum(1 for f in p.extras if f.call)
                     m.external = obj_path
                     m.movable = True
                     ends = [i for i, v in enumerate(self.units)

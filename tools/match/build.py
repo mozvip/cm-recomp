@@ -297,6 +297,8 @@ def link_module(pl, model, symtab, ddir, objpubs):
             raise SystemExit('%s: @module code is %05x-%05x, the segment is %05x-%05x' %
                              (pl.c.name, pl.code.lo, pl.code.hi, seg.start, seg.end))
         unit = model.link_object(pl.code.lo, pl.code.hi, obj)
+        if pl.c.asm:                    # TLINK reserves no slots for TASM's near calls
+            model.reserved -= unit.near_calls
     if pl.data:
         if pl.code.where[0] == 'ovl':
             model.place_overlay(unit, pl.data.lo, pl.data.hi)
