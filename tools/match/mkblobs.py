@@ -477,6 +477,7 @@ class Model:
         u = Unit('L%02d' % sum(v.name.startswith('L') for v in self.units))
         u.external = path
         u.library = True
+        u.startup = startup
         if startup:
             self.units.insert(1, u)
             self.startup_linked = True
@@ -530,7 +531,10 @@ class Model:
         """A unit holding one relocation-free piece, linked at position `at`."""
         u = Unit('X%02d' % sum(v.name.startswith('X') for v in self.units))
         u.pieces.append(piece)
-        libs = [k for k, v in enumerate(self.units) if getattr(v, 'library', False) and k > 1]
+        # before the libraries, except the startup module (C0): it comes first, and a module
+        # object that link_object left unplaced may precede it
+        libs = [k for k, v in enumerate(self.units)
+                if getattr(v, 'library', False) and not getattr(v, 'startup', False)]
         self.units.insert(min([at] + libs), u)
 
     # ---------------------------------------------------------------- output

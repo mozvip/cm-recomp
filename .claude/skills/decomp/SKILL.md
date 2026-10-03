@@ -113,7 +113,7 @@ fix what it reports:
   module's block there).
 
 `games/cm93/decomp` works like CM1's (`make`, `make identity`, `make progress`); its game
-code was compiled with Borland C++ 3.0 (`CC_TC := bc30`). `src/1BD3.C` is complete.
+code was compiled with Borland C++ 3.0 (`CC_TC := bc30`). Every root module but 14bc is complete (`src/1446.C`, `main`, was rewritten for CM93 and written from its code, not ported).
 
 ## The runtime
 
