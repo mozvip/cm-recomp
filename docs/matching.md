@@ -293,6 +293,19 @@ the original has them in the last one (BCC keeps the last copy only when an earl
 the same place has nothing in common with the code before it; no source form tried gives
 that here).
 
+Small test functions (an `if`/`else if` chain whose branches end in identical calls, like
+1afc's) show what decides it: the groups of identical endings are not independent. With a
+first branch and trailing branches that end in `strcpy` (1afc's Division and Playoff/
+Friendly branches), BCC keeps the cups' shared ending in the first cup; a `return;` after
+the chain moves it to the last cup but then sends the `strcpy` group to its first copy
+(531 bytes against 529); a first branch ending in an unrelated call keeps both last, as no
+other change does. None of 528 placements of one or two code-free statements (`0;`,
+`return;`, `goto` to a label after the chain) keeps both groups last, the original's
+layout. 8352:46de is the same kind of case, but mixed: the original keeps the first copy
+of its `d_5d9c_9b8a = 0` endings and a later one of a message call; no single `0;` among
+its 129 statements gives its 2500 bytes. So it stays the original bytes, linked without
+`@module`.
+
 ### Rules that come from the compiler and the linker
 
 - **Calls inside one module.** Borland compiles a call to a function *defined earlier in
