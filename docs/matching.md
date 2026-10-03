@@ -412,6 +412,39 @@ from this module.
 Status on CM93: the identity relink is identical; `1DFE.ASM` (CM1's keyboard driver) links
 as a whole module; `1BD3.C` (CM1's 14d2) has 35 of its 61 functions matching as ported.
 
+## Working in parts
+
+A whole overlay is decompiled in parts, one per agent, then merged into its module file.
+`tools/match/wip.py` makes the work folder and does the merge:
+
+```bash
+python3 tools/match/wip.py prepare games/cm93/CMEXE.EXE 70a9 [--base ported.C] [--data 60ae:05b9]
+# agents write games/cm93/decomp/wip/70a9/partN.c from BRIEF.md and chunkN.txt
+python3 tools/match/wip.py merge games/cm93/CMEXE.EXE 70a9 --check [--partial]
+```
+
+`prepare` writes `decomp/wip/ssss/`: the disassembly (`ov.txt`) cut at function starts into
+chunks of about 3500 bytes (`chunkN.txt`, `bounds.txt`), the strings of the module's data
+(`strings.txt`, from the densest run of the addresses the code loads with `push ds / mov
+ax, ADDR`), the overlay's stub order, and `BRIEF.md`, the agents' instructions filled in for
+the game: compiler and fcheck's `--cc`, the game's matching modules to copy, the entries,
+the chunks, the data start, and `notes.md` of the folder (what is known of the module's
+tables) when there is one. With `--base` (a `port.py` output) it starts each `partN.c`
+from the ported functions of its chunk. It never overwrites `partN.c` or the files below.
+
+`merge` writes `decomp/src/SSSS.C` from the parts: each part's functions of its own chunk
+(the stubs of other chunks' functions are dropped), in address order with the comment
+before each; the parts' preprocessor lines; the module's prototypes in the order of the
+overlay's stub entries (the order of the publics, which TLINK reverses into the stub table);
+the parts' declarations, one per name, with the parts that declare a name differently
+listed; and from the folder `header.txt` (the module's description), `tables.c` (its
+initialised tables, in sections `/* @top */` or `/* @before f_SSSS_OOOO */`) and
+`protos.c` (prototypes chosen by hand). A module function's prototype is a parts'
+declaration of it without parameters if there is one (callers compiled with no prototype
+in scope), an old-style definition's parameters with their types, or the definition's head.
+Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their files in
+`src/` byte for byte.
+
 ## Files
 
 | Path | What |
@@ -426,7 +459,8 @@ as a whole module; `1BD3.C` (CM1's 14d2) has 35 of its 61 functions matching as 
 | `tools/match/fixcheck.py` | Checks each fixup fcheck leaves out (literal and constant addresses, far segments, call targets, 8087 operations) and the file's `_DATA` against the original |
 | `tools/match/progress.py` | Functions and bytes done, per segment and overlay |
 | `tools/match/libmods.py` | Links the runtime from its libraries instead of blobs |
-| `tools/match/port.py` | Ports decompiled files to another game built from the same sources |
+| `tools/match/port.py` | Ports decompiled files to another game built from the same sources, or a segment function by function |
+| `tools/match/wip.py` | Work folders for decompiling a segment in parts (chunks, strings, brief), and the merge of the parts |
 | `tools/match/libsyms.py` | Names of the runtime library functions, from byte-identical library modules |
 | `tools/match/exediff.py` | Compares two executables part by part |
 | `tools/match/omf.py`, `omfw.py` | OMF object/library reader and writer |

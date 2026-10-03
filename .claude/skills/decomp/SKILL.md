@@ -48,6 +48,15 @@ Full background: `docs/matching.md`. Tools: `tools/match/`. Sources: `games/cm1/
    A part whose float constants the merged module shares has its pool shifted; check the
    merged file.
 
+## A whole segment in parts
+
+To give a segment or overlay to several agents, `tools/match/wip.py prepare GAME.EXE SSSS
+[--base PORTED.C]` writes `decomp/wip/ssss/` (chunks, strings, `BRIEF.md` for the agents;
+write what is known of the module's data in `notes.md` and prepare again), and `wip.py merge
+GAME.EXE SSSS --check` builds `src/SSSS.C` from their `partN.c` (module tables in
+`tables.c`, description in `header.txt`, hand-chosen prototypes in `protos.c`). See
+docs/matching.md, "Working in parts".
+
 ## Finishing a module
 
 When a C file covers a whole original module (all its code segment, from its first
