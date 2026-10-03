@@ -112,6 +112,11 @@ fix what it reports:
 - data the other game keeps in another module (a ported file's data must be exactly its
   module's block there).
 
+A segment gathered from several modules or partly rewritten (CM93's 14bc, the overlays
+under 50% aligned) is ported function by function: `port.py FROM.EXE TO.EXE --segment
+SSSS` writes `decomp/wip/SSSS/base.C` from the most similar FROM function of each, with
+the declarations they use; check it with `fcheck.py --cc bc30`.
+
 `games/cm93/decomp` works like CM1's (`make`, `make identity`, `make progress`); its game
 code was compiled with Borland C++ 3.0 (`CC_TC := bc30`). Every root module but 14bc is complete (`src/1446.C`, `main`, was rewritten for CM93 and written from its code, not ported).
 

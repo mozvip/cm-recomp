@@ -364,6 +364,28 @@ gives (`part 1BD3.C: 35/61 functions match`) and leaves the module out of the li
 matches. Fixing the listed functions, and moving data the other game keeps elsewhere, is
 left to hand work.
 
+A segment whose code comes from several of the other game's modules, or that the game
+partly rewrote, is ported function by function instead:
+
+```bash
+python3 tools/match/port.py games/cm1/EUROPE.EXE games/cm93/CMEXE.EXE --segment 14bc
+```
+
+Each function of the segment gets the C of the most similar function defined in CM1's
+sources (instruction streams compared with addresses ignored, at least `--min`, default
+65%). The pair is aligned and the text renamed as above, the function taking its new
+address; the module alignments of all of CM1's files supply the data pairs a single
+function does not show. The declarations come from the CM1 file most of a name's users
+come from, one per name, renamed as the bodies renamed it, with the types and macros they
+need; in a root segment `static` is dropped. Functions with no counterpart stay as
+comments naming the closest one. The file goes to `decomp/wip/SSSS/base.C` with only
+`@at`, to check with `fcheck.py` and finish by hand. The report lists each function's
+source and similarity, a CM1 function used for several (the best pair names it in calls),
+unmapped names, and names the CM1 files declare differently (`int t[]` in one, `int
+t[][80]` in another), of which the one most users come from is kept. For CM93's 14bc
+(111 functions), 58 are ported and 25 of those match at once; the others are game changes
+and callees not ported yet.
+
 Other games' link name and date are read from the executable (TLINK's `__EXENAME__` and
 `__EXEDATE__`: CM93 was linked as `CMAN93.EXE` on 10 May 1993). CM93's `decomp/` has its
 own `symbols.txt`: the library matches plus CM1's hand-found names with identical code
