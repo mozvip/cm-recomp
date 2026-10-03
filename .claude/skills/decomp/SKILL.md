@@ -48,7 +48,7 @@ instead of merging it into the blobs (see docs/matching.md). An identical execut
 also proves the relocation order, that is the function order and layout of the original
 source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C`, `src/1A51.ASM`, `src/1AB2.ASM`,
 `src/1AB9.ASM`, `src/1B05.ASM`
-and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C` and `src/7EEB.C`
+and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C`, `src/7EEB.C`, `src/88C9.C`, `src/9100.C`, `src/992A.C` and `src/A1C3.C`
 (`src/8352.C` is placed without `@module`: its last function, 46de, is still the original
 bytes)
 are linked this way.
