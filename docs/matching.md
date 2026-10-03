@@ -208,9 +208,10 @@ comes before the data blob). Other `@module`
 objects' publics are not redefined in `U00`, so whole modules can call each other.
 
 An overlay's object goes right after the blob piece holding its data. TLINK numbers the
-overlays in link order, so the lower overlays not placed yet are linked just before it;
-those already placed by their own data stay where they are (67ee, then 7eeb, both in the
-big `_DATA` piece).
+overlays in link order, so the lower overlays not placed yet are linked just before it,
+and keep that place; those already placed stay where they are (67ee, then 7eeb, both in
+the big `_DATA` piece; 8352, linked as blobs, goes before 88c9 and stays there when 9100
+is placed).
 
 `_DATA` is word aligned: a module's data starts at an even address, and an odd byte before
 it is the previous module's padding. Borland lays out all of a file's variables first and

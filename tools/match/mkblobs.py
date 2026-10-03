@@ -516,7 +516,8 @@ class Model:
         at = self.units.index(u) + 1
         if any(self.units.index(v) >= at for v in self.ovl_units[:idx] if getattr(v, 'placed', False)):
             raise SystemExit('%05x-%05x: a lower overlay\'s data comes after it' % (lo, hi))
-        unit.placed = True
+        for v in before:                # the lower ones moved with it keep that place too
+            v.placed = True
         self.units[at:at] = before
         if tail.hi > tail.lo:
             t = Unit('X%02d' % sum(v.name.startswith('X') for v in self.units))
