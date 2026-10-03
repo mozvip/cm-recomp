@@ -30,8 +30,9 @@ module file (default: decomp/src/SSSS.C), as one source file: @at, @data and @mo
 description of header.txt; the parts' preprocessor lines; a prototype of each of the
 module's functions, in the order of the overlay's stub entries (BCC writes the publics in
 the order of their first declaration and TLINK makes an overlay's stub entries from them,
-in reverse); the parts' declarations, one per name (each part's own types, which differ
-between parts, are listed: the first is kept); the module's initialised tables from
+in reverse); the parts' declarations, one per name (a name the parts declare differently
+takes the declaration of the parts whose functions use it; if those differ too, the first
+is kept and they are listed); the module's initialised tables from
 tables.c; and the functions in address order with the comment before each. tables.c
 holds sections that start with a line `/* @top */` (before the first function) or
 `/* @before f_SSSS_OOOO */`. A module function's prototype is the parts' declaration of it
@@ -483,6 +484,21 @@ def merge(a):
                 fixed[mo.group(1)] = ln.rstrip()
     out += [fixed.get(n) or static(n) + prototype(funcs[n][0], parts, n) for n in names if funcs[n][0]]
     out.append('')
+    # a name declared differently: the declaration of a part whose own functions use it (the
+    # others are usually leftovers, e.g. of a ported file's declarations)
+    uses = collections.defaultdict(set)
+    for n, (body, _) in funcs.items():
+        if body:
+            k = next(i for i in range(len(bounds) - 1) if bounds[i] <= func_off(n, seg) < bounds[i + 1])
+            for w in set(re.findall(r'\b\w+\b', port.code_only(body))):
+                uses[w].add(k)
+    unsettled = []
+    for nm, v in conflicts.items():
+        users = [(k, d) for k, d in v if k in uses.get(nm, ())]
+        if users and len({decl_key(' '.join(d.split())) for _, d in users}) == 1:
+            decls[nm] = (users[0][0], users[0][1], None)
+        else:
+            unsettled.append(nm)
     for nm, (k, d, kk) in decls.items():
         if func_off(nm, seg) is not None or nm in tnames:
             continue
@@ -508,10 +524,12 @@ def merge(a):
         print('  not functions of %04x (kept): %s' % (seg, ' '.join(extra)))
     if missing:
         print('  not written yet: %s' % ' '.join(missing))
-    for nm, v in conflicts.items():
-        print('  declared differently (the first is kept): %s' % nm)
-        for k, d in v:
-            print('      part%d: %s' % (k, d))
+    for nm in unsettled:
+        if func_off(nm, seg) is not None:          # the module's own: its definition decides
+            continue
+        print('  declared differently, and not settled by which parts use it (the first is kept): %s' % nm)
+        for k, d in conflicts[nm]:
+            print('      part%d%s: %s' % (k, ' (uses it)' if k in uses.get(nm, ()) else '', d))
     if a.check:
         cc = ['--cc', cfg['cc']] if cfg.get('cc') and cfg['cc'] != 'bc31' else []
         subprocess.run([sys.executable, os.path.join(HERE, 'fcheck.py'), a.exe, dst] + cc)
