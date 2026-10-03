@@ -387,6 +387,8 @@ as a whole module; `1BD3.C` (CM1's 14d2) has 35 of its 61 functions matching as 
 | `tools/match/disasm.py` | A function's disassembly with the symbols to use in C, 8087 mnemonics included |
 | `tools/match/icmp.py` | First instruction-level difference between two linked executables |
 | `tools/match/try.py` | Compiles one file with several option sets and compares, without linking |
+| `tools/match/fcheck.py` | Compiles a file and compares each of its functions with the original, without linking (fixups left out) |
+| `tools/match/fixcheck.py` | Checks each fixup fcheck leaves out (literal and constant addresses, far segments, call targets, 8087 operations) and the file's `_DATA` against the original |
 | `tools/match/progress.py` | Functions and bytes done, per segment and overlay |
 | `tools/match/libmods.py` | Links the runtime from its libraries instead of blobs |
 | `tools/match/port.py` | Ports decompiled files to another game built from the same sources |

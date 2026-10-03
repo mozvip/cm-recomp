@@ -27,7 +27,9 @@ def compile_file(src, cc, flags):
         ext = os.path.splitext(src)[1].upper()
         shutil.copy(src, os.path.join(work, 'T' + ext))
         if ext == '.ASM':
-            cmd = ['TASM', '/ml', 'T.ASM', 'T.OBJ']
+            text = open(src, errors='replace').read()      # @flags (/m2...) as build.py honours it
+            fl = re.search(r'@flags\s+([^*\n]*)', text)
+            cmd = ['TASM', '/ml'] + (fl.group(1).split() if fl else []) + ['T.ASM', 'T.OBJ']
         else:
             cmd = ['BCC', '-c'] + flags.split() + ['T.C']
         r = subprocess.run([TCDOS, '-T', cc, '-C', work, '--'] + cmd, capture_output=True, text=True)

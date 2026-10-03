@@ -39,6 +39,14 @@ Full background: `docs/matching.md`. Tools: `tools/match/`. Sources: `games/cm1/
    a constant or segment value; `tools/match/exediff.py … -v` shows where.
 7. `make -C games/cm1/decomp identity` must always say IDENTICAL. It checks the tools,
    independently of any C.
+8. `python3 tools/match/fcheck.py GAME.EXE FILE.C` compares each function of a file that is
+   not placed yet, but skips the bytes the linker fills in. Run `python3
+   tools/match/fixcheck.py GAME.EXE FILE.C [--data SSSS:OOOO]` next: it checks every one
+   of those fixups against the original (each literal and float constant's address, swapped
+   float arguments, the segment of each far table, every call target, strcpy for strcat)
+   and the file's `_DATA` byte for byte, and names the function and offset of each bad one.
+   A part whose float constants the merged module shares has its pool shifted; check the
+   merged file.
 
 ## Finishing a module
 
@@ -227,9 +235,9 @@ segment that do not fit.
 - **Register order SI/DI** that no declaration order gives: an old-style definition with
   `register` parameters (`f(a, b, team, n) int a, b; register int team; int n;`, 7555:38b3).
 - **fcheck does not compare fixup targets**: a wrong literal or float constant (or two
-  swapped float arguments) passes it as long as the instructions are the same. Check every
-  constant's address against the original's; the full build shows it as a few differing
-  bytes in an otherwise matching function (7a28:360e).
+  swapped float arguments) passes it as long as the instructions are the same. fixcheck.py
+  checks them (step 8); the full build shows them as a few differing bytes in an otherwise
+  matching function (7a28:360e).
 - **Tail merging:** when BCC merges identical call tails into the *first* copy where the
   original kept the *last*, a code-free statement (`0;`) after a `for` loop that ends its
   block changes the choice (67ee:4060).
