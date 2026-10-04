@@ -6,7 +6,8 @@
 As a module: read_obj(bytes) -> list of Module (a .LIB yields one per member).
 Module fields: name, lnames, segs [(name, class, length, attr)], grps, publics
 {name: (segidx, off)}, externs [name], data {segidx: bytearray}, fixups
-[(segidx, off, loc, frame, target, disp)] (loc: 'off16'|'seg16'|'ptr32'|'off8'|...).
+[(segidx, off, loc, frame, target, disp)] (loc: 'off16'|'seg16'|'ptr32'|'off8'|...),
+lines [(segidx, off, line)] (LINNUM: BCC -y, TASM /zd).
 """
 import struct, sys
 
@@ -22,6 +23,7 @@ class Module:
         self.data = {}
         self.fixups = []
         self.comments = []
+        self.lines = []
         self.raw = b''          # the module's records, THEADR to MODEND (a standalone .OBJ)
 
 
@@ -178,6 +180,14 @@ def read_obj(buf):
                 kind = {0: 'seg', 1: 'grp', 2: 'ext'}[tm & 3]
                 m.fixups.append((last[0], last[1] + off, LOCS.get(loc, loc), 'self' if not m_ else 'seg',
                                  frame, (kind, ti), disp))
+        elif typ in (0x94, 0x95):
+            _, q = _index(rec, 0)          # base group
+            si, q = _index(rec, q)
+            fmt, n = ('<HI', 6) if typ == 0x95 else ('<HH', 4)
+            while q + n <= len(rec):
+                line, off = struct.unpack(fmt, rec[q:q + n])
+                m.lines.append((si, off, line))
+                q += n
         elif typ in (0x8A, 0x8B):
             m.raw = bytes(buf[m.raw_start:p])
             if pagesize:

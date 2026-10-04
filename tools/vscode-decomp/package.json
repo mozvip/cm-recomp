@@ -1,0 +1,36 @@
+{
+  "name": "cm-decomp",
+  "displayName": "CM Decomp Match View",
+  "description": "Shows the code BCC makes of the C being edited next to the original code it must match",
+  "version": "0.1.0",
+  "publisher": "cm-recomp",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": { "vscode": "^1.80.0" },
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      { "command": "cmDecomp.open", "title": "Open Match View", "category": "Decomp" },
+      { "command": "cmDecomp.refresh", "title": "Recompile Now", "category": "Decomp" }
+    ],
+    "keybindings": [
+      { "command": "cmDecomp.open", "key": "ctrl+alt+m", "when": "editorTextFocus" }
+    ],
+    "configuration": {
+      "title": "CM Decomp",
+      "properties": {
+        "cmDecomp.liveDelay": {
+          "type": "number",
+          "default": 1200,
+          "description": "Recompile this many milliseconds after the last edit (0: only on save)."
+        },
+        "cmDecomp.python": {
+          "type": "string",
+          "default": "python3",
+          "description": "The Python that runs tools/match/fdiff.py."
+        }
+      }
+    }
+  }
+}

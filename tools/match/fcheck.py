@@ -21,7 +21,11 @@ SIZE = {'ptr32': 4, 'off16': 2, 'seg16': 2, 'off8': 1, 'hi8': 1, 'off16l': 2}
 NAME = re.compile(r'^_f_([0-9a-f]{4})_([0-9a-f]{4})$')
 
 
-def compile_file(src, cc, flags):
+def compile_obj(src, cc, flags, lines=False):
+    """Compile (or assemble) src: (the object module or None, the error and warning lines).
+    With lines, a second compile with -y (/zd) in the same run gives the C (or assembly)
+    line numbers of the code: the module's lines if its code is the same, else (-y can keep
+    BCC from merging identical code) its lines_from is that compile's module."""
     work = tempfile.mkdtemp(prefix='fcheck.')
     try:
         ext = os.path.splitext(src)[1].upper()
@@ -30,18 +34,56 @@ def compile_file(src, cc, flags):
             text = open(src, errors='replace').read()      # @flags (/m2...) as build.py honours it
             fl = re.search(r'@flags\s+([^*\n]*)', text)
             cmd = ['TASM', '/ml'] + (fl.group(1).split() if fl else []) + ['T.ASM', 'T.OBJ']
+            ycmd = cmd[:2] + ['/zd'] + cmd[2:-1] + ['L.OBJ']
         else:
             cmd = ['BCC', '-c'] + flags.split() + ['T.C']
-        r = subprocess.run([TCDOS, '-T', cc, '-C', work, '--'] + cmd, capture_output=True, text=True)
-        errs = [l for l in r.stdout.splitlines() if l.startswith(('Error', 'Fatal', '**Error'))
-                and not l.startswith('Error messages:')]          # TASM's summary line
+            ycmd = cmd[:-1] + ['-y', '-oL.OBJ', 'T.C']
+        r = subprocess.run([TCDOS, '-T', cc, '-C', work, '--'] + cmd + ([';;'] + ycmd if lines else []),
+                           capture_output=True, text=True)
+        errs = [l for l in r.stdout.splitlines() if l.startswith(('Error', 'Fatal', '**Error', 'Warning'))
+                and not l.startswith(('Error messages:', 'Warning messages:'))]     # TASM's summary
+        errs = list(dict.fromkeys(errs))                  # the second compile says it all again
         p = os.path.join(work, 'T.OBJ')
-        if errs or not os.path.exists(p):
-            print('\n'.join(errs) or r.stdout[-2000:])
-            sys.exit(2)
-        return omf.read_obj(open(p, 'rb').read())[0]
+        if any(not l.startswith('Warning') for l in errs) or not os.path.exists(p):
+            return None, errs or r.stdout[-2000:].splitlines()
+        mod = omf.read_obj(open(p, 'rb').read())[0]
+        y = os.path.join(work, 'L.OBJ')
+        if lines and os.path.exists(y):
+            ym = omf.read_obj(open(y, 'rb').read())[0]
+            if ym.segs == mod.segs and ym.fixups == mod.fixups and \
+                    all(bytes(ym.data.get(i, b'')) == bytes(d) for i, d in mod.data.items()):
+                mod.lines = ym.lines
+            else:
+                mod.lines_from = ym
+        return mod, errs
     finally:
         shutil.rmtree(work)
+
+
+def compile_file(src, cc, flags):
+    mod, errs = compile_obj(src, cc, flags)
+    if mod is None:
+        print('\n'.join(errs))
+        sys.exit(2)
+    return mod
+
+
+def masked_code(mod):
+    """The object's code segment: (its index, its bytes, the offsets the linker fills in,
+    its public (offset, name)s in order)."""
+    si = next(i for i, s in enumerate(mod.segs, 1) if s[1] == 'CODE' and s[2] > 0)
+    code = bytes(mod.data[si])
+    fx = set()
+    for f in mod.fixups:
+        if f[0] == si:
+            fx.update(range(f[1], f[1] + SIZE.get(f[2], 2)))
+            if f[2] == 'ptr32' and f[1] > 0 and code[f[1] - 1] in (0x9a, 0xea):
+                fx.add(f[1] - 1)
+    for i in range(len(code) - 3):
+        if code[i] == 0x0e and code[i + 1] == 0xe8:
+            fx.update((i + 2, i + 3))
+    funcs = sorted((off, n) for n, (s, off) in mod.publics.items() if s == si)
+    return si, code, fx, funcs
 
 
 def disasm(code):
@@ -60,18 +102,7 @@ def main():
     a = ap.parse_args()
     m = mkblobs.Model(a.exe)
     mod = compile_file(a.src, a.cc, a.flags)
-    si = next(i for i, s in enumerate(mod.segs, 1) if s[1] == 'CODE' and s[2] > 0)
-    code = bytes(mod.data[si])
-    fx = set()
-    for f in mod.fixups:
-        if f[0] == si:
-            fx.update(range(f[1], f[1] + SIZE.get(f[2], 2)))
-            if f[2] == 'ptr32' and f[1] > 0 and code[f[1] - 1] in (0x9a, 0xea):
-                fx.add(f[1] - 1)
-    for i in range(len(code) - 3):
-        if code[i] == 0x0e and code[i + 1] == 0xe8:
-            fx.update((i + 2, i + 3))
-    funcs = sorted((off, n) for n, (s, off) in mod.publics.items() if s == si)
+    si, code, fx, funcs = masked_code(mod)
     good = bad = 0
     for k, (off, n) in enumerate(funcs):
         end = funcs[k + 1][0] if k + 1 < len(funcs) else len(code)

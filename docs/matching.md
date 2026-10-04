@@ -456,6 +456,8 @@ Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their 
 | `tools/match/icmp.py` | First instruction-level difference between two linked executables |
 | `tools/match/try.py` | Compiles one file with several option sets and compares, without linking |
 | `tools/match/fcheck.py` | Compiles a file and compares each of its functions with the original, without linking (fixups left out) |
+| `tools/match/fdiff.py` | Lines up one function's compiled code with the original's, instruction by instruction (`--json` for tools) |
+| `tools/vscode-decomp/` | VS Code extension: a match view of the C being edited, compiled live, next to the original (see its README) |
 | `tools/match/fixcheck.py` | Checks each fixup fcheck leaves out (literal and constant addresses, far segments, call targets, 8087 operations) and the file's `_DATA` against the original |
 | `tools/match/progress.py` | Functions and bytes done, per segment and overlay |
 | `tools/match/libmods.py` | Links the runtime from its libraries instead of blobs |
