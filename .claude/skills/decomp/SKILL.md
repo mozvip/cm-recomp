@@ -255,6 +255,12 @@ segment that do not fit.
 - **Tail merging:** when BCC merges identical call tails into the *first* copy where the
   original kept the *last*, a code-free statement (`0;`) after a `for` loop that ends its
   block changes the choice (67ee:4060).
+- **`__emit__` with BCC 3.0 (CM93):** an address argument (`(char near *)"..."`, a far
+  function) gets a broken fixup (omf.py fails with `KeyError ('F', 0)`). Load addresses
+  with `_AX = (unsigned)d_60ae_XXXX;` (an `extern char near` at the address) or
+  `_AX = (unsigned)((char near *)"..." + k);`, and make far calls C calls through a cast,
+  `((void (far *)(void))sprintf)();` (14bc:4b12). And never include `<dos.h>` in such a
+  file: its `__emit__` prototype widens `(char)0xfe` to two bytes.
 - **Locals:** later declarations get lower addresses; a local declared in an inner block
   is placed below the function's own temporaries (`FILE *fp` in 67ee:4e10, `k` in
   67ee:0e4c).
