@@ -167,7 +167,7 @@ Read first:
 - {entries}
 - This module's initialised data starts at DGROUP {data}. Report every initialised table
   your code reads (address, element layout, how it is indexed, where its strings sit).
-{base}- After fcheck, run `python3 tools/match/fixcheck.py {exe} partN.c --data {dg:04x}:OOOO`
+{base}- After fcheck, run `python3 tools/match/fixcheck.py {exe} partN.c --data {dg:04x}:OOOO{cc}`
   (OOOO: where your first literal sits) to check every fixup fcheck leaves out: each
   literal and float constant's address, two swapped float arguments, the segment of each
   far table, every call target.
