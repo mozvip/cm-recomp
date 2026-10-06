@@ -276,8 +276,10 @@ def main():
         for i in range(fo, end - 1):
             b0, b1 = img[base0 + i], img[base0 + i + 1]
             # the same bytes in the object: an operand that happens to read CD 3x, not an INT
-            if b0 == 0xcd and 0x34 <= b1 <= 0x3b and (code[i], code[i + 1]) != (b0, b1) \
-                    and i not in in_fixup and i + 1 not in in_fixup:
+            # (a 9B in the object is the 8087 operation itself, whose bytes the emulator's
+            # fixups also cover; anything else inside a fixup is an operand that changed)
+            if b0 == 0xcd and 0x34 <= b1 <= 0x3b and (code[i], code[i + 1]) != (b0, b1) and \
+                    (code[i] == 0x9b or (i not in in_fixup and i + 1 not in in_fixup)):
                 nfp += 1
                 if not (code[i] == 0x9b and code[i + 1] == 0xd8 + b1 - 0x34):
                     report(False, 'fpu', i, 'int %02xh' % b1, '9b %02x' % (0xd8 + b1 - 0x34),
