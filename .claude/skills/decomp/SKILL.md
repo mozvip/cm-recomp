@@ -148,6 +148,12 @@ is complete and linked whole.
 - A `switch` keeps its value in a stack slot (for the table search); a local declared in
   an inner block goes below it (18f9 `main`: switch at `[bp-4]`, block `char x` at `[bp-5]`).
   `-O1` does not fold a test of a local just set to a constant (`x = 0; if (x == 0)`).
+- **Tail merges:** BCC 4.02 keeps the LAST copy of identical branch tails. A code-free
+  statement that names a variable (`d_69da_d9ae;`) at the end of the branch whose copy the
+  original keeps makes BCC keep that one (a83a:14e6), and after an if-chain it stops a merge
+  the original doesn't have (829f:0ad4); `0;` works too but can leave a jump-to-jump.
+- `#pragma option -O-` from one function on: BCC 4.02 -O1 merges the argument pops of
+  consecutive calls; an original that pops after each call had jump optimisation off (9c01).
 - A loop variable in a slot of its own is a separate local (`for (y = y1; …)`), not the
   parameter.
 - A port's `unmapped_` and shifted `f_` names: an empty function or a one-line setter
