@@ -22,7 +22,7 @@ NAME = re.compile(r'^_f_([0-9a-f]{4})_([0-9a-f]{4})$')
 
 
 # each compiler's options when --flags is not given: the games' (CM94's for bc4)
-DEFAULT_FLAGS = {'bc4': '-ml -1 -O2 -k -O-i -O-v -O-g'}
+DEFAULT_FLAGS = {'bc4': '-ml -1 -O1 -Y'}
 
 
 def default_flags(cc):

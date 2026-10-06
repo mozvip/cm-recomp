@@ -334,15 +334,34 @@ so CM1's C compiles to CM93's code wherever the game did not change.
 
 CM94 was built with **Borland C++ 4.02** (`tools/BC4`, from the Borland C++ 4.0 CD,
 volume `BORLANDC_402`): its header signature is `FB 61` (TLINK 6.1; CM1 and CM93 have
-`FB 50`, TLINK 5.0), its startup code says "Copyright 1993", and every function saves `si`
-and `di`, which BCC 4.02 does and BCC 3.1 never does. The options are
-`-ml -1 -O2 -k -O-i -O-v -O-g`: 186 instructions, speed forms, no intrinsics (`strcpy` stays
-a call), no induction variables; `-O-m` instead of `-O-g` gives the same code here. Of the
-ported `2162.C`'s 56 functions, 25 match with them (none with any BCC 3.1 option); the rest
-are names the port paired wrongly (only 53% of the code aligned) and functions the game
-changed. `games/cmese/decomp/Makefile` sets `CC_TC := bc4` and `LD_TC := bc4`; the identity
-relink with TLINK 6.10 is identical, and `238C.ASM` (CM1's keyboard driver) links as a
-whole module.
+`FB 50`, TLINK 5.0), and its startup code says "Copyright 1993". The options are
+**`-ml -1 -O1 -Y`**: 186 instructions, smallest code (`-O1`), overlay-compatible code (`-Y`,
+the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc4` and
+`LD_TC := bc4`; the identity relink with TLINK 6.10 is identical. `2162.C` (CM93's `1BD3.C`,
+71 functions) is complete and linked as a whole module, as are the assembly modules `2306`,
+`2352`, `2385`, `238C` (CM1's keyboard driver) and `23A7`.
+
+BCC 4.02 codegen facts (CM94):
+
+- **`-O1`, not `-O2`.** `-O2` (`-Ot`) matches many small functions but not the
+  register choices: it keeps a `char` local in `CL` and caches a parameter in `CX`, where
+  `-O1` (`-Os`) keeps them in their stack slots (2162:13fc's `char c` at `[bp-1]`, 0c66's
+  `int c = fgetc()` stored to `[bp-2]` and compared from `AX`) while an `int` loop counter
+  still goes to `DX`. `-Os` also pops a 2-byte argument with `pop cx` (`-Ot`: `add sp,2`).
+  `-O-i -O-v -O-g` make no difference under `-O1`.
+- **`-Y` suppresses `enter`.** Plain `-1 -O1` makes every frame with locals `enter N,0`;
+  the original has `push bp / mov bp,sp / sub sp,N` but still ends with `leave`, which is
+  what `-Y` (`-Yo` too) gives. `-Y` also forces the standard frame (`-k`/`-k-` change
+  nothing).
+- **`push si / push di` in every function** comes from `-Oe` (global register allocation,
+  in `-O1`): `-O-e` saves only the registers used, and matches nothing. `-O-l` (5
+  functions), `-O-c` (1) and `-Z-` (20) lose matches too.
+- **Locals:** scalars are placed in declaration order from `[bp-2]` down (the first
+  declared is the highest), as with BCC 3.1; arrays go below all the scalars whatever
+  their place in the declarations (2162:065d's `pal[48]`). A swapped pair of stack slots
+  is the declaration order (`unsigned k; unsigned t;`).
+- A loop over a separate stack variable (`for (y = y1; y <= y2; y++)`, a slot of its
+  own) rather than over the parameter (2162:08b5).
 
 ```bash
 python3 tools/match/port.py games/cm1/EUROPE.EXE games/cm93/CMEXE.EXE \
@@ -475,5 +494,5 @@ Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their 
   C yet, so a module's globals stay `extern`.
 - **What is not library or C yet.** The game's own modules (most of the code), and the game's
   assembly modules after 1680 in CM1 (1a51-1b05: graphics and EMS support).
-- **CM94.** See "Porting to another game": the remaining differences in `2162.C` are
-  port pairing errors and game changes, not options.
+- **CM94.** Only `2162.C` and the assembly modules after it are done (see "Porting to
+  another game").

@@ -3,7 +3,7 @@
 EXE_NAME := CMEXE.EXE
 CC_TC := bc4
 LD_TC := bc4
-BCCFLAGS := -ml -1 -O2 -k -O-i -O-v -O-g
+BCCFLAGS := -ml -1 -O1 -Y
 # the runtime, emulator and overlay manager: Borland C++ 4.02's own modules
 LIBS := $(addprefix tools/BC4/LIB/,C0L.OBJ EMU.LIB MATHL.LIB CL.LIB OVERLAY.LIB)
 include ../../../tools/match/decomp.mk

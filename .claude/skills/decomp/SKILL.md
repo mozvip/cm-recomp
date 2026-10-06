@@ -129,6 +129,28 @@ the declarations they use; check it with `fcheck.py --cc bc30`.
 `games/cm93/decomp` works like CM1's (`make`, `make identity`, `make progress`); its game
 code was compiled with Borland C++ 3.0 (`CC_TC := bc30`). Every root module but 14bc is complete (`src/1446.C`, `main`, was rewritten for CM93 and written from its code, not ported).
 
+`games/cmese/decomp` (CM94, CMEXE.EXE) is the same, with Borland C++ 4.02 (`CC_TC := bc4`,
+`fcheck.py --cc bc4`, whose default flags are the game's). `src/2162.C` (CM93's 1BD3.C)
+is complete and linked whole.
+
+**BCC 4.02 codegen facts (CM94, `-ml -1 -O1 -Y`):**
+- The options are `-ml -1 -O1 -Y`, not `-O2`. `-O2` (`-Ot`) matches many small functions
+  but keeps `char` locals in `CL` and caches parameters in `CX`; `-O1` (`-Os`) keeps them in
+  their stack slots (`mov [bp-1],al` … `mov al,[bp-1]`; a stored-and-compared `int c =
+  fgetc()` at `[bp-2]`) while `int` loop counters still go to `DX`, and pops a 2-byte
+  argument with `pop cx` (`-Ot`: `add sp,2`). Prefer fixing the C over the options: these
+  options matched all 71 functions of 2162 and are the project's.
+- `-Y` (overlay code) is what avoids `enter`: frames are `push bp / mov bp,sp / sub sp,N`
+  and still end with `leave`. Without it `-O1` uses `enter N,0`.
+- `push si / push di` in every function, used or not, is `-Oe` (in `-O1`).
+- Locals: scalars in declaration order from `[bp-2]` down (first declared highest);
+  arrays always below the scalars. Two swapped slots mean two swapped declarations.
+- A loop variable in a slot of its own is a separate local (`for (y = y1; …)`), not the
+  parameter.
+- A port's `unmapped_` and shifted `f_` names: an empty function or a one-line setter
+  CM94 added shifts the pairing of all its neighbours; rename by the addresses in
+  `games/cmese/gen/funcs.h` (not every start is listed there: 2162:0c48 was missing).
+
 ## The runtime
 
 The Borland runtime, emulator and overlay manager are linked from the stock libraries
