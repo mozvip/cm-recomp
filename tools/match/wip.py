@@ -470,7 +470,9 @@ def merge(a):
     header = open(hp, encoding='latin1').read().strip('\n') if os.path.exists(hp) else \
         '/* %s %04x. */' % ('Overlay' if kind == 'overlay' else 'Segment', seg)
     public = set(entries) if kind == 'overlay' else set(starts)
-    static = lambda n: '' if func_off(n, seg) in public else 'static '
+    # a function the parts already define static gets no second static
+    own_static = {n for n, (body, _) in funcs.items() if body and body.lstrip().startswith('static ')}
+    static = lambda n: '' if func_off(n, seg) in public or n in own_static else 'static '
     data = cfg.get('data')
     out = ['/* @at %04x:%04x */\n%s/* @module */\n\n%s' % (
         seg, starts[0], '/* @data %s */\n' % data if data else '', header)]
