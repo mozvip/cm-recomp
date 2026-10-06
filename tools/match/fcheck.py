@@ -21,6 +21,14 @@ SIZE = {'ptr32': 4, 'off16': 2, 'seg16': 2, 'off8': 1, 'hi8': 1, 'off16l': 2}
 NAME = re.compile(r'^_f_([0-9a-f]{4})_([0-9a-f]{4})$')
 
 
+# each compiler's options when --flags is not given: the games' (CM94's for bc4)
+DEFAULT_FLAGS = {'bc4': '-ml -1 -O2 -k -O-i -O-v -O-g'}
+
+
+def default_flags(cc):
+    return DEFAULT_FLAGS.get(cc, '-ml -O1 -k -Ol')
+
+
 def compile_obj(src, cc, flags, lines=False):
     """Compile (or assemble) src: (the object module or None, the error and warning lines).
     With lines, a second compile with -y (/zd) in the same run gives the C (or assembly)
@@ -96,12 +104,12 @@ def main():
     ap.add_argument('exe')
     ap.add_argument('src')
     ap.add_argument('--cc', default='bc31')
-    ap.add_argument('--flags', default='-ml -O1 -k -Ol')
+    ap.add_argument('--flags', help='BCC options (default: -ml -O1 -k -Ol; with bc4 CM94\'s)')
     ap.add_argument('--show', nargs='*', default=[])
     ap.add_argument('-v', action='store_true')
     a = ap.parse_args()
     m = mkblobs.Model(a.exe)
-    mod = compile_file(a.src, a.cc, a.flags)
+    mod = compile_file(a.src, a.cc, a.flags or default_flags(a.cc))
     si, code, fx, funcs = masked_code(mod)
     good = bad = 0
     for k, (off, n) in enumerate(funcs):

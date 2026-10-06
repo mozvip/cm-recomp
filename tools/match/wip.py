@@ -195,7 +195,7 @@ Iterate until each of your functions says ok.
 - The only initialised data you write is string literals and float constants: declare
   every variable `extern`, including the module's initialised tables (report them).
 - try.py compiles a file and compares from one address, quick for testing forms of the
-  FIRST function in a file: `python3 tools/match/try.py --show {exe} {seg}:OOOO FILE.c`.
+  FIRST function in a file: `python3 tools/match/try.py --show{cc} {exe} {seg}:OOOO FILE.c`.
 - If a function resists after real effort (6+ different source forms), leave the closest
   version and say exactly what differs.
 {notes}

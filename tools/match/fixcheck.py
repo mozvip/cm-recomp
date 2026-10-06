@@ -85,7 +85,7 @@ def main():
     ap.add_argument('--symbols')
     ap.add_argument('--names')
     ap.add_argument('--cc', default='bc31')
-    ap.add_argument('--flags', default='-ml -O1 -k -Ol')
+    ap.add_argument('--flags', help='BCC options (default: fcheck.py\'s for --cc)')
     ap.add_argument('--only', nargs='*', default=[], help='check only these functions')
     ap.add_argument('-v', action='store_true', help='list every fixup, not only the bad ones')
     a = ap.parse_args()
@@ -103,7 +103,7 @@ def main():
 
     m = mkblobs.Model(a.exe)
     ck = Checker(m, symtab)
-    mod = fcheck.compile_file(a.src, a.cc, a.flags)
+    mod = fcheck.compile_file(a.src, a.cc, a.flags or fcheck.default_flags(a.cc))
     si = next(i for i, s in enumerate(mod.segs, 1) if s[1] == 'CODE' and s[2] > 0)
     di = next((i for i, s in enumerate(mod.segs, 1) if s[0] in DGROUP_NAMES), None)
     code = bytes(mod.data[si])
