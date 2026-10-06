@@ -291,7 +291,8 @@ def main():
             bad.append('BAD   _DATA  first difference at +%04x (%04x:%04x): mine %s orig %s' % (
                 i, data_at[0], data_at[1] + i, data[i:i + 12].hex(' '), orig[i:i + 12].hex(' ')))
             print(bad[-1])
-        data_note = ', _DATA %d bytes %s' % (len(data), 'differ' if diff else 'identical')
+        data_note = (', _DATA %d of %d bytes differ' % (len(diff), len(data)) if diff else
+                     ', _DATA %d bytes identical' % len(data))
     print('%d fixups checked (%s), %d 8087 operations%s: %d bad' % (
         sum(counts.values()), ', '.join('%s %d' % kv for kv in sorted(counts.items())), nfp,
         data_note, len(bad)))
