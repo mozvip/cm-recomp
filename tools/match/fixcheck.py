@@ -265,6 +265,10 @@ def main():
 
     # the 8087 operations: INT 34h-3Bh xx in the original, 9B D8-DF xx in the object
     nfp = 0
+    in_fixup = set()                                   # operand bytes the linker fills in
+    for f in mod.fixups:
+        if f[0] == si:
+            in_fixup.update(range(f[1], f[1] + fcheck.SIZE.get(f[2], 2)))
     for k, (fo, n) in enumerate(funcs):
         if a.only and n.lstrip('_') not in a.only and n not in a.only:
             continue
@@ -272,7 +276,8 @@ def main():
         for i in range(fo, end - 1):
             b0, b1 = img[base0 + i], img[base0 + i + 1]
             # the same bytes in the object: an operand that happens to read CD 3x, not an INT
-            if b0 == 0xcd and 0x34 <= b1 <= 0x3b and (code[i], code[i + 1]) != (b0, b1):
+            if b0 == 0xcd and 0x34 <= b1 <= 0x3b and (code[i], code[i + 1]) != (b0, b1) \
+                    and i not in in_fixup and i + 1 not in in_fixup:
                 nfp += 1
                 if not (code[i] == 0x9b and code[i + 1] == 0xd8 + b1 - 0x34):
                     report(False, 'fpu', i, 'int %02xh' % b1, '9b %02x' % (0xd8 + b1 - 0x34),
