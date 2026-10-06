@@ -145,6 +145,9 @@ is complete and linked whole.
 - `push si / push di` in every function, used or not, is `-Oe` (in `-O1`).
 - Locals: scalars in declaration order from `[bp-2]` down (first declared highest);
   arrays always below the scalars. Two swapped slots mean two swapped declarations.
+- A `switch` keeps its value in a stack slot (for the table search); a local declared in
+  an inner block goes below it (18f9 `main`: switch at `[bp-4]`, block `char x` at `[bp-5]`).
+  `-O1` does not fold a test of a local just set to a constant (`x = 0; if (x == 0)`).
 - A loop variable in a slot of its own is a separate local (`for (y = y1; …)`), not the
   parameter.
 - A port's `unmapped_` and shifted `f_` names: an empty function or a one-line setter
