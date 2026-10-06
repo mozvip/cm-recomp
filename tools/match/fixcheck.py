@@ -63,7 +63,9 @@ class Checker:
         w = self.m.where(rt_seg, rt_off)
         if w[0] == 'ovl':
             return None
-        s = w[2]
+        # the segment the name gives, not the one its linear address falls in: d_28da_e886 is
+        # inside segment 3668 but is linked (and addressed) as a 28da symbol
+        s = self.m.frame_seg.get(rt_seg - RT, w[2])
         return s.index * 8 if in_ovl else s.frame
 
     def stub_entry(self, rt_seg, rt_off):
