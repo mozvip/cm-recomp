@@ -1,0 +1,17 @@
+# runtime-discovered entry points (SEG:OFS)
+2403:0d27
+1000:02a5
+1000:1aac
+1000:0322
+1000:2491
+1000:8418
+1000:8a9b
+1000:1849
+1000:4642
+# Borland runtime vectors at DS:D542-D550 (realcvt, scanf float helpers, "not linked" stubs)
+1000:0600
+1000:84ff
+1000:07ae
+1000:0acc
+1000:0ac4
+1000:8504
