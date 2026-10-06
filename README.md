@@ -107,12 +107,15 @@ make -C games/cm1/decomp progress    # how much is done
 | Championship Manager (1992) | 722 / 723 | 297,849 / 300,349 (99.2%) | `8352:46de` (2,500 bytes) |
 | Championship Manager 93 | 815 / 816 | 365,131 / 368,424 (99.1%) | `8aa1:5253` (3,293 bytes) |
 | Championship Manager Italia | 816 / 817 | 371,331 / 374,470 (99.2%) | `8539:5313` (3,139 bytes) |
+| Championship Manager 94 (End of Season) | 855 / 855 | 371,750 / 371,750 (100%) | — |
 
-Every other segment, root and overlay, is fully decompiled. The function left in each
-game is the same one, ported from game to game: the menu of actions on one of your own
-players. CM1's closest attempt has every instruction right, but several of its branches
-end with identical code, and BCC merges them into a different copy from the one the
-original keeps (see [docs/matching.md](docs/matching.md) on merged tails).
+Every other segment, root and overlay, is fully decompiled. The function left in each of
+the first three games is the same one, ported from game to game: the menu of actions on
+one of your own players. CM1's closest attempt has every instruction right, but several of
+its branches end with identical code, and BCC merges them into a different copy from the
+one the original keeps (see [docs/matching.md](docs/matching.md) on merged tails). CM94,
+built with Borland C++ 4.02, matches it too (`9007:511f`): there, code-free statements
+naming a variable steer which copy the compiler keeps.
 
 ## Repository layout
 

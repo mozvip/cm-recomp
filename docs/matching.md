@@ -337,9 +337,11 @@ volume `BORLANDC_402`): its header signature is `FB 61` (TLINK 6.1; CM1 and CM93
 `FB 50`, TLINK 5.0), and its startup code says "Copyright 1993". The options are
 **`-ml -1 -O1 -Y`**: 186 instructions, smallest code (`-O1`), overlay-compatible code (`-Y`,
 the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc4` and
-`LD_TC := bc4`; the identity relink with TLINK 6.10 is identical. `2162.C` (CM93's `1BD3.C`,
-71 functions) is complete and linked as a whole module, as are the assembly modules `2306`,
-`2352`, `2385`, `238C` (CM1's keyboard driver) and `23A7`.
+`LD_TC := bc4`; the identity relink with TLINK 6.10 is identical. The whole game is
+decompiled: each module was ported from its CM93 file (one `port.py` run of all of them;
+7732, 9E77 and A694 named by hand) and finished in parts with `wip.py`, and every C and
+assembly module is linked whole. Some modules turn jump optimisation off part-way
+(`#pragma option -O-`, see below), which `wip.py merge` keeps in place.
 
 BCC 4.02 codegen facts (CM94):
 
@@ -494,5 +496,6 @@ Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their 
   C yet, so a module's globals stay `extern`.
 - **What is not library or C yet.** The game's own modules (most of the code), and the game's
   assembly modules after 1680 in CM1 (1a51-1b05: graphics and EMS support).
-- **CM94.** Only `2162.C` and the assembly modules after it are done (see "Porting to
-  another game").
+- **CM94.** Complete: every module is matching C or assembly linked whole (see "Porting to
+  another game"). Shared facts the parts' agents found (data names the port gets wrong,
+  BCC 4.02 source forms) were kept in a notes file appended to each brief.
