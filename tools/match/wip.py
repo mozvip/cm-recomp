@@ -33,7 +33,8 @@ the order of their first declaration and TLINK makes an overlay's stub entries f
 in reverse); the parts' declarations, one per name (a name the parts declare differently
 takes the declaration most of the parts whose functions use it have; on a tie the first is
 kept and they are listed); the module's initialised tables from
-tables.c; and the functions in address order with the comment before each. tables.c
+tables.c; and the functions in address order with the comment before each (and a part's
+#pragma lines that come after its first function, kept before the next one). tables.c
 holds sections that start with a line `/* @top */` (before the first function) or
 `/* @before f_SSSS_OOOO */`. A module function's prototype is the parts' declaration of it
 without parameters if one has it (`void f();`: its callers were compiled with no prototype in
@@ -413,11 +414,15 @@ def merge(a):
             raise SystemExit('%s: no part%d.c (%04x-%04x)' % (rel(wip), k, bounds[k], bounds[k + 1]))
         parts.append(open(p, encoding='latin1').read())
     funcs, pps, decls, conflicts = {}, [], collections.OrderedDict(), collections.defaultdict(list)
+    pragmas, waiting = {}, []           # a #pragma after a part's first own function: kept in place
     for k, src in enumerate(parts):
+        owned = False
         for it in port.split_top(src):
             com, code = lead_split(it.text)
             if it.kind == 'pp':
-                if code.strip() not in pps:
+                if owned and code.strip().startswith('#pragma'):
+                    waiting.append(code.strip())
+                elif code.strip() not in pps:
                     pps.append(code.strip())
             elif it.kind == 'func':
                 off = func_off(it.name, seg)
@@ -425,6 +430,9 @@ def merge(a):
                     if it.name in funcs:
                         raise SystemExit('%s is defined twice in part%d.c' % (it.name, k))
                     funcs[it.name] = (code.rstrip(), com)
+                    owned = True
+                    if waiting:
+                        pragmas[it.name], waiting = waiting, []
             else:
                 for d in split_decl(code):
                     bare = ' '.join(re.sub(r'/\*.*?\*/|//[^\n]*', ' ', d, flags=re.S).split())
@@ -522,6 +530,7 @@ def merge(a):
         if n in tables:
             out.append(tables[n])
         body, com = funcs[n]
+        out.extend(pragmas.get(n, []))
         if body is None:
             out.append('/* %s: not written yet */\n' % n)
             continue
