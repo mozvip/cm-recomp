@@ -30,7 +30,7 @@ too; check the merged file, or read the report with that in mind.
 
 --symbols and --names default to the symbols.txt and names.txt found above FILE.
 """
-import argparse, os, re, struct, sys
+import collections, argparse, os, re, struct, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
@@ -112,7 +112,19 @@ def main():
     data = bytes(mod.data[di]) if di and di in mod.data else b''
     funcs = sorted((off, n) for n, (s, off) in mod.publics.items() if s == si and fcheck.NAME.match(n))
     if funcs:
-        off0, n0 = funcs[0]
+        # the placement most functions agree on (address - offset in the object): a part's
+        # stubs of other chunks' functions (placed first, called 0E E8) don't decide it; on a
+        # tie, the placement of the most code
+        votes = collections.defaultdict(lambda: [0, 0])
+        ends = [o for o, _ in funcs[1:]] + [len(code)]
+        for (off, n), end in zip(funcs, ends):
+            mo = fcheck.NAME.match(n)
+            key = (int(mo.group(1), 16), int(mo.group(2), 16) - off)
+            votes[key][0] += 1
+            votes[key][1] += end - off
+        key = max(votes, key=lambda k: tuple(votes[k]))
+        off0, n0 = next((o, n) for o, n in funcs if (int(fcheck.NAME.match(n).group(1), 16),
+                        int(fcheck.NAME.match(n).group(2), 16) - o) == key)
         mo = fcheck.NAME.match(n0)
         fseg, foff = int(mo.group(1), 16), int(mo.group(2), 16)
     else:                                               # main...: the whole code at @at
