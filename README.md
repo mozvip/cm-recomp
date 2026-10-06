@@ -90,6 +90,30 @@ each replacement against the translation it replaces and stops at the first diff
 See [docs/handwritten.md](docs/handwritten.md). The first ones are Championship Manager's
 runtime `strlen`, `strcpy` and `strcmp` ([games/cm1/src/string.c](games/cm1/src/string.c)).
 
+## Matching decompilation
+
+Separately from the recompiler, `games/<game>/decomp/` holds C sources that Borland C++
+compiles and TLINK links back into a DOS executable **byte-identical** to the original.
+Functions not decompiled yet are linked from the original bytes, so the relinked
+executable always matches. See [docs/matching.md](docs/matching.md).
+
+```bash
+make -C games/cm1/decomp             # compile, relink, compare with the original
+make -C games/cm1/decomp progress    # how much is done
+```
+
+| Game | Functions | Bytes | Not matched yet |
+|---|---|---|---|
+| Championship Manager (1992) | 722 / 723 | 297,849 / 300,349 (99.2%) | `8352:46de` (2,500 bytes) |
+| Championship Manager 93 | 815 / 816 | 365,131 / 368,424 (99.1%) | `8aa1:5253` (3,293 bytes) |
+| Championship Manager Italia | 816 / 817 | 371,331 / 374,470 (99.2%) | `8539:5313` (3,139 bytes) |
+
+Every other segment, root and overlay, is fully decompiled. The function left in each
+game is the same one, ported from game to game: the menu of actions on one of your own
+players. CM1's closest attempt has every instruction right, but several of its branches
+end with identical code, and BCC merges them into a different copy from the one the
+original keeps (see [docs/matching.md](docs/matching.md) on merged tails).
+
 ## Repository layout
 
 | Path | Content |
