@@ -1,0 +1,9 @@
+# runtime-discovered entry points (SEG:OFS)
+2006:0d2d
+1000:0298
+1000:160e
+1000:2b5b
+1000:1f14
+1000:02fc
+1000:4028
+1000:05bd

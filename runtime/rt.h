@@ -57,6 +57,7 @@ void dos_set_cmdline(const char *tail);
 /* per-game configuration and hooks (games/<game>/hooks.c) */
 extern const char *rc_game_dos_path;  /* argv[0] as DOS sees it, e.g. "C:\\EUROPE.EXE" */
 extern const char *rc_game_title;
+extern const char *rc_game_default_args;  /* the command line when none is given (default " a") */
 void rc_hooks_init(void);
 extern uint16_t rc_image_end_seg;
 
