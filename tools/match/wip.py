@@ -468,10 +468,14 @@ def merge(a):
         seg, starts[0], '/* @data %s */\n' % data if data else '', header)]
     out += pps
     if kind == 'overlay':
-        out.append("\n/* the functions, in the order of the overlay's stub entries: BCC writes the public "
+        # BCC 3.x lists the publics so that the stub table comes out in their first declaration
+        # order; BCC 4.02 the other way round, so its prototypes go in the reverse order
+        rev = cfg.get('cc') == 'bc4'
+        out.append("\n/* the functions, in the %sorder of the overlay's stub entries: BCC writes the public "
                    "definitions (TLINK makes\n * the overlay's stub entries from them) in the order of "
-                   "the first declarations */")
-        names = ['f_%04x_%04x' % (seg, e) for e in entries] + \
+                   "the first declarations */" % ('reverse ' if rev else ''))
+        stubs = entries[::-1] if rev else entries
+        names = ['f_%04x_%04x' % (seg, e) for e in stubs] + \
                 [n for n in order if func_off(n, seg) not in public]
     else:
         out.append('\n/* the functions of the segment */')
