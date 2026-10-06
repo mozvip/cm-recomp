@@ -285,7 +285,11 @@ segment that do not fit.
   matching function (7a28:360e).
 - **Tail merging:** when BCC merges identical call tails into the *first* copy where the
   original kept the *last*, a code-free statement (`0;`) after a `for` loop that ends its
-  block changes the choice (67ee:4060).
+  block changes the choice (67ee:4060). In BCC 3.1 `0;` and a statement naming a
+  variable (`x;`) act the same: a barrier that keeps the copy before it whole (BCC 4.02
+  differs: there `x;` picks which copy is kept). 8352:46de (the player-actions menu, matched
+  in CM94 as 9007:511f) got to one instruction from the original this way, plus
+  restructuring of its Fine branch: games/cm1/decomp/wip/8352/f46de_best.c (local, untracked).
 - **`__emit__` with BCC 3.0 (CM93):** an address argument (`(char near *)"..."`, a far
   function) gets a broken fixup (omf.py fails with `KeyError ('F', 0)`). Load addresses
   with `_AX = (unsigned)d_60ae_XXXX;` (an `extern char near` at the address) or
