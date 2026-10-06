@@ -12,7 +12,7 @@ prepare writes GAME's decomp/wip/ssss/:
     bounds.txt      the chunks' start offsets and the end
     stub_order.txt  an overlay's stub entries in the stub table's order
     strings.txt     `ADDR 'text'` for the strings of the module's data: from --data (or the
-                    lowest literal the code loads with push ds / mov ax, ADDR) to past the
+                    lowest literal the code loads with push ds / mov ax (or push), ADDR) to past the
                     highest one
     BRIEF.md        the instructions for the agent of one chunk, filled in for the game
                     (compiler, fcheck's --cc, the matching sources to copy, the entries, the
@@ -111,12 +111,13 @@ def cut(starts, end, size=None, chunks=None):
 
 
 def literals(g, rows):
-    """DGROUP addresses the code loads as far pointers (push ds / mov ax, ADDR): the densest
-    run of them, the literal pool (the others point at variables)."""
+    """DGROUP addresses the code loads as far pointers (push ds / mov ax, ADDR, or BCC 4's
+    push ds / push ADDR): the densest run of them, the literal pool (the others point at
+    variables)."""
     found = set()
     for a, b in zip(rows, rows[1:]):
         if a[2] == 'push [ds]':
-            mo = re.match(r'mov \[(?:ax|dx|bx|cx), 0x([0-9a-f]+)\]$', b[2])
+            mo = re.match(r'(?:mov \[(?:ax|dx|bx|cx), |push \[)0x([0-9a-f]+)\]$', b[2])
             if mo:
                 found.add(int(mo.group(1), 16))
     runs = []
@@ -162,7 +163,7 @@ Read first:
   `python3 tools/match/disasm.py {exe} {seg}:OOOO` prints one function. Whole {kind}: ov.txt.
   The chunks: {chunks}.
 - {wip}/strings.txt: `ADDR 'text'` for the strings of the module's data (`push ds / mov ax,
-  ADDR` is the literal at ADDR). Write them as C string literals, in the order the code
+  ADDR`, or `push ds / push ADDR`, is the literal at ADDR). Write them as C string literals, in the order the code
   uses them.
 - {entries}
 - This module's initialised data starts at DGROUP {data}. Report every initialised table
