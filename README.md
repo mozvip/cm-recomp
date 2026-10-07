@@ -1,24 +1,33 @@
 # cm-recomp
 
-Static recompilation of **Championship Manager (1992)** and **Championship Manager 93**
-(Domark / Intelek, MS-DOS) into native C, running on Linux with SDL2.
+Five **Championship Manager** games (Domark / Intelek, MS-DOS, 1992-1995), worked on in
+two independent ways:
 
-The original 16-bit x86 machine code is translated instruction by instruction into C
-at build time. The resulting program runs natively: there is no emulator loop, the
-game logic is the original code, and DOS, the BIOS, the VGA card, the mouse, the timer
-and the AdLib card are provided by a small runtime.
+- **Static recompilation.** The original 16-bit x86 machine code is translated
+  instruction by instruction into C at build time, and runs natively on Linux with SDL2.
+  There is no emulator loop: the game logic is the original code, and DOS, the BIOS, the
+  VGA card, the mouse, the timer and the AdLib card are provided by a small runtime. See
+  [How it works](#how-it-works).
+- **Complete matching decompilation.** Every function of all five games has been
+  rewritten as C (and a few assembly modules) that the original Borland compilers turn
+  back into the original code: compiled and linked, the sources give a DOS executable
+  **byte-identical** to the one shipped. See [Matching decompilation](#matching-decompilation).
 
-**No game files are included.** You need your own copy of the game: the build reads
-its executable and sound driver, and the game reads its data files at run time.
+**No game files are included.** You need your own copy of the game: the recompiler reads
+its executable and sound driver, the game reads its data files at run time, and the
+decompilation's build compares its output with the original executable.
 
-| Game | Executable | Status |
-|---|---|---|
-| Championship Manager (1992) | `EUROPE.EXE` | Plays through title, protection screen, menus, new game, season, results and cup fixtures; AdLib music |
-| Championship Manager 93 | `CMEXE.EXE` | Same flow; AdLib title music |
+| Game | Executable | Recompiled build | Decompilation |
+|---|---|---|---|
+| Championship Manager (1992) | `EUROPE.EXE` | Plays through title, protection screen, menus, new game, season, results and cup fixtures; AdLib music | Complete, byte-identical |
+| Championship Manager 93 | `CMEXE.EXE` | Same flow; AdLib title music | Complete, byte-identical |
+| Championship Manager Italia | `CM.EXE` | Reaches the Italian Cup first round fixtures (no sound driver in this release) | Complete, byte-identical |
+| Championship Manager 94 (End of Season) | `CMEXE.EXE` | Builds and runs, AdLib music: see [its README](games/cmese/README.md) | Complete, byte-identical |
+| Championship Manager Italia 95 | `CM.EXE` | Reaches the Italian Cup second round (no sound driver in this release) | Complete, byte-identical |
 
-Tested headless with scripted input, and by building and running on Linux. Real play
-sessions, and a listening comparison of the music against DOSBox, have not been done
-yet: see [Status](#status).
+The recompiled games are tested headless with scripted input, and by building and running
+on Linux. Real play sessions, and a listening comparison of the music against DOSBox, have
+not been done yet: see [Status](#status).
 
 ## Building
 
@@ -36,8 +45,11 @@ make -C games/cm93 -j$(nproc) GAME_DIR=/path/to/cm93           # contains CMEXE.
 make -C games/cm93 run GAME_DIR=/path/to/cm93
 ```
 
-The first build takes under a minute. The binaries are `games/cm1/cm1_rc` and
-`games/cm93/cm93_rc`. They must be started **from the game directory**, because the
+The other games build the same way from `games/cmitalia`, `games/cmese` and
+`games/cmita95`; each game's README lists the files it needs.
+
+The first build takes under a minute. The binaries are `games/<game>/<game>_rc`
+(`games/cm1/cm1_rc`, `games/cm93/cm93_rc`, ...). They must be started **from the game directory**, because the
 game opens its data files and writes its saves (`SAVEGAME`/`SVGAME`, `VM.$$$`) there.
 `make run` does that for you. Work on a copy of the game directory if you want to keep
 the original untouched.
@@ -92,10 +104,12 @@ runtime `strlen`, `strcpy` and `strcmp` ([games/cm1/src/string.c](games/cm1/src/
 
 ## Matching decompilation
 
-Separately from the recompiler, `games/<game>/decomp/` holds C sources that Borland C++
-compiles and TLINK links back into a DOS executable **byte-identical** to the original.
-Functions not decompiled yet are linked from the original bytes, so the relinked
-executable always matches. See [docs/matching.md](docs/matching.md).
+Separately from the recompiler, `games/<game>/decomp/src/` holds the games' source code,
+recovered function by function: C that Borland C++ (3.0, 3.1 or 4.02, as each game was
+built) compiles, and TLINK links with the stock Borland runtime and overlay manager, back
+into a DOS executable **byte-identical** to the original. The build runs the DOS tools
+headless in DOSBox-X and compares the result with your copy of the executable. See
+[docs/matching.md](docs/matching.md).
 
 ```bash
 make -C games/cm1/decomp             # compile, relink, compare with the original
@@ -129,7 +143,9 @@ with Borland C++ 4.02, matches it with code-free statements naming a variable
 | `tools/emudis.py` | Disassembler for the relocated image, with emulator FPU ops decoded |
 | `runtime/` | CPU helpers, FPU, DOS/BIOS/mouse/VGA services, OPL2 emulation, SDL output, mod registry (`mod.h`), ImGui overlay (`ui.cpp`), shared makefile |
 | `third_party/imgui` | Dear ImGui (submodule) |
-| `games/cm1/`, `games/cm93/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points, hand-written replacements (`overrides.txt`, `src/`) |
+| `games/<game>/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points, hand-written replacements (`overrides.txt`, `src/`) |
+| `games/<game>/decomp/` | The matching decompilation: `src/` (the C and assembly sources), makefile, symbols |
+| `tools/match/` | The decompilation's tools: relink, per-function compare, diff, porting between games |
 | `docs/` | Technical documentation |
 
 ## Debug and test options
@@ -153,7 +169,7 @@ Environment variables read by the recompiled games:
 
 ## Status
 
-- Both games run through a new game and several weeks of a season under scripted input.
+- CM1 and CM93 run through a new game and several weeks of a season under scripted input.
 - AdLib music plays. The OPL2 emulation has been checked by measurement only (levels,
   spectrum, register traffic), not yet compared by ear against a reference emulator.
 - Not supported: MT-32 music, the EGA display path (a VGA card is reported), printing.
