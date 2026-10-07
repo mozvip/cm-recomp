@@ -43,7 +43,12 @@ import argparse, bisect, collections, difflib, glob, math, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
-import mkblobs, disasm
+import mkblobs, disasm, names
+
+
+def read_src(path):
+    """A FROM source with the address names (f_SSSS_OOOO...) its game's names.txt replaced."""
+    return names.load(path).to_addresses(open(path, encoding='latin1').read())
 
 RT = 0x1000
 PREFIX = 'unmapped_'                    # the build then stops on these: fix them by hand
@@ -116,7 +121,7 @@ class Game:
 class SourceFile:
     def __init__(self, path):
         self.path = path
-        self.text = open(path, encoding='latin1').read()
+        self.text = read_src(path)
         m = re.search(r'@at\s+([0-9a-fA-F]{4}):([0-9a-fA-F]{4})', self.text)
         self.at = (int(m.group(1), 16), int(m.group(2), 16))
         m = re.search(r'@data\s+([0-9a-fA-F]{4}):([0-9a-fA-F]{4})', self.text)
@@ -548,7 +553,7 @@ def port_segment(a, b, seg, srcdir, out, minr):
         raise SystemExit('%s has no functions in segment %04x' % (b.exe, seg))
     defs, decls = {}, []
     for path in sorted(glob.glob(os.path.join(srcdir, '*.[cC]'))):
-        for it in split_top(open(path, encoding='latin1').read()):
+        for it in split_top(read_src(path)):
             mo = re.fullmatch(r'f_([0-9a-f]{4})_([0-9a-f]{4})', it.name or '')
             if it.kind == 'func' and mo:
                 defs[(int(mo.group(1), 16), int(mo.group(2), 16))] = (path, it)

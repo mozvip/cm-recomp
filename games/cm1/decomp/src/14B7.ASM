@@ -12,9 +12,9 @@
 DGROUP  group   _DATA
 
 _DATA   segment word public 'DATA'
-        extrn   _d_5d9c_1d46:word       ; pointer x (14d2)
-        extrn   _d_5d9c_1d48:word       ; pointer y
-        extrn   _d_5d9c_1d4c:word       ; button down
+        extrn   _mouse_x:word       ; pointer x (14d2)
+        extrn   _mouse_y:word       ; pointer y
+        extrn   _mouse_clicks:word       ; button down
 
 scantab db      0, 0, '1234567890-=', 8, 0
         db      'QWERTYUIOP[]', 13, 0
@@ -29,8 +29,8 @@ keytab  db      0, 4Bh, 0                       ; left
         db      4, 29h, 39h, 52h, 47h, 1Dh, 36h, 38h, 0 ; the button
         db      0
 oldint9 dd      0
-        public  _d_5d9c_1cb0
-_d_5d9c_1cb0 dw 0
+        public  _keyboard_unused_word
+_keyboard_unused_word dw 0
 keys    dw      0                       ; the keys of keytab held down, bit per group
 repeat  db      0                       ; interrupts since the keys changed
 installed db    0
@@ -42,23 +42,23 @@ cursor  db      0FEh, 0, 84h, 0, 88h, 0, 84h, 0, 0A2h, 0, 0D1h, 0, 88h, 80h, 4, 
         db      0FEh, 0, 0FCh, 0, 0F8h, 0, 0FCh, 0, 0FEh, 0, 0DFh, 0, 8Fh, 80h, 7, 0C0h
         db      3, 0E0h, 1, 0E0h, 0, 0E0h
         db      0
-        public  _d_5d9c_1cea, _d_5d9c_1ceb, _d_5d9c_1cec, _d_5d9c_1ced
-_d_5d9c_1cea db 0                       ; mouse initialised
-_d_5d9c_1ceb db 0                       ; text drawn with its background
-_d_5d9c_1cec db 0                       ; sound device letter
-_d_5d9c_1ced dw 0                       ; virtual memory in EMS/extended memory
+        public  _mouse_initialised, _text_opaque, _sound_device, _vm_in_ems
+_mouse_initialised db 0                       ; mouse initialised
+_text_opaque db 0                       ; text drawn with its background
+_sound_device db 0                       ; sound device letter
+_vm_in_ems dw 0                       ; virtual memory in EMS/extended memory
         db      17 dup (0)
 _DATA   ends
 
 CSEG_   segment byte public 'CODE'
         assume  cs:CSEG_, ds:DGROUP
 
-        public  _f_14b7_0004, _f_14b7_003e
+        public  _install_keyboard_handler, _remove_keyboard_handler
 
-_f_14b7_0004 proc far                   ; install
+_install_keyboard_handler proc far                   ; install
         test    installed, 0FFh
         jne     inst_done
-        mov     _d_5d9c_1cb0, 0
+        mov     _keyboard_unused_word, 0
         mov     keys, 0
         mov     ax, 0
         mov     es, ax
@@ -73,9 +73,9 @@ _f_14b7_0004 proc far                   ; install
         mov     installed, 1
 inst_done:
         ret
-_f_14b7_0004 endp
+_install_keyboard_handler endp
 
-_f_14b7_003e proc far                   ; remove
+_remove_keyboard_handler proc far                   ; remove
         test    installed, 0FFh
         je      rem_done
         mov     installed, 0
@@ -89,7 +89,7 @@ _f_14b7_003e proc far                   ; remove
         sti
 rem_done:
         ret
-_f_14b7_003e endp
+_remove_keyboard_handler endp
 
 move    proc near                       ; move the pointer by the keys held
         mov     ax, keys
@@ -103,55 +103,55 @@ held:   inc     repeat
         jb      slow
         test    ax, 1
         je      f_right
-        cmp     _d_5d9c_1d46, 3
+        cmp     _mouse_x, 3
         jb      f_right
-        sub     _d_5d9c_1d46, 3
+        sub     _mouse_x, 3
 f_right: test   ax, 2
         je      f_up
-        cmp     _d_5d9c_1d46, 317
+        cmp     _mouse_x, 317
         jae     f_up
-        add     _d_5d9c_1d46, 3
+        add     _mouse_x, 3
 f_up:   test    ax, 4
         je      f_down
-        cmp     _d_5d9c_1d48, 3
+        cmp     _mouse_y, 3
         jb      f_down
-        sub     _d_5d9c_1d48, 3
+        sub     _mouse_y, 3
 f_down: test    ax, 8
         je      button
-        cmp     _d_5d9c_1d48, 197
+        cmp     _mouse_y, 197
         jae     button
-        add     _d_5d9c_1d48, 3
+        add     _mouse_y, 3
 button: test    ax, 10h
         je      up1
-        mov     _d_5d9c_1d4c, 1
+        mov     _mouse_clicks, 1
         jmp     short done1
-up1:    mov     _d_5d9c_1d4c, 0
+up1:    mov     _mouse_clicks, 0
 done1:  ret
 slow:   test    ax, 1
         je      s_right
-        cmp     _d_5d9c_1d46, 1
+        cmp     _mouse_x, 1
         jb      s_right
-        dec     _d_5d9c_1d46
+        dec     _mouse_x
 s_right: test   ax, 2
         je      s_up
-        cmp     _d_5d9c_1d46, 319
+        cmp     _mouse_x, 319
         jae     s_up
-        inc     _d_5d9c_1d46
+        inc     _mouse_x
 s_up:   test    ax, 4
         je      s_down
-        cmp     _d_5d9c_1d48, 1
+        cmp     _mouse_y, 1
         jb      s_down
-        dec     _d_5d9c_1d48
+        dec     _mouse_y
 s_down: test    ax, 8
         je      s_button
-        cmp     _d_5d9c_1d48, 199
+        cmp     _mouse_y, 199
         jae     s_button
-        inc     _d_5d9c_1d48
+        inc     _mouse_y
 s_button: test  ax, 10h
         je      up2
-        mov     _d_5d9c_1d4c, 1
+        mov     _mouse_clicks, 1
         jmp     short done2
-up2:    mov     _d_5d9c_1d4c, 0
+up2:    mov     _mouse_clicks, 0
 done2:  ret
 move    endp
 

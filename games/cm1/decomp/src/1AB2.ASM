@@ -11,7 +11,7 @@
 DGROUP  group   _DATA
 
 _DATA   segment word public 'DATA'
-        extrn   _d_5d9c_a32e:word       ; segment the driver is loaded at
+        extrn   _sound_driver_seg:word       ; segment the driver is loaded at
 driver  dd      0                       ; its entry, offset 0 of that segment
 song    dw      0                       ; what function 5 returned in DI
 _DATA   ends
@@ -19,27 +19,27 @@ _DATA   ends
 CSEG_   segment byte public 'CODE'
         assume  cs:CSEG_, ds:DGROUP
 
-        public  _f_1ab2_000e, _f_1ab2_0016, _f_1ab2_0029, _f_1ab2_004b
-        public  _f_1ab2_005c, _f_1ab2_0067
+        public  _mt32_music_setup, _install_music_driver, _start_music, _music_on
+        public  _remove_music_driver, _music_off
 
-_f_1ab2_000e proc far
+_mt32_music_setup proc far
         mov     ax, 0Ah
         mov     cl, 14h
         int     91h
         ret
-_f_1ab2_000e endp
+_mt32_music_setup endp
 
-_f_1ab2_0016 proc far                   ; install the driver
-        mov     ax, _d_5d9c_a32e
+_install_music_driver proc far                   ; install the driver
+        mov     ax, _sound_driver_seg
         mov     word ptr driver+2, ax
         mov     ax, 91h
         call    driver
         mov     ax, 3
         int     91h
         ret
-_f_1ab2_0016 endp
+_install_music_driver endp
 
-_f_1ab2_0029 proc far                   ; play (char far *music)
+_start_music proc far                   ; play (char far *music)
         push    bp
         mov     bp, sp
         push    si
@@ -57,9 +57,9 @@ _f_1ab2_0029 proc far                   ; play (char far *music)
         pop     si
         pop     bp
         ret
-_f_1ab2_0029 endp
+_start_music endp
 
-_f_1ab2_004b proc far                   ; play again
+_music_on proc far                   ; play again
         push    di
         mov     ax, 5
         mov     cx, 0
@@ -68,24 +68,24 @@ _f_1ab2_004b proc far                   ; play again
         mov     song, di
         pop     di
         ret
-_f_1ab2_004b endp
+_music_on endp
 
-_f_1ab2_005c proc far                   ; stop and remove the driver
+_remove_music_driver proc far                   ; stop and remove the driver
         mov     ax, 4
         int     91h
         mov     ax, 0
         int     91h
         ret
-_f_1ab2_005c endp
+_remove_music_driver endp
 
-_f_1ab2_0067 proc far                   ; stop
+_music_off proc far                   ; stop
         push    di
         mov     ax, 6
         mov     di, song
         int     91h
         pop     di
         ret
-_f_1ab2_0067 endp
+_music_off endp
 
 CSEG_   ends
         end

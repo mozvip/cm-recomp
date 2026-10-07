@@ -13,967 +13,967 @@
 
 /* the functions, in address order: BCC writes the public definitions (TLINK makes
  * the overlay's stub entries from them) in the order of the first declarations */
-void f_67ee_0000(void);
-void f_67ee_02c5(int n, char lit);
-void f_67ee_053d(void);
-void f_67ee_0622(int div);
-void f_67ee_0bbc(int div, unsigned char far (*t)[20]);
-char f_67ee_0e0a(int pos, int div);
-void f_67ee_0e4c(int mode, int team);
-void f_67ee_1a68(int mode);
-void f_67ee_2598(void);
-void f_67ee_2a22(void);
-void f_67ee_2f13(void);
-void f_67ee_3212(char year);
-void f_67ee_3b26(void);
-void f_67ee_3b45(void);
-void f_67ee_4060(void);
-void f_67ee_44b1(void);
-void f_67ee_44c2(void);
-void f_67ee_47dc(void);
-void f_67ee_486f(void);
-void f_67ee_4a20(int a, int b, float x);
-void f_67ee_4e10(int team);
-void f_67ee_52ba(int team, char far names[][94][20], unsigned char far *comp, unsigned char far *week);
-void f_67ee_5608(void);
-void f_67ee_5641(int team);
-void f_67ee_5ab6(float x, int team, char far *title);
-void f_67ee_5c0f(int team);
-void f_67ee_5f96(int team);
+void season_main_menu(void);
+void draw_main_menu_button(int item, char pressed);
+void tables_awards_menu(void);
+void league_table_screen(int division);
+void build_league_table(int division, unsigned char far (*table)[20]);
+char is_table_divider_pos(int pos, int division);
+void top_players_screen(int mode, int team);
+void team_ranking_screen(int mode);
+void manager_points_screen(void);
+void manager_rankings_screen(void);
+void hall_of_fame_screen(void);
+void awards_screen(char year);
+void national_squads_menu(void);
+void international_squads_screen(void);
+void fixture_info_menu(void);
+void show_draw_not_made(void);
+void euro_seedings_screen(void);
+void european_cup_groups_screen(void);
+void domark_groups_screen(void);
+void draw_group_table(int cup, int group, float top);
+void team_fixtures_screen(int team);
+void build_team_fixtures(int team, char far names[][94][20], unsigned char far *comp, unsigned char far *week);
+void club_details_menu(void);
+void club_squad_screen(int team);
+void draw_club_title(float left, int team, char far *title);
+void club_transfers_screen(int team);
+void league_progress_graph(int team);
 
-int f_1680_0577(int x);
-void f_a1c3_27e4(char far *title);
-long f_14d2_0ca0(void);
-int f_14d2_0ac9(void);
-int f_14d2_0ac1(void);
-int f_14d2_0ab9(void);
-void f_14d2_0722(int c);
-void f_14d2_075a(int x1, int y1, int x2, int y2);
-void f_14d2_073e(int c);
-void f_14d2_07af(int x1, int y1, int x2, int y2);
-unsigned f_14d2_09ce(char far *s, char far *set);
-void f_1680_2a61(float x, float y, int colour, char far *s);
-void f_1680_150c(int n, char far *title, char far *items);
-void f_88c9_24f1(char far *);
-int f_a1c3_2553(void);
-void far *f_14d2_16bc(int handle, int page);
-void f_1680_2867(float x, float y, int bg, int fg, int w, char far *s);
-void f_1680_27aa(int x, int y, int colour, char far *s);
-char f_1680_0003(int x);
-void f_a1c3_2d08(int a, float x, float y, int c, int d, int e, char far *s);
-void f_14d2_0e27(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
-void f_14d2_148f(void far *a, void far *b, int n);
-void f_a1c3_34c6(int team);
-int f_a1c3_3298(int a);
-void f_992a_0000(int div);
-void f_a1c3_30b1(int a, char b);
-void f_6e68_0f31(void);
-void f_6e68_0000(void);
-void f_6e68_060e(void);
-void f_6e68_0d3a(void);
-void f_6e68_1176(void);
-void f_6e68_129c(void);
-void f_6e68_33d9(int);
-int f_14d2_13eb(int a, int b);
-int f_1680_0287(int x);
+int contract_period_of_week(int x);
+void new_screen(char far *title);
+long clock_ticks(void);
+int take_mouse_clicks(void);
+int get_mouse_x(void);
+int get_mouse_y(void);
+void set_fill_colour(int c);
+void fill_rect(int x1, int y1, int x2, int y2);
+void set_draw_colour(int c);
+void draw_rect(int x1, int y1, int x2, int y2);
+unsigned find_substring(char far *s, char far *set);
+void draw_text_font1(float x, float y, int colour, char far *s);
+void show_menu(int n, char far *title, char far *items);
+void message_box(char far *);
+int top_human_division(void);
+void far *vm_map(int handle, int page);
+void draw_label(float x, float y, int bg, int fg, int w, char far *s);
+void draw_text_at(int x, int y, int colour, char far *s);
+char is_human_team(int x);
+void add_button(int a, float x, float y, int c, int d, int e, char far *s);
+void draw_line(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
+void swap_bytes(void far *a, void far *b, int n);
+void disable_button(int team);
+int wait_for_button(int a);
+void print_league_table(int div);
+void draw_button(int a, char b);
+void match_reports_menu(void);
+void find_player_or_shortlist(void);
+void manager_options_menu(void);
+void manager_jobs_menu(void);
+void background_picture_menu(void);
+void save_game_menu(void);
+void squad_screen(int);
+int max_int(int a, int b);
+int league_points_at(int x);
 extern char d_5d9c_9b8c;
-extern char d_5d9c_9b8d;
-extern char d_5d9c_9b8e;
-extern char d_5d9c_9b8f;
-extern char d_5d9c_9b90;
-extern int d_5d9c_9fa1;
-extern int d_5d9c_9fab;
-extern int d_5d9c_9fa7;
-extern int d_5d9c_9faf;
-extern int d_5d9c_a062[];
-extern int d_5d9c_9f83;
-extern float d_5d9c_9b0c;
-extern float d_5d9c_9b08;
-extern int d_5d9c_9f7d;
-extern int d_5d9c_9f81;
-extern int d_5d9c_9f7f;
-extern int d_5d9c_9f7b;
-extern int d_5d9c_9f79;
-extern int d_5d9c_9f77;
-extern int d_5d9c_9f75;
-extern int d_5d9c_9f73;
+extern char is_demo_game;
+extern char in_main_menu;
+extern char printer_on;
+extern char no_matches_this_week;
+extern int loop_j;
+extern int current_week;
+extern int season;
+extern int menu_choice;
+extern int friendly_counts[];
+extern int fixture_index;
+extern float menu_start_ticks;
+extern float text_y;
+extern int main_menu_choice;
+extern int cur_x;
+extern int cur_y;
+extern int row_colour_a;
+extern int button_width;
+extern int button_border_colour;
+extern int label_split_pos;
+extern int label_indent;
 extern int d_5d9c_9f71;
-extern int d_5d9c_9f6f;
-extern int d_5d9c_9f6d;
-extern int d_5d9c_9f6b;
+extern int shown_division;
+extern int loop_i;
+extern int row_colour_b;
 extern int d_5d9c_9f69;
-extern int d_5d9c_9f67;
-extern int d_5d9c_9f65;
-extern int d_5d9c_9f63;
-extern int d_5d9c_9f85;
-extern int d_5d9c_a336;
-extern char far *d_5d9c_a044;
-extern char near *d_5d9c_08bc[];
-extern unsigned char far d_2f3c_2d0b[];
+extern int selected_team;
+extern int shirt_fg;
+extern int last_button;
+extern int league_round;
+extern int table_marks_handle;
+extern char far *ems_window_ptr;
+extern char near *team_names[];
+extern unsigned char far slot_status[];
 extern unsigned char far d_2f3c_2d18[];
-extern unsigned char far d_2f3c_2794[][20];
-extern char far d_1f3e_57c4[];
-extern char far d_1f3e_5774[];
-extern char far d_1f3e_5724[];
-extern unsigned char far d_483b_9fb6[][20];
-extern unsigned char far d_5739_0386[];
-extern unsigned char far d_5739_03d8[];
-extern unsigned char far d_5739_042a[];
-extern unsigned char far d_5739_047c[];
-extern unsigned char far d_5739_04ce[];
-extern unsigned char far d_5739_0520[];
-extern unsigned char far d_5739_0572[];
-extern unsigned char far d_5739_05c4[];
-extern unsigned char far d_5739_0616[];
-extern unsigned char far d_5739_0668[];
-void f_1680_2ea0(float x, float y, int a, int b, int c, char far *s);
-void f_1680_33a0(float x, float y, int team);
-char far *f_a1c3_213c(int player);
-void f_a1c3_5e7a(int player, int a, char b);
-void f_8352_4556(int player, int a);
-extern char d_5d9c_9b88;
-extern char d_5d9c_9b89;
-extern char d_5d9c_9b8a;
-extern char d_5d9c_9b8b;
-extern float d_5d9c_9b00;
-extern float d_5d9c_9b04;
-extern int d_5d9c_9f57;
-extern int d_5d9c_9f59;
-extern int d_5d9c_9f5b;
-extern int d_5d9c_9f5d;
-extern int d_5d9c_9f5f;
-extern int d_5d9c_9f61;
-extern int d_5d9c_9f91;
-extern int far d_2f3c_15c0[4][3][2][30];
-extern int far d_2f3c_85f7[];
-extern int far d_2f3c_bb27[];
-extern unsigned char huge d_483b_0000[][1702];
-extern unsigned char huge d_3e42_0000[][1702];
-extern char far d_1f3e_a50a[];
-extern char far d_1f3e_56d4[];
-extern char far d_1f3e_5684[];
-extern unsigned char far d_5739_023e[];
-extern int far d_483b_a372[][26];
-char far *f_a1c3_229c(int manager, char full);
-extern long d_5d9c_9a5c;
-extern long d_5d9c_9a58;
-extern int d_5d9c_9f55;
-extern int d_5d9c_9f49;
-extern char far d_1f3e_55e4[];
-extern char far d_1f3e_5594[];
+extern unsigned char far league_table[][20];
+extern char far button_label[];
+extern char far button_label_line1[];
+extern char far button_label_line2[];
+extern unsigned char far league_table_rows[][20];
+extern unsigned char far season_status[];
+extern unsigned char far team_wins[];
+extern unsigned char far team_losses[];
+extern unsigned char far league_goals_for[];
+extern unsigned char far league_goals_against[];
+extern unsigned char far team_away_wins[];
+extern unsigned char far team_away_draws[];
+extern unsigned char far team_away_losses[];
+extern unsigned char far team_away_goals_for[];
+extern unsigned char far team_away_goals_against[];
+void draw_text_box(float x, float y, int a, int b, int c, char far *s);
+void draw_team_label(float x, float y, int team);
+char far *player_full_name(int player);
+void player_details_screen(int player, int a, char b);
+void do_player_action(int player, int a);
+extern char exit_chosen;
+extern char changed_division;
+extern char menu_choice_done;
+extern char division_wide_flag;
+extern float text_x;
+extern float average_rating;
+extern int player_screen_action;
+extern int row_name_colour;
+extern int player_stat;
+extern int best_stat;
+extern int last_ranked_row;
+extern int stats_division;
+extern int cur_player;
+extern int far top_players_cache[4][3][2][30];
+extern int far player_rating_total[];
+extern int far player_old_club_rating[];
+extern unsigned char huge player_attrs[][1702];
+extern unsigned char huge player_stats[][1702];
+extern char far player_moved_club[];
+extern char far sub_kind_text[];
+extern char far sub_text[];
+extern unsigned char far squad_size[];
+extern int far squad_players[][26];
+char far *manager_name(int manager, char full);
+extern long best_long_value;
+extern long team_long_value;
+extern int loop_k;
+extern int best_league_slot;
+extern char far division_text[];
+extern char far form_text[];
 extern char far d_1f3e_54f4[];
 extern char far d_1f3e_2b9a[];
 extern char far d_1f3e_2b4a[];
-extern char far d_1f3e_0780[][82][5];
-extern long far d_2f3c_7b33[];
-extern int far d_2f3c_7f93[];
-extern unsigned char far d_5739_01ec[];
-extern unsigned char far d_5739_138a[];
-extern unsigned char far d_5739_13dc[];
-char far *f_88c9_72fa(int a, int b);
-extern long d_5d9c_9a54;
+extern char far team_form[][82][5];
+extern long far season_attendance_total[];
+extern int far team_manager[];
+extern unsigned char far board_confidence[];
+extern unsigned char far home_games_played[];
+extern unsigned char far club_job_vacant[];
+char far *staff_rating_text(int a, int b);
+extern long manager_points;
 extern int d_5d9c_9f4b;
 extern int d_5d9c_9f4d;
-extern int d_5d9c_9f4f;
+extern int ranked_manager;
 extern int d_5d9c_9f51;
-extern int d_5d9c_9f53;
-extern char d_5d9c_9b87;
-extern int d_5d9c_a34e;
-extern int d_5d9c_a35e;
-extern long far *d_5d9c_a054;
-extern char far *d_5d9c_9fd2;
-extern unsigned char far d_2f3c_5e19[];
-extern unsigned char far d_2f3c_53f1[];
-extern unsigned char far d_2f3c_5167[];
-extern long far d_2f3c_1d40[];
-char far *f_a1c3_2243(int player);
-char far *f_a1c3_261d(int division);
-char far *f_a1c3_21cc(int player);
-void f_a1c3_2c23(void);
-char far *f_992a_5114(int n);
+extern int rankings_page;
+extern char draw_involves_human;
+extern int hall_of_fame_handle;
+extern int manager_points_handle;
+extern long far *manager_points_ptr;
+extern char far *hall_of_fame_ptr;
+extern unsigned char far staff_skills[];
+extern unsigned char far staff_age[];
+extern unsigned char far manager_team[];
+extern long far hall_of_fame_points[];
+char far *player_surname(int player);
+char far *ordinal_text(int division);
+char far *player_short_name(int player);
+void reset_buttons(void);
+char far *home_nation_name(int n);
 extern int d_5d9c_9f47;
 extern int d_5d9c_9f43;
 extern int d_5d9c_9f45;
-extern int d_5d9c_9f41;
-extern int d_5d9c_9f3f;
+extern int squad_nation;
+extern int under_21_flag;
 extern int d_5d9c_9f3d;
 extern int d_5d9c_9f3b;
-extern int d_5d9c_a344;
-extern int d_5d9c_9fee[];
+extern int national_squads_handle;
+extern int manager_award_winners[];
 extern float d_5d9c_9afc;
-extern unsigned char d_5d9c_0094[];
-extern int (far *d_5d9c_9ff6)[2][22];
-extern char far d_1f3e_5454[];
-extern char far d_1f3e_5404[];
-extern char far d_1f3e_5396[];
-extern char far d_1f3e_5346[];
-extern char far d_1f3e_52f6[];
-extern char far d_1f3e_52a6[];
-extern long far d_2f3c_0040[];
-extern float far d_2f3c_0050[][4];
-extern int far d_2f3c_0070[][4];
-extern char far * far d_5471_17c4[];
-void f_1680_18b2(int last);
-void f_6e68_12fd(int, int, int);
-char f_992a_7831(int);
-char f_992a_7713(int);
-char far *f_1680_1a91(int x);
-void f_9100_6dd0(void);
-extern int d_5d9c_9f39;
-extern int d_5d9c_9f37;
-extern int d_5d9c_9ee3;
-extern char d_5d9c_9b75;
-extern char d_5d9c_9b86;
+extern unsigned char intl_squad_positions[];
+extern int (far *intl_squads)[2][22];
+extern char far award_points_prefix[];
+extern char far award_period_name[];
+extern char far award_rating_text[];
+extern char far under_21_suffix[];
+extern char far squad_name_text[];
+extern char far squad_club_text[];
+extern long far manager_award_points[];
+extern float far player_award_ratings[][4];
+extern int far player_award_winners[][4];
+extern char far * far position_names[];
+void wait_menu_choice(int last);
+void show_week_fixtures(int, int, int);
+char is_cup_replay_week(int);
+char is_second_leg_week(int);
+char far *club_name(int x);
+void past_winners_screen(void);
+extern int fixture_menu_choice;
+extern int fixture_week;
+extern int zenith_qualifier_count;
+extern char position_ok;
+extern char is_second_leg;
 extern char d_5d9c_9b85;
-extern int d_5d9c_9f8d;
-extern int d_5d9c_9f8f;
-extern int d_5d9c_9f35;
-extern int d_5d9c_9f33;
-extern int d_5d9c_9f8b;
-extern int d_5d9c_9f89;
-extern int d_5d9c_9f87;
-extern int far d_483b_a174[];
-extern int far d_2f3c_27e4[][80];
+extern int fa_cup_next_week;
+extern int league_cup_next_week;
+extern int zenith_cup_next_week;
+extern int domark_cup_next_week;
+extern int uefa_cup_next_week;
+extern int cup_winners_next_week;
+extern int european_cup_next_week;
+extern int far week_fixture_counts[];
+extern int far cup_entrants[][80];
 extern int d_5d9c_9f31;
 extern int d_5d9c_9f2f;
-extern char far d_1f3e_5256[];
-extern unsigned char far d_2f3c_0080[];
-extern unsigned char far d_5739_1b0e[];
-extern char far * far d_5471_16f0[];
-extern int d_5d9c_9f2d;
+extern char far euro_cup_title[];
+extern unsigned char far cup_seeding[];
+extern unsigned char far team_country[];
+extern char far * far country_names[];
+extern int domark_group_page;
 extern int d_5d9c_9f2b;
-extern int far d_1f3e_ff85[][5];
+extern int far domark_groups[][5];
 extern int d_5d9c_9f29;
-extern int far d_2f3c_0030[][4];
-extern unsigned char far d_2f3c_0000[][2][4];
-extern unsigned char far d_1f3e_fcb5[][8][5];
-void f_7a28_360e(int a, int b, char c);
-char f_992a_70a8(int);
-char f_992a_78ca(int);
-char f_992a_74c1(int, int);
-char f_992a_72e8(int, int);
-char f_992a_7399(int, int);
-char f_992a_7430(int, int);
-char f_992a_752d(int, int);
-char f_992a_75bc(int, int);
-char f_992a_7853(int a, int b);
-void f_1680_1ad8(int);
-void f_1680_20c2(int t);
-void f_7555_00e9(int team);
-void f_88c9_68aa(int team);
-int f_14d2_0c2a(int n);
-void f_6e68_0027(int team);
-void f_a1c3_093a(int team);
-void f_6e68_084d(int team);
-extern unsigned char far d_5739_00a4[];
-extern int far d_5739_1d2a[][2][94];
-extern int far d_483b_a0ba[];
-extern char far d_1f3e_49e6[];
-extern int far d_2f3c_1584[];
-extern int d_5d9c_9f07;
+extern int far euro_cup_groups[][4];
+extern unsigned char far euro_group_stats[][2][4];
+extern unsigned char far domark_group_stats[][8][5];
+void match_stats_screen(int a, int b, char c);
+char is_fa_cup_week(int);
+char is_playoff_week(int);
+char is_rumbelows_match(int, int);
+char is_uefa_match(int, int);
+char is_cup_winners_match(int, int);
+char is_european_cup_match(int, int);
+char is_zenith_match(int, int);
+char is_domark_match(int, int);
+char is_neutral_venue_match(int a, int b);
+void choose_team_by_division(int);
+void draw_squad_list(int t);
+void view_team_tactics(int team);
+void staff_screen(int team);
+int random_below(int n);
+void show_accounts(int team);
+void club_info_screen(int team);
+void manager_job_menu(int team);
+extern unsigned char far team_colours[];
+extern int far week_fixtures[][2][94];
+extern int far week_matchfax_base[];
+extern char far match_record[];
+extern int far squad_list_players[];
+extern int squad_screen_choice;
 extern int d_5d9c_9f09;
 extern int d_5d9c_9f0b;
 extern int d_5d9c_9f0d;
 extern int d_5d9c_9f0f;
-extern int d_5d9c_9f11;
-extern int d_5d9c_9f13;
-extern int d_5d9c_9f15;
-extern int d_5d9c_9f17;
-extern int d_5d9c_9f19;
+extern int match_facts_record;
+extern int home_midfield;
+extern int fixture_week_index;
+extern int next_fixture_row;
+extern int button_style;
 extern int d_5d9c_9f1b;
 extern int d_5d9c_9f1d;
 extern int d_5d9c_9f1f;
 extern int d_5d9c_9f21;
 extern int d_5d9c_9f23;
-extern int d_5d9c_9f25;
-extern int d_5d9c_9f27;
-char far *f_14d2_0d75(char far *s, unsigned n);
-char far *f_14d2_0dc8(char far *s, unsigned i, unsigned n);
-char far *f_88c9_27e8(long amount);
+extern int fixture_count;
+extern int fixtures_per_column;
+char far *right_chars(char far *s, unsigned n);
+char far *mid_chars(char far *s, unsigned i, unsigned n);
+char far *format_fee(long amount);
 struct label {
     int x, y;
     char far *s;
 };
-extern char far d_1f3e_51b6[];
-extern char far d_1f3e_5544[];
-extern char far d_1f3e_5166[];
-extern unsigned char far d_5739_070c[][82];
-extern float d_5d9c_9af8;
-extern int d_5d9c_a352;
-extern char (far *d_5d9c_9fc2)[82][391];
-extern int d_5d9c_9f05;
-extern long d_5d9c_9a4c;
-extern long d_5d9c_9a50;
-extern int d_5d9c_9f03;
-extern int d_5d9c_9f01;
-extern int d_5d9c_9eff;
+extern char far club_title_text[];
+extern char far transfer_history_text[];
+extern char far transfer_entry_text[];
+extern unsigned char far league_position_history[][82];
+extern float club_title_x;
+extern int transfer_history_handle;
+extern char (far *transfer_history)[82][391];
+extern int transfer_other_club;
+extern long transfer_fee;
+extern long transfer_total;
+extern int graph_prev_x;
+extern int graph_round;
+extern int graph_prev_y;
 extern int d_5d9c_9efd;
 
 /* the main menu: its labels (the first and sixth are rewritten each week) and, per item,
  * the button's position and colour */
-static char far *d_5d9c_2cd6[] = {
+static char far *main_menu_labels[] = {
     "Saturday Fixtures", "View Tables", "Fixture Info", "Club Details", "Match Reports",
     "Find Player", "Board Resign", "Manager Jobs", "National Squads", "New Picture",
     "Save Game"
 };
-static unsigned char d_5d9c_2d02[][3] = {
+static unsigned char main_menu_buttons[][3] = {
     {8, 32, 15}, {164, 32, 3}, {242, 32, 15}, {8, 88, 15}, {86, 88, 3}, {164, 88, 15},
     {242, 88, 3}, {8, 144, 3}, {86, 144, 15}, {164, 144, 3}, {242, 144, 15}
 };
 
-void f_67ee_0000(void)
+void season_main_menu(void)
 {
     char buf[320];
 
-    d_5d9c_9b8e = -1;
-    for (d_5d9c_9fa1 = 0; d_5d9c_9fa1 <= 12; d_5d9c_9fa1++)
-        d_2f3c_2d18[d_5d9c_9fa1] = d_2f3c_2d0b[d_5d9c_9fa1] = d_5d9c_9fa1 > 10 ? 4 : 0;
+    in_main_menu = -1;
+    for (loop_j = 0; loop_j <= 12; loop_j++)
+        d_2f3c_2d18[loop_j] = slot_status[loop_j] = loop_j > 10 ? 4 : 0;
     do {
-        d_5d9c_9b90 = 0;
-        if (d_5d9c_9fab < 5 && d_5d9c_a062[d_5d9c_9fab] == 0)
-            d_5d9c_9b90 = -1;
-        if (d_5d9c_9b90)
-            strcpy(d_5d9c_2cd6[0], "Continue Season");
-        else if (d_5d9c_9fab == 95)
-            strcpy(d_5d9c_2cd6[0], "New Season");
-        else if ((d_5d9c_9fab & 1) && d_5d9c_9fab > 6)
-            strcpy(d_5d9c_2cd6[0], "Midweek Fixtures");
+        no_matches_this_week = 0;
+        if (current_week < 5 && friendly_counts[current_week] == 0)
+            no_matches_this_week = -1;
+        if (no_matches_this_week)
+            strcpy(main_menu_labels[0], "Continue Season");
+        else if (current_week == 95)
+            strcpy(main_menu_labels[0], "New Season");
+        else if ((current_week & 1) && current_week > 6)
+            strcpy(main_menu_labels[0], "Midweek Fixtures");
         else
-            strcpy(d_5d9c_2cd6[0], "Saturday Fixtures");
-        if (d_5d9c_9b8d)
-            strcpy(d_5d9c_2cd6[5], "Short Lists");
+            strcpy(main_menu_labels[0], "Saturday Fixtures");
+        if (is_demo_game)
+            strcpy(main_menu_labels[5], "Short Lists");
         else
-            strcpy(d_5d9c_2cd6[5], "Find Player");
-        sprintf(buf, "Week %d %s %d", f_1680_0577(d_5d9c_9fab),
-                d_5d9c_9fab > 6 ? "Season" : "Preseason", d_5d9c_9fa7);
-        f_a1c3_27e4(buf);
-        for (d_5d9c_9f83 = 0; d_5d9c_9f83 <= 10; d_5d9c_9f83++)
-            f_67ee_02c5(d_5d9c_9f83, 0);
-        d_5d9c_9b0c = f_14d2_0ca0();
+            strcpy(main_menu_labels[5], "Find Player");
+        sprintf(buf, "Week %d %s %d", contract_period_of_week(current_week),
+                current_week > 6 ? "Season" : "Preseason", season);
+        new_screen(buf);
+        for (fixture_index = 0; fixture_index <= 10; fixture_index++)
+            draw_main_menu_button(fixture_index, 0);
+        menu_start_ticks = clock_ticks();
         do {
-            d_5d9c_9f7d = -1;
-            if (f_14d2_0ac9() > 0) {
-                for (d_5d9c_9f83 = 0; d_5d9c_9f83 <= 10; d_5d9c_9f83++) {
-                    d_5d9c_9f81 = d_5d9c_2d02[d_5d9c_9f83][0];
-                    d_5d9c_9f7f = d_5d9c_2d02[d_5d9c_9f83][1];
-                    if (f_14d2_0ac1() >= d_5d9c_9f81
-                        && f_14d2_0ac1() <= d_5d9c_9f81 + (d_5d9c_9f83 == 0 ? 148 : 70)
-                        && f_14d2_0ab9() >= d_5d9c_9f7f
-                        && f_14d2_0ab9() <= d_5d9c_9f7f + 48) {
-                        f_67ee_02c5(d_5d9c_9f83, -1);
-                        d_5d9c_9f7d = d_5d9c_9f83;
-                        d_5d9c_9f83 = 10;
+            main_menu_choice = -1;
+            if (take_mouse_clicks() > 0) {
+                for (fixture_index = 0; fixture_index <= 10; fixture_index++) {
+                    cur_x = main_menu_buttons[fixture_index][0];
+                    cur_y = main_menu_buttons[fixture_index][1];
+                    if (get_mouse_x() >= cur_x
+                        && get_mouse_x() <= cur_x + (fixture_index == 0 ? 148 : 70)
+                        && get_mouse_y() >= cur_y
+                        && get_mouse_y() <= cur_y + 48) {
+                        draw_main_menu_button(fixture_index, -1);
+                        main_menu_choice = fixture_index;
+                        fixture_index = 10;
                     }
                 }
             }
-            if (d_5d9c_9b8d && f_14d2_0ca0() - d_5d9c_9b0c > 400 && d_5d9c_9f7d == -1) {
-                d_5d9c_9f7d = 0;
-                f_67ee_02c5(0, -1);
+            if (is_demo_game && clock_ticks() - menu_start_ticks > 400 && main_menu_choice == -1) {
+                main_menu_choice = 0;
+                draw_main_menu_button(0, -1);
             }
-        } while (d_5d9c_9f7d <= -1);
-        if (d_5d9c_9f7d > 0) {
-            switch (d_5d9c_9f7d) {
-            case 1: f_67ee_053d(); break;
-            case 2: f_67ee_4060(); break;
-            case 3: f_67ee_5608(); break;
-            case 4: f_6e68_0f31(); break;
-            case 5: f_6e68_0000(); break;
-            case 6: f_6e68_060e(); break;
-            case 7: f_6e68_0d3a(); break;
-            case 8: f_67ee_3b26(); break;
-            case 9: f_6e68_1176(); break;
-            case 10: f_6e68_129c(); break;
+        } while (main_menu_choice <= -1);
+        if (main_menu_choice > 0) {
+            switch (main_menu_choice) {
+            case 1: tables_awards_menu(); break;
+            case 2: fixture_info_menu(); break;
+            case 3: club_details_menu(); break;
+            case 4: match_reports_menu(); break;
+            case 5: find_player_or_shortlist(); break;
+            case 6: manager_options_menu(); break;
+            case 7: manager_jobs_menu(); break;
+            case 8: national_squads_menu(); break;
+            case 9: background_picture_menu(); break;
+            case 10: save_game_menu(); break;
             }
         }
-    } while (d_5d9c_9f7d != 0);
-    d_5d9c_9b8e = 0;
+    } while (main_menu_choice != 0);
+    in_main_menu = 0;
 }
 
-void f_67ee_02c5(int n, char lit)
+void draw_main_menu_button(int item, char pressed)
 {
-    strcpy(d_1f3e_57c4, d_5d9c_2cd6[n]);
-    strupr(d_1f3e_57c4);
-    d_5d9c_9f81 = d_5d9c_2d02[n][0];
-    d_5d9c_9f7f = d_5d9c_2d02[n][1];
-    d_5d9c_9f7b = lit ? 8 : d_5d9c_2d02[n][2];
-    d_5d9c_9f79 = n == 0 ? 148 : 70;
-    f_14d2_0722(16);
-    f_14d2_075a(d_5d9c_9f81 + 4, d_5d9c_9f7f + 4,
-                d_5d9c_9f81 + d_5d9c_9f79 + 4, d_5d9c_9f7f + 52);
-    f_14d2_0722(d_5d9c_9f7b + 16);
-    f_14d2_075a(d_5d9c_9f81, d_5d9c_9f7f, d_5d9c_9f81 + d_5d9c_9f79, d_5d9c_9f7f + 48);
-    if (d_5d9c_9f7b == 3)
-        d_5d9c_9f77 = 15;
-    else if (d_5d9c_9f7b == 15)
-        d_5d9c_9f77 = 3;
+    strcpy(button_label, main_menu_labels[item]);
+    strupr(button_label);
+    cur_x = main_menu_buttons[item][0];
+    cur_y = main_menu_buttons[item][1];
+    row_colour_a = pressed ? 8 : main_menu_buttons[item][2];
+    button_width = item == 0 ? 148 : 70;
+    set_fill_colour(16);
+    fill_rect(cur_x + 4, cur_y + 4,
+                cur_x + button_width + 4, cur_y + 52);
+    set_fill_colour(row_colour_a + 16);
+    fill_rect(cur_x, cur_y, cur_x + button_width, cur_y + 48);
+    if (row_colour_a == 3)
+        button_border_colour = 15;
+    else if (row_colour_a == 15)
+        button_border_colour = 3;
     else
-        d_5d9c_9f77 = 1;
-    f_14d2_073e(d_5d9c_9f77 + 16);
-    f_14d2_07af(d_5d9c_9f81, d_5d9c_9f7f, d_5d9c_9f81 + d_5d9c_9f79, d_5d9c_9f7f + 48);
-    d_5d9c_9f75 = f_14d2_09ce(d_1f3e_57c4, " ");
-    strcpy(d_1f3e_5774, d_1f3e_57c4);
-    d_1f3e_5774[d_5d9c_9f75 - 1] = 0;
-    strcpy(d_1f3e_5724, &d_1f3e_57c4[d_5d9c_9f75]);
-    d_5d9c_9f73 = d_5d9c_9f79 / 2 - strlen(d_1f3e_5774) * 4;
-    f_1680_2a61((d_5d9c_9f81 + d_5d9c_9f73 + 8) / 8.0, (d_5d9c_9f7f + 23) / 8.0, 1, d_1f3e_5774);
-    d_5d9c_9f73 = d_5d9c_9f79 / 2 - strlen(d_1f3e_5724) * 4;
-    f_1680_2a61((d_5d9c_9f81 + d_5d9c_9f73 + 8) / 8.0, (d_5d9c_9f7f + 31) / 8.0, 1, d_1f3e_5724);
+        button_border_colour = 1;
+    set_draw_colour(button_border_colour + 16);
+    draw_rect(cur_x, cur_y, cur_x + button_width, cur_y + 48);
+    label_split_pos = find_substring(button_label, " ");
+    strcpy(button_label_line1, button_label);
+    button_label_line1[label_split_pos - 1] = 0;
+    strcpy(button_label_line2, &button_label[label_split_pos]);
+    label_indent = button_width / 2 - strlen(button_label_line1) * 4;
+    draw_text_font1((cur_x + label_indent + 8) / 8.0, (cur_y + 23) / 8.0, 1, button_label_line1);
+    label_indent = button_width / 2 - strlen(button_label_line2) * 4;
+    draw_text_font1((cur_x + label_indent + 8) / 8.0, (cur_y + 31) / 8.0, 1, button_label_line2);
 }
 
-void f_67ee_053d(void)
+void tables_awards_menu(void)
 {
     do {
-        f_1680_150c(0, "Tables/Awards", "*Exit|League Tables|Group Tables|Top Goalscorers|Worst Discipline|Average Ratings|Team Form Guide|Average Gates|Manager Scores|Manager Rankings|Hall Of Fame|Monthly Awards|");
-        d_5d9c_9f71 = d_5d9c_9faf;
+        show_menu(0, "Tables/Awards", "*Exit|League Tables|Group Tables|Top Goalscorers|Worst Discipline|Average Ratings|Team Form Guide|Average Gates|Manager Scores|Manager Rankings|Hall Of Fame|Monthly Awards|");
+        d_5d9c_9f71 = menu_choice;
         switch (d_5d9c_9f71) {
         case 1:
-            f_67ee_0622(-1);
+            league_table_screen(-1);
             break;
         case 2:
-            f_1680_150c(0, "Group Tables", "*Exit|European Cup|Domark Trophy|");
-            if (d_5d9c_9faf == 1) {
-                if (d_5d9c_9fab < 36)
-                    f_88c9_24f1("Groups not yet decided");
+            show_menu(0, "Group Tables", "*Exit|European Cup|Domark Trophy|");
+            if (menu_choice == 1) {
+                if (current_week < 36)
+                    message_box("Groups not yet decided");
                 else
-                    f_67ee_47dc();
-            } else if (d_5d9c_9faf == 2)
-                f_67ee_486f();
+                    european_cup_groups_screen();
+            } else if (menu_choice == 2)
+                domark_groups_screen();
             break;
         case 3:
         case 4:
         case 5:
-            f_67ee_0e4c(d_5d9c_9f71 - 3, -1);
+            top_players_screen(d_5d9c_9f71 - 3, -1);
             break;
         case 6:
-            f_67ee_1a68(0);
+            team_ranking_screen(0);
             break;
         case 7:
-            f_67ee_1a68(1);
+            team_ranking_screen(1);
             break;
         case 8:
-            f_67ee_2598();
+            manager_points_screen();
             break;
         case 9:
-            f_67ee_2a22();
+            manager_rankings_screen();
             break;
         case 10:
-            f_67ee_2f13();
+            hall_of_fame_screen();
             break;
         case 11:
-            f_67ee_3212(0);
+            awards_screen(0);
             break;
         }
     } while (d_5d9c_9f71 != 0);
 }
 
 /* the league table's column headings */
-static char far *d_5d9c_2d23[] = {
+static char far *league_table_headings[] = {
     "PL", "W", "D", "L", "F", "A", "W", "D", "L", "F", "A", "PT"
 };
 
-void f_67ee_0622(int div)
+void league_table_screen(int division)
 {
     int y;
     char buf[320];
 
-    memset(d_483b_9fb6, 0, 260);
-    if (div == -1)
-        d_5d9c_9f6f = f_a1c3_2553();
+    memset(league_table_rows, 0, 260);
+    if (division == -1)
+        shown_division = top_human_division();
     else
-        d_5d9c_9f6f = div;
+        shown_division = division;
     do {
-        d_5d9c_a044 = f_14d2_16bc(d_5d9c_a336, 1);
-        f_67ee_0bbc(d_5d9c_9f6f, d_483b_9fb6);
-        f_a1c3_27e4("");
-        sprintf(buf, " Division %d", d_5d9c_9f6f + 1);
-        f_1680_2867(1.125, 1.25, 1, 2, 0x61, buf);
-        for (d_5d9c_9f6d = 0; d_5d9c_9f6d <= 11; d_5d9c_9f6d++) {
-            sprintf(buf, "%-2s", d_5d9c_2d23[d_5d9c_9f6d]);
-            f_1680_2867(d_5d9c_9f6d * 2 + 15.625 + (d_5d9c_9f6d == 0 ? -1 : 0), 1.25, 1, 8, 0, buf);
+        ems_window_ptr = vm_map(table_marks_handle, 1);
+        build_league_table(shown_division, league_table_rows);
+        new_screen("");
+        sprintf(buf, " Division %d", shown_division + 1);
+        draw_label(1.125, 1.25, 1, 2, 0x61, buf);
+        for (loop_i = 0; loop_i <= 11; loop_i++) {
+            sprintf(buf, "%-2s", league_table_headings[loop_i]);
+            draw_label(loop_i * 2 + 15.625 + (loop_i == 0 ? -1 : 0), 1.25, 1, 8, 0, buf);
         }
-        d_5d9c_9b08 = 2.5;
+        text_y = 2.5;
         y = 20;
-        d_5d9c_9f7b = 4;
-        d_5d9c_9f6b = 12;
+        row_colour_a = 4;
+        row_colour_b = 12;
         for (d_5d9c_9f69 = 0; d_5d9c_9f69 <= 19; d_5d9c_9f69++) {
-            d_5d9c_a044 = f_14d2_16bc(d_5d9c_a336, 0);
-            f_1680_27aa(11, y, 1, d_5d9c_a044 + d_5d9c_9f69 * 2);
-            if (f_1680_0003(d_5d9c_9f67 = d_483b_9fb6[0][d_5d9c_9f69]))
-                d_5d9c_9f65 = 3;
+            ems_window_ptr = vm_map(table_marks_handle, 0);
+            draw_text_at(11, y, 1, ems_window_ptr + d_5d9c_9f69 * 2);
+            if (is_human_team(selected_team = league_table_rows[0][d_5d9c_9f69]))
+                shirt_fg = 3;
             else
-                d_5d9c_9f65 = d_5d9c_9f6b;
-            sprintf(buf, " %.15s", (char far *)d_5d9c_08bc[d_5d9c_9f67]);
-            f_a1c3_2d08(0, 1.125, d_5d9c_9b08, 1, d_5d9c_9f65, 0x61, buf);
-            sprintf(buf, "%-2d", d_483b_9fb6[1][d_5d9c_9f69]);
-            f_1680_27aa(125, y, 5, buf);
-            for (d_5d9c_9fa1 = 2; d_5d9c_9fa1 <= 11; d_5d9c_9fa1++) {
-                sprintf(buf, "%-2d", d_483b_9fb6[d_5d9c_9fa1][d_5d9c_9f69]);
-                f_1680_27aa((d_5d9c_9fa1 - 2) * 16 + 149, y, d_5d9c_9fa1 > 6 ? 1 : 6, buf);
+                shirt_fg = row_colour_b;
+            sprintf(buf, " %.15s", (char far *)team_names[selected_team]);
+            add_button(0, 1.125, text_y, 1, shirt_fg, 0x61, buf);
+            sprintf(buf, "%-2d", league_table_rows[1][d_5d9c_9f69]);
+            draw_text_at(125, y, 5, buf);
+            for (loop_j = 2; loop_j <= 11; loop_j++) {
+                sprintf(buf, "%-2d", league_table_rows[loop_j][d_5d9c_9f69]);
+                draw_text_at((loop_j - 2) * 16 + 149, y, loop_j > 6 ? 1 : 6, buf);
             }
-            sprintf(buf, "%-2d", d_483b_9fb6[12][d_5d9c_9f69]);
-            f_1680_2867(37.625, d_5d9c_9b08, 1, 2, 0, buf);
-            if (f_67ee_0e0a(d_5d9c_9f69, d_5d9c_9f6f)) {
-                f_14d2_073e(22);
-                f_14d2_0e27(8, d_5d9c_9b08 * 8.0 + 2.0, 105, d_5d9c_9b08 * 8.0 + 2.0);
-                d_5d9c_9b08 = d_5d9c_9b08 + 1.125;
+            sprintf(buf, "%-2d", league_table_rows[12][d_5d9c_9f69]);
+            draw_label(37.625, text_y, 1, 2, 0, buf);
+            if (is_table_divider_pos(d_5d9c_9f69, shown_division)) {
+                set_draw_colour(22);
+                draw_line(8, text_y * 8.0 + 2.0, 105, text_y * 8.0 + 2.0);
+                text_y = text_y + 1.125;
                 y += 9;
             } else {
-                d_5d9c_9b08 += 1;
+                text_y += 1;
                 y += 8;
             }
-            f_14d2_148f(&d_5d9c_9f7b, &d_5d9c_9f6b, 2);
+            swap_bytes(&row_colour_a, &row_colour_b, 2);
         }
-        f_a1c3_2d08(2, 1.25, 23.0, 6, 2, 0x35, " - DIV");
-        f_a1c3_2d08(2, 32.25, 23.0, 6, 2, 0x35, " + DIV");
-        f_a1c3_2d08(2, 25.0, 23.0, 1, 4, 0x35, "  PRT");
-        f_a1c3_2d08(2, 8.5, 23.0, 1, 4, 0x7f, "      EXIT");
-        if (d_5d9c_9b8f == 0)
-            f_a1c3_34c6(23);
+        add_button(2, 1.25, 23.0, 6, 2, 0x35, " - DIV");
+        add_button(2, 32.25, 23.0, 6, 2, 0x35, " + DIV");
+        add_button(2, 25.0, 23.0, 1, 4, 0x35, "  PRT");
+        add_button(2, 8.5, 23.0, 1, 4, 0x7f, "      EXIT");
+        if (printer_on == 0)
+            disable_button(23);
         do {
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-            if (d_5d9c_9faf == 23) {
-                f_992a_0000(d_5d9c_9f6f);
-                f_a1c3_30b1(23, 0);
+            menu_choice = wait_for_button(last_button);
+            if (menu_choice == 23) {
+                print_league_table(shown_division);
+                draw_button(23, 0);
             }
-        } while (d_5d9c_9faf <= 0 || d_5d9c_9faf == 23);
-        if (d_5d9c_9faf >= 1 && d_5d9c_9faf <= 20) {
-            if (f_1680_0003(d_5d9c_9f69 = d_483b_9fb6[0][d_5d9c_9faf - 1]))
-                f_6e68_33d9(d_5d9c_9f69);
+        } while (menu_choice <= 0 || menu_choice == 23);
+        if (menu_choice >= 1 && menu_choice <= 20) {
+            if (is_human_team(d_5d9c_9f69 = league_table_rows[0][menu_choice - 1]))
+                squad_screen(d_5d9c_9f69);
             else
-                f_67ee_5641(d_5d9c_9f69);
-        } else if (d_5d9c_9faf == 21) {
-            d_5d9c_9f6f--;
-            if (d_5d9c_9f6f < 0)
-                d_5d9c_9f6f = 3;
-        } else if (d_5d9c_9faf == 22) {
-            d_5d9c_9f6f++;
-            if (d_5d9c_9f6f > 3)
-                d_5d9c_9f6f = 0;
-        } else if (d_5d9c_9faf == 24)
-            d_5d9c_9f6f = -1;
-    } while (d_5d9c_9f6f != -1);
+                club_squad_screen(d_5d9c_9f69);
+        } else if (menu_choice == 21) {
+            shown_division--;
+            if (shown_division < 0)
+                shown_division = 3;
+        } else if (menu_choice == 22) {
+            shown_division++;
+            if (shown_division > 3)
+                shown_division = 0;
+        } else if (menu_choice == 24)
+            shown_division = -1;
+    } while (shown_division != -1);
 }
 
-void f_67ee_0bbc(int div, unsigned char far (*t)[20])
+void build_league_table(int division, unsigned char far (*table)[20])
 {
     d_5d9c_9f71 = 0;
-    for (d_5d9c_9f6d = div * 20; d_5d9c_9f6d <= div * 20 + 19; d_5d9c_9f6d++) {
-        d_5d9c_9f67 = d_2f3c_2794[0][d_5d9c_9f6d];
-        strcpy(d_5d9c_a044 + d_5d9c_9f71 * 2, " ");
-        if (d_5739_0386[d_5d9c_9f67] == 1)
-            strcpy(d_5d9c_a044 + d_5d9c_9f71 * 2, "R");
-        else if (d_5739_0386[d_5d9c_9f67] == 3)
-            strcpy(d_5d9c_a044 + d_5d9c_9f71 * 2, "P");
-        else if (d_5739_0386[d_5d9c_9f67] == 4)
-            strcpy(d_5d9c_a044 + d_5d9c_9f71 * 2, "C");
-        t[0][d_5d9c_9f71] = d_5d9c_9f67;
-        t[1][d_5d9c_9f71] = d_5d9c_9f85 - 1;
-        t[2][d_5d9c_9f71] = d_5739_03d8[d_5d9c_9f67] - d_5739_0520[d_5d9c_9f67];
-        t[3][d_5d9c_9f71] = f_14d2_13eb(d_5d9c_9f85 - 1 - d_5739_03d8[d_5d9c_9f67]
-                                        - d_5739_042a[d_5d9c_9f67], 0)
-                            - d_5739_0572[d_5d9c_9f67];
-        t[4][d_5d9c_9f71] = d_5739_042a[d_5d9c_9f67] - d_5739_05c4[d_5d9c_9f67];
-        t[5][d_5d9c_9f71] = d_5739_047c[d_5d9c_9f67] - d_5739_0616[d_5d9c_9f67];
-        t[6][d_5d9c_9f71] = d_5739_04ce[d_5d9c_9f67] - d_5739_0668[d_5d9c_9f67];
-        t[7][d_5d9c_9f71] = d_5739_0520[d_5d9c_9f67];
-        t[8][d_5d9c_9f71] = d_5739_0572[d_5d9c_9f67];
-        t[9][d_5d9c_9f71] = d_5739_05c4[d_5d9c_9f67];
-        t[10][d_5d9c_9f71] = d_5739_0616[d_5d9c_9f67];
-        t[11][d_5d9c_9f71] = d_5739_0668[d_5d9c_9f67];
-        t[12][d_5d9c_9f71] = f_1680_0287(d_5d9c_9f6d);
+    for (loop_i = division * 20; loop_i <= division * 20 + 19; loop_i++) {
+        selected_team = league_table[0][loop_i];
+        strcpy(ems_window_ptr + d_5d9c_9f71 * 2, " ");
+        if (season_status[selected_team] == 1)
+            strcpy(ems_window_ptr + d_5d9c_9f71 * 2, "R");
+        else if (season_status[selected_team] == 3)
+            strcpy(ems_window_ptr + d_5d9c_9f71 * 2, "P");
+        else if (season_status[selected_team] == 4)
+            strcpy(ems_window_ptr + d_5d9c_9f71 * 2, "C");
+        table[0][d_5d9c_9f71] = selected_team;
+        table[1][d_5d9c_9f71] = league_round - 1;
+        table[2][d_5d9c_9f71] = team_wins[selected_team] - team_away_wins[selected_team];
+        table[3][d_5d9c_9f71] = max_int(league_round - 1 - team_wins[selected_team]
+                                        - team_losses[selected_team], 0)
+                            - team_away_draws[selected_team];
+        table[4][d_5d9c_9f71] = team_losses[selected_team] - team_away_losses[selected_team];
+        table[5][d_5d9c_9f71] = league_goals_for[selected_team] - team_away_goals_for[selected_team];
+        table[6][d_5d9c_9f71] = league_goals_against[selected_team] - team_away_goals_against[selected_team];
+        table[7][d_5d9c_9f71] = team_away_wins[selected_team];
+        table[8][d_5d9c_9f71] = team_away_draws[selected_team];
+        table[9][d_5d9c_9f71] = team_away_losses[selected_team];
+        table[10][d_5d9c_9f71] = team_away_goals_for[selected_team];
+        table[11][d_5d9c_9f71] = team_away_goals_against[selected_team];
+        table[12][d_5d9c_9f71] = league_points_at(loop_i);
         d_5d9c_9f71++;
     }
 }
 
-char f_67ee_0e0a(int pos, int div)
+char is_table_divider_pos(int pos, int division)
 {
     d_5d9c_9b8c = 0;
-    if ((pos == 0 && div == 0)
-        || (div > 0 && (pos == 1 || pos == 5))
-        || (div < 3 && pos == 16)
-        || (div == 3 && pos == 18))
+    if ((pos == 0 && division == 0)
+        || (division > 0 && (pos == 1 || pos == 5))
+        || (division < 3 && pos == 16)
+        || (division == 3 && pos == 18))
         d_5d9c_9b8c = -1;
     return d_5d9c_9b8c;
 }
 
-void f_67ee_0e4c(int mode, int team)
+void top_players_screen(int mode, int team)
 {
-    char sel[1702];
-    int list[30];
+    char picked[1702];
+    int rows[30];
     char buf[320];
 
-    d_5d9c_9b8b = team < 0 ? -1 : 0;
-    if (d_5d9c_9b8b)
-        d_5d9c_9f61 = f_a1c3_2553();
+    division_wide_flag = team < 0 ? -1 : 0;
+    if (division_wide_flag)
+        stats_division = top_human_division();
     for (;;) {
-        memset(sel, 0, 1702);
-        memset(list, -1, 60);
+        memset(picked, 0, 1702);
+        memset(rows, -1, 60);
         if (mode == 0) {
-            f_a1c3_27e4(d_5d9c_9b8b ? "Top Goalscorers" : "Goalscorers");
+            new_screen(division_wide_flag ? "Top Goalscorers" : "Goalscorers");
         } else if (mode == 1) {
-            f_a1c3_27e4(d_5d9c_9b8b ? "Worst Discipline" : "Discipline");
+            new_screen(division_wide_flag ? "Worst Discipline" : "Discipline");
         } else if (mode == 2) {
-            f_a1c3_27e4(d_5d9c_9b8b ? "Top Av Ratings" : "Av Ratings");
+            new_screen(division_wide_flag ? "Top Av Ratings" : "Av Ratings");
         }
-        if (d_5d9c_9b8b) {
-            sprintf(buf, " Division %d ", d_5d9c_9f61 + 1);
-            f_1680_2ea0(1.25, 4.0, 0, 9, 0, buf);
+        if (division_wide_flag) {
+            sprintf(buf, " Division %d ", stats_division + 1);
+            draw_text_box(1.25, 4.0, 0, 9, 0, buf);
         } else
-            f_1680_33a0(1.25, 4.0, team);
-        d_5d9c_9f7b = 4;
-        d_5d9c_9f6b = 12;
-        d_5d9c_9b8a = 0;
-        d_5d9c_9f5f = -1;
+            draw_team_label(1.25, 4.0, team);
+        row_colour_a = 4;
+        row_colour_b = 12;
+        menu_choice_done = 0;
+        last_ranked_row = -1;
         for (d_5d9c_9f71 = 0; d_5d9c_9f71 <= 29; d_5d9c_9f71++) {
-            d_5d9c_9f91 = -1;
-            d_5d9c_9f5d = 0;
-            if (d_5d9c_9b8a == 0) {
-                if (d_5d9c_9b8b) {
-                    if (d_2f3c_15c0[d_5d9c_9f61][mode][0][d_5d9c_9f71] == -2) {
-                        for (d_5d9c_9f6d = 0; d_5d9c_9f6d <= 1699; d_5d9c_9f6d++) {
-                            int k;
-                            k = d_483b_0000[18][d_5d9c_9f6d] / 20;
-                            if (sel[d_5d9c_9f6d] == 0 && (k == d_5d9c_9f61 || d_3e42_0000[0][d_5d9c_9f6d] / 20 == d_5d9c_9f61)) {
-                                d_5d9c_9f5b = 0;
-                                d_5d9c_9b89 = d_3e42_0000[10][d_5d9c_9f6d] / 20 != k && d_1f3e_a50a[d_5d9c_9f6d] ? -1 : 0;
-                                if (k == d_5d9c_9f61 || (d_5d9c_9b89 && d_3e42_0000[10][d_5d9c_9f6d] / 20 == d_5d9c_9f61 && d_3e42_0000[12][d_5d9c_9f6d] > 0)) {
+            cur_player = -1;
+            best_stat = 0;
+            if (menu_choice_done == 0) {
+                if (division_wide_flag) {
+                    if (top_players_cache[stats_division][mode][0][d_5d9c_9f71] == -2) {
+                        for (loop_i = 0; loop_i <= 1699; loop_i++) {
+                            int club_div;
+                            club_div = player_attrs[18][loop_i] / 20;
+                            if (picked[loop_i] == 0 && (club_div == stats_division || player_stats[0][loop_i] / 20 == stats_division)) {
+                                player_stat = 0;
+                                changed_division = player_stats[10][loop_i] / 20 != club_div && player_moved_club[loop_i] ? -1 : 0;
+                                if (club_div == stats_division || (changed_division && player_stats[10][loop_i] / 20 == stats_division && player_stats[12][loop_i] > 0)) {
                                     if (mode == 0) {
-                                        if (d_5d9c_9b89) {
-                                            if (k == d_5d9c_9f61)
-                                                d_5d9c_9f5b = d_3e42_0000[1][d_5d9c_9f6d] - d_3e42_0000[13][d_5d9c_9f6d];
+                                        if (changed_division) {
+                                            if (club_div == stats_division)
+                                                player_stat = player_stats[1][loop_i] - player_stats[13][loop_i];
                                             else
-                                                d_5d9c_9f5b = d_3e42_0000[13][d_5d9c_9f6d];
+                                                player_stat = player_stats[13][loop_i];
                                         } else
-                                            d_5d9c_9f5b = d_3e42_0000[1][d_5d9c_9f6d];
+                                            player_stat = player_stats[1][loop_i];
                                     } else if (mode == 1)
-                                        d_5d9c_9f5b = d_3e42_0000[2][d_5d9c_9f6d] - d_3e42_0000[2][d_5d9c_9f6d] % 5;
-                                    else if (d_5d9c_9b89) {
-                                        if (k == d_5d9c_9f61) {
-                                            if (d_3e42_0000[0][d_5d9c_9f6d] - d_3e42_0000[12][d_5d9c_9f6d] > d_5d9c_9f85 / 2)
-                                                d_5d9c_9f5b = (float)(d_2f3c_85f7[d_5d9c_9f6d] - d_2f3c_bb27[d_5d9c_9f6d]) / (d_3e42_0000[0][d_5d9c_9f6d] - d_3e42_0000[12][d_5d9c_9f6d]) * 1000;
+                                        player_stat = player_stats[2][loop_i] - player_stats[2][loop_i] % 5;
+                                    else if (changed_division) {
+                                        if (club_div == stats_division) {
+                                            if (player_stats[0][loop_i] - player_stats[12][loop_i] > league_round / 2)
+                                                player_stat = (float)(player_rating_total[loop_i] - player_old_club_rating[loop_i]) / (player_stats[0][loop_i] - player_stats[12][loop_i]) * 1000;
                                         } else {
-                                            if (d_3e42_0000[12][d_5d9c_9f6d] > d_5d9c_9f85 / 2)
-                                                d_5d9c_9f5b = (float)d_2f3c_bb27[d_5d9c_9f6d] / d_3e42_0000[12][d_5d9c_9f6d] * 1000;
+                                            if (player_stats[12][loop_i] > league_round / 2)
+                                                player_stat = (float)player_old_club_rating[loop_i] / player_stats[12][loop_i] * 1000;
                                         }
                                     } else {
-                                        if (d_3e42_0000[0][d_5d9c_9f6d] > d_5d9c_9f85 / 2)
-                                            d_5d9c_9f5b = (float)d_2f3c_85f7[d_5d9c_9f6d] / d_3e42_0000[0][d_5d9c_9f6d] * 1000;
+                                        if (player_stats[0][loop_i] > league_round / 2)
+                                            player_stat = (float)player_rating_total[loop_i] / player_stats[0][loop_i] * 1000;
                                     }
-                                    if (d_5d9c_9f5b > d_5d9c_9f5d) {
-                                        d_5d9c_9f91 = d_5d9c_9f6d;
-                                        d_5d9c_9f5d = d_5d9c_9f5b;
+                                    if (player_stat > best_stat) {
+                                        cur_player = loop_i;
+                                        best_stat = player_stat;
                                     }
                                 }
                             }
                         }
-                        d_2f3c_15c0[d_5d9c_9f61][mode][0][d_5d9c_9f71] = d_5d9c_9f91;
-                        d_2f3c_15c0[d_5d9c_9f61][mode][1][d_5d9c_9f71] = d_5d9c_9f5d;
+                        top_players_cache[stats_division][mode][0][d_5d9c_9f71] = cur_player;
+                        top_players_cache[stats_division][mode][1][d_5d9c_9f71] = best_stat;
                     } else {
-                        d_5d9c_9f91 = d_2f3c_15c0[d_5d9c_9f61][mode][0][d_5d9c_9f71];
-                        d_5d9c_9f5d = d_2f3c_15c0[d_5d9c_9f61][mode][1][d_5d9c_9f71];
+                        cur_player = top_players_cache[stats_division][mode][0][d_5d9c_9f71];
+                        best_stat = top_players_cache[stats_division][mode][1][d_5d9c_9f71];
                     }
                 } else {
-                    for (d_5d9c_9fa1 = 0; d_5d9c_9fa1 <= d_5739_023e[team] - 1; d_5d9c_9fa1++) {
-                        d_5d9c_9f6d = d_483b_a372[team][d_5d9c_9fa1];
-                        d_5d9c_9f5b = 0;
-                        if (sel[d_5d9c_9f6d] == 0) {
+                    for (loop_j = 0; loop_j <= squad_size[team] - 1; loop_j++) {
+                        loop_i = squad_players[team][loop_j];
+                        player_stat = 0;
+                        if (picked[loop_i] == 0) {
                             if (mode == 0)
-                                d_5d9c_9f5b = d_3e42_0000[1][d_5d9c_9f6d] - d_3e42_0000[13][d_5d9c_9f6d];
+                                player_stat = player_stats[1][loop_i] - player_stats[13][loop_i];
                             else if (mode == 1)
-                                d_5d9c_9f5b = d_3e42_0000[2][d_5d9c_9f6d] - d_3e42_0000[2][d_5d9c_9f6d] % 5;
-                            else if (d_3e42_0000[0][d_5d9c_9f6d] - d_3e42_0000[12][d_5d9c_9f6d] > 0)
-                                d_5d9c_9f5b = (float)(d_2f3c_85f7[d_5d9c_9f6d] - d_2f3c_bb27[d_5d9c_9f6d]) / (d_3e42_0000[0][d_5d9c_9f6d] - d_3e42_0000[12][d_5d9c_9f6d]) * 1000;
-                            if (d_5d9c_9f5b > d_5d9c_9f5d) {
-                                d_5d9c_9f91 = d_5d9c_9f6d;
-                                d_5d9c_9f5d = d_5d9c_9f5b;
+                                player_stat = player_stats[2][loop_i] - player_stats[2][loop_i] % 5;
+                            else if (player_stats[0][loop_i] - player_stats[12][loop_i] > 0)
+                                player_stat = (float)(player_rating_total[loop_i] - player_old_club_rating[loop_i]) / (player_stats[0][loop_i] - player_stats[12][loop_i]) * 1000;
+                            if (player_stat > best_stat) {
+                                cur_player = loop_i;
+                                best_stat = player_stat;
                             }
                         }
                     }
                 }
             }
-            d_5d9c_9f59 = d_5d9c_9f6b;
-            if (d_5d9c_9f91 > -1 && (d_5d9c_9f5d > 0 && d_5d9c_9b8b || d_5d9c_9b8b == 0)) {
-                sprintf(d_1f3e_56d4, " %.17s", f_a1c3_213c(d_5d9c_9f91));
+            row_name_colour = row_colour_b;
+            if (cur_player > -1 && (best_stat > 0 && division_wide_flag || division_wide_flag == 0)) {
+                sprintf(sub_kind_text, " %.17s", player_full_name(cur_player));
                 if (mode < 2) {
-                    if (d_5d9c_9f5d > 0)
-                        sprintf(d_1f3e_5684, " %02d", d_5d9c_9f5d);
+                    if (best_stat > 0)
+                        sprintf(sub_text, " %02d", best_stat);
                     else
-                        strcpy(d_1f3e_5684, " --");
-                } else if (d_5d9c_9f5d > 0) {
-                    d_5d9c_9b04 = d_5d9c_9f5d / 1000.0;
-                    d_5d9c_9b04 = (int)(d_5d9c_9b04 * 100) / 100.0;
-                    sprintf(d_1f3e_5684, "%f", d_5d9c_9b04);
-                    d_1f3e_5684[4] = 0;
+                        strcpy(sub_text, " --");
+                } else if (best_stat > 0) {
+                    average_rating = best_stat / 1000.0;
+                    average_rating = (int)(average_rating * 100) / 100.0;
+                    sprintf(sub_text, "%f", average_rating);
+                    sub_text[4] = 0;
                 } else
-                    strcpy(d_1f3e_5684, "----");
-                sel[d_5d9c_9f91] = -1;
-                list[d_5d9c_9f71] = d_5d9c_9f91;
-                d_5d9c_9f5f = d_5d9c_9f71;
-                if (d_5d9c_9b8b && f_1680_0003(d_483b_0000[18][d_5d9c_9f91]))
-                    d_5d9c_9f59 = 3;
+                    strcpy(sub_text, "----");
+                picked[cur_player] = -1;
+                rows[d_5d9c_9f71] = cur_player;
+                last_ranked_row = d_5d9c_9f71;
+                if (division_wide_flag && is_human_team(player_attrs[18][cur_player]))
+                    row_name_colour = 3;
             } else {
-                strcpy(d_1f3e_56d4, "");
-                strcpy(d_1f3e_5684, "");
-                d_5d9c_9b8a = -1;
+                strcpy(sub_kind_text, "");
+                strcpy(sub_text, "");
+                menu_choice_done = -1;
             }
             if (d_5d9c_9f71 < 15) {
-                d_5d9c_9b00 = 1.125;
-                d_5d9c_9b08 = d_5d9c_9f71 + 7.25;
+                text_x = 1.125;
+                text_y = d_5d9c_9f71 + 7.25;
             } else {
-                d_5d9c_9b00 = 20.25;
-                d_5d9c_9b08 = d_5d9c_9f71 - 15 + 7.25;
+                text_x = 20.25;
+                text_y = d_5d9c_9f71 - 15 + 7.25;
             }
             sprintf(buf, "%02d", d_5d9c_9f71 + 1);
-            f_1680_2867(d_5d9c_9b00, d_5d9c_9b08, 6, 3, 0, buf);
-            if (list[d_5d9c_9f71] == -1)
-                f_1680_2867(d_5d9c_9b00 + 1.75, d_5d9c_9b08, 1, d_5d9c_9f59, 111, d_1f3e_56d4);
+            draw_label(text_x, text_y, 6, 3, 0, buf);
+            if (rows[d_5d9c_9f71] == -1)
+                draw_label(text_x + 1.75, text_y, 1, row_name_colour, 111, sub_kind_text);
             else
-                f_a1c3_2d08(0, d_5d9c_9b00 + 1.75, d_5d9c_9b08, 1, d_5d9c_9f59, 111, d_1f3e_56d4);
-            f_1680_2867(d_5d9c_9b00 + 15.875, d_5d9c_9b08, 1, 2, 24, d_1f3e_5684);
-            f_14d2_148f(&d_5d9c_9f7b, &d_5d9c_9f6b, 2);
+                add_button(0, text_x + 1.75, text_y, 1, row_name_colour, 111, sub_kind_text);
+            draw_label(text_x + 15.875, text_y, 1, 2, 24, sub_text);
+            swap_bytes(&row_colour_a, &row_colour_b, 2);
         }
-        if (d_5d9c_9b8b) {
-            f_a1c3_2d08(2, 8.5, 22.5, 1, 4, 185, "          EXIT");
-            f_a1c3_2d08(2, 1.25, 22.5, 6, 2, 53, " - DIV");
-            f_a1c3_2d08(2, 32.25, 22.5, 6, 2, 53, " + DIV");
+        if (division_wide_flag) {
+            add_button(2, 8.5, 22.5, 1, 4, 185, "          EXIT");
+            add_button(2, 1.25, 22.5, 6, 2, 53, " - DIV");
+            add_button(2, 32.25, 22.5, 6, 2, 53, " + DIV");
         } else
-            f_a1c3_2d08(2, 1.25, 22.5, 1, 4, 301, "                 EXIT");
+            add_button(2, 1.25, 22.5, 1, 4, 301, "                 EXIT");
         do
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        while (d_5d9c_9faf <= 0);
-        if (d_5d9c_9f5f + 2 > d_5d9c_9faf) {
-            d_5d9c_9f91 = list[d_5d9c_9faf - 1];
+            menu_choice = wait_for_button(last_button);
+        while (menu_choice <= 0);
+        if (last_ranked_row + 2 > menu_choice) {
+            cur_player = rows[menu_choice - 1];
             do {
-                f_a1c3_5e7a(d_5d9c_9f91, -1, -1);
-                f_8352_4556(d_5d9c_9f91, d_5d9c_9f57);
-            } while (!d_5d9c_9b88);
-        } else if (d_5d9c_9f5f + 3 == d_5d9c_9faf) {
-            d_5d9c_9f61--;
-            if (d_5d9c_9f61 < 0)
-                d_5d9c_9f61 = 3;
-        } else if (d_5d9c_9f5f + 4 == d_5d9c_9faf) {
-            d_5d9c_9f61++;
-            if (d_5d9c_9f61 > 3)
-                d_5d9c_9f61 = 0;
+                player_details_screen(cur_player, -1, -1);
+                do_player_action(cur_player, player_screen_action);
+            } while (!exit_chosen);
+        } else if (last_ranked_row + 3 == menu_choice) {
+            stats_division--;
+            if (stats_division < 0)
+                stats_division = 3;
+        } else if (last_ranked_row + 4 == menu_choice) {
+            stats_division++;
+            if (stats_division > 3)
+                stats_division = 0;
         } else
             break;
     }
 }
 
-void f_67ee_1a68(int mode)
+void team_ranking_screen(int mode)
 {
     char used[80];
-    int list[21];
+    int order[21];
     char buf[318];
-    unsigned char c;
+    unsigned char ch;
 
-    d_5d9c_9f6f = f_a1c3_2553();
+    shown_division = top_human_division();
     do {
         memset(used, 0, 80);
-        f_a1c3_27e4("");
-        sprintf(d_1f3e_55e4, "Division %d", d_5d9c_9f6f + 1);
+        new_screen("");
+        sprintf(division_text, "Division %d", shown_division + 1);
         if (mode < 2) {
             if (mode == 0) {
-                sprintf(buf, "Form Guide %s", d_1f3e_55e4);
-                f_1680_2867(1.125, 1.5, 0, 1, 0x86, buf);
-                f_1680_2867(18.125, 1.5, 1, 8, 0, " HOME ");
-                f_1680_2867(22.875, 1.5, 1, 8, 0, " AWAY ");
-                d_5d9c_9f7b = 4;
-                d_5d9c_9f6b = 12;
+                sprintf(buf, "Form Guide %s", division_text);
+                draw_label(1.125, 1.5, 0, 1, 0x86, buf);
+                draw_label(18.125, 1.5, 1, 8, 0, " HOME ");
+                draw_label(22.875, 1.5, 1, 8, 0, " AWAY ");
+                row_colour_a = 4;
+                row_colour_b = 12;
             } else {
-                sprintf(buf, "Attendance %s", d_1f3e_55e4);
-                f_1680_2867(1.125, 1.5, 0, 1, 0x86, buf);
-                f_1680_2867(18.125, 1.5, 1, 2, 0x4a, " AVERAGE");
-                d_5d9c_9f7b = 14;
-                d_5d9c_9f6b = 8;
+                sprintf(buf, "Attendance %s", division_text);
+                draw_label(1.125, 1.5, 0, 1, 0x86, buf);
+                draw_label(18.125, 1.5, 1, 2, 0x4a, " AVERAGE");
+                row_colour_a = 14;
+                row_colour_b = 8;
             }
-            f_1680_2867(27.625, 1.5, 1, 8 - mode * 6, 0, " LP ");
-            f_1680_2867(30.875, 1.5, 1, 8 - mode * 6, 0, "BOARD %  ");
+            draw_label(27.625, 1.5, 1, 8 - mode * 6, 0, " LP ");
+            draw_label(30.875, 1.5, 1, 8 - mode * 6, 0, "BOARD %  ");
         } else {
-            sprintf(buf, "Job News %s", d_1f3e_55e4);
-            f_1680_2867(1.125, 1.5, 0, 1, 0x86, buf);
-            f_1680_2867(18.125, 1.5, 1, 2, 0x53, " MANAGER");
-            f_1680_2867(28.75, 1.5, 0, 6, 0x53, " JOB");
-            d_5d9c_9f7b = 15;
-            d_5d9c_9f6b = 3;
+            sprintf(buf, "Job News %s", division_text);
+            draw_label(1.125, 1.5, 0, 1, 0x86, buf);
+            draw_label(18.125, 1.5, 1, 2, 0x53, " MANAGER");
+            draw_label(28.75, 1.5, 0, 6, 0x53, " JOB");
+            row_colour_a = 15;
+            row_colour_b = 3;
         }
-        d_5d9c_9f7f = 6;
-        d_5d9c_9f6d = 1;
-        while (d_5d9c_9f6d <= 20) {
-            d_5d9c_9f67 = -1;
-            d_5d9c_9a5c = 0;
-            for (d_5d9c_9fa1 = d_5d9c_9f6f * 20; d_5d9c_9fa1 <= d_5d9c_9f6f * 20 + 19; d_5d9c_9fa1++) {
-                d_5d9c_9f69 = d_2f3c_2794[0][d_5d9c_9fa1];
+        cur_y = 6;
+        loop_i = 1;
+        while (loop_i <= 20) {
+            selected_team = -1;
+            best_long_value = 0;
+            for (loop_j = shown_division * 20; loop_j <= shown_division * 20 + 19; loop_j++) {
+                d_5d9c_9f69 = league_table[0][loop_j];
                 if (used[d_5d9c_9f69] == 0) {
-                    d_5d9c_9a58 = 0;
+                    team_long_value = 0;
                     if (mode == 0) {
-                        sprintf(d_1f3e_5594, "%s%s", d_1f3e_0780[0][d_5d9c_9f69], d_1f3e_0780[1][d_5d9c_9f69]);
-                        for (d_5d9c_9f55 = 1; d_5d9c_9f55 <= strlen(d_1f3e_5594); d_5d9c_9f55++) {
-                            c = d_1f3e_5594[d_5d9c_9f55 - 1];
-                            if (c == 'W')
-                                d_5d9c_9a58 += 3;
-                            else if (c == 'D' || c == 'X')
-                                d_5d9c_9a58 += 1;
+                        sprintf(form_text, "%s%s", team_form[0][d_5d9c_9f69], team_form[1][d_5d9c_9f69]);
+                        for (loop_k = 1; loop_k <= strlen(form_text); loop_k++) {
+                            ch = form_text[loop_k - 1];
+                            if (ch == 'W')
+                                team_long_value += 3;
+                            else if (ch == 'D' || ch == 'X')
+                                team_long_value += 1;
                         }
                     } else if (mode == 1) {
-                        if (d_5739_138a[d_5d9c_9f69] > 0)
-                            d_5d9c_9a58 = d_2f3c_7b33[d_5d9c_9f69] / d_5739_138a[d_5d9c_9f69];
+                        if (home_games_played[d_5d9c_9f69] > 0)
+                            team_long_value = season_attendance_total[d_5d9c_9f69] / home_games_played[d_5d9c_9f69];
                     } else {
-                        d_5d9c_9a58 = 100 - d_5739_01ec[d_5d9c_9f69];
-                        if (d_5739_13dc[d_5d9c_9f69] > 0)
-                            d_5d9c_9a58 = 255;
+                        team_long_value = 100 - board_confidence[d_5d9c_9f69];
+                        if (club_job_vacant[d_5d9c_9f69] > 0)
+                            team_long_value = 255;
                     }
-                    if (d_5d9c_9a58 > d_5d9c_9a5c || d_5d9c_9f67 == -1) {
-                        d_5d9c_9a5c = d_5d9c_9a58;
-                        d_5d9c_9f49 = d_5d9c_9fa1;
-                        d_5d9c_9f67 = d_5d9c_9f69;
+                    if (team_long_value > best_long_value || selected_team == -1) {
+                        best_long_value = team_long_value;
+                        best_league_slot = loop_j;
+                        selected_team = d_5d9c_9f69;
                     }
                 }
             }
-            d_5d9c_9f65 = d_5d9c_9f6b;
+            shirt_fg = row_colour_b;
             if (mode < 2) {
-                if (f_1680_0003(d_5d9c_9f67))
-                    d_5d9c_9f65 = 3;
-                sprintf(buf, " %02d ", d_5d9c_9f6d);
-                f_1680_2867(1.125, d_5d9c_9f7f + 0.25 - 3.5, 0, 6, 0, buf);
-                sprintf(buf, " %.17s", (char far *)d_5d9c_08bc[d_5d9c_9f67]);
-                f_a1c3_2d08(0, 4.375, d_5d9c_9f7f + 0.25 - 3.5, 1, d_5d9c_9f65, 0x6c, buf);
+                if (is_human_team(selected_team))
+                    shirt_fg = 3;
+                sprintf(buf, " %02d ", loop_i);
+                draw_label(1.125, cur_y + 0.25 - 3.5, 0, 6, 0, buf);
+                sprintf(buf, " %.17s", (char far *)team_names[selected_team]);
+                add_button(0, 4.375, cur_y + 0.25 - 3.5, 1, shirt_fg, 0x6c, buf);
                 if (mode == 0) {
-                    sprintf(buf, " %s", d_1f3e_0780[0][d_5d9c_9f67]);
-                    f_1680_2867(18.125, d_5d9c_9f7f + 0.25 - 3.5, 6, 2, 0x24, buf);
-                    sprintf(buf, " %s", d_1f3e_0780[1][d_5d9c_9f67]);
-                    f_1680_2867(22.875, d_5d9c_9f7f + 0.25 - 3.5, 6, 2, 0x24, buf);
+                    sprintf(buf, " %s", team_form[0][selected_team]);
+                    draw_label(18.125, cur_y + 0.25 - 3.5, 6, 2, 0x24, buf);
+                    sprintf(buf, " %s", team_form[1][selected_team]);
+                    draw_label(22.875, cur_y + 0.25 - 3.5, 6, 2, 0x24, buf);
                 } else {
                     strcpy(buf, "");
-                    if (d_5d9c_9a5c > 0)
-                        sprintf(buf, "   %ld", d_5d9c_9a5c);
-                    f_1680_2867(18.125, d_5d9c_9f7f + 0.25 - 3.5, 1, 4, 0x4a, buf);
+                    if (best_long_value > 0)
+                        sprintf(buf, "   %ld", best_long_value);
+                    draw_label(18.125, cur_y + 0.25 - 3.5, 1, 4, 0x4a, buf);
                 }
-                sprintf(buf, " %02d ", d_5d9c_9f49 + 1 - d_5d9c_9f6f * 20);
-                f_1680_2867(27.625, d_5d9c_9f7f + 0.25 - 3.5, 1, 9, 0, buf);
-                sprintf(d_1f3e_54f4, "%d%%", d_5739_01ec[d_5d9c_9f67]);
+                sprintf(buf, " %02d ", best_league_slot + 1 - shown_division * 20);
+                draw_label(27.625, cur_y + 0.25 - 3.5, 1, 9, 0, buf);
+                sprintf(d_1f3e_54f4, "%d%%", board_confidence[selected_team]);
                 sprintf(buf, "    %s", d_1f3e_54f4);
-                f_1680_2867(30.875, d_5d9c_9f7f + 0.25 - 3.5, 6, 3, 0x42, buf);
+                draw_label(30.875, cur_y + 0.25 - 3.5, 6, 3, 0x42, buf);
             } else {
-                if (f_1680_0003(d_5d9c_9f67))
-                    d_5d9c_9f65 = 12;
-                sprintf(buf, " %.21s", (char far *)d_5d9c_08bc[d_5d9c_9f67]);
-                f_a1c3_2d08(0, 1.125, d_5d9c_9f7f - 3.25, 1, d_5d9c_9f65, 0x86, buf);
-                if (d_5739_13dc[d_5d9c_9f67] > 0) {
+                if (is_human_team(selected_team))
+                    shirt_fg = 12;
+                sprintf(buf, " %.21s", (char far *)team_names[selected_team]);
+                add_button(0, 1.125, cur_y - 3.25, 1, shirt_fg, 0x86, buf);
+                if (club_job_vacant[selected_team] > 0) {
                     strcpy(d_1f3e_2b9a, "");
                     strcpy(d_1f3e_2b4a, "Available");
                 } else {
-                    strcpy(d_1f3e_2b9a, f_a1c3_229c(d_2f3c_7f93[d_5d9c_9f67], -1));
-                    c = d_5739_01ec[d_5d9c_9f67];
-                    if (c <= 29)
+                    strcpy(d_1f3e_2b9a, manager_name(team_manager[selected_team], -1));
+                    ch = board_confidence[selected_team];
+                    if (ch <= 29)
                         strcpy(d_1f3e_2b4a, "Under threat");
-                    else if (c <= 39)
+                    else if (ch <= 39)
                         strcpy(d_1f3e_2b4a, "Insecure");
                     else
                         strcpy(d_1f3e_2b4a, "Safe");
                 }
                 sprintf(buf, " %s", d_1f3e_2b9a);
-                f_1680_2867(18.125, d_5d9c_9f7f - 3.25, 1, 9, 0x53, buf);
+                draw_label(18.125, cur_y - 3.25, 1, 9, 0x53, buf);
                 sprintf(buf, " %s", d_1f3e_2b4a);
-                f_1680_2867(28.75, d_5d9c_9f7f - 3.25, d_1f3e_2b9a[0] != 0 ? 1 : 4,
-                            d_5739_13dc[d_5d9c_9f67] > 0 ? 1 : 12, 0x53, buf);
+                draw_label(28.75, cur_y - 3.25, d_1f3e_2b9a[0] != 0 ? 1 : 4,
+                            club_job_vacant[selected_team] > 0 ? 1 : 12, 0x53, buf);
             }
-            d_5d9c_9f7f++;
-            f_14d2_148f(&d_5d9c_9f7b, &d_5d9c_9f6b, 2);
-            used[d_5d9c_9f67] = -1;
-            list[d_5d9c_9f6d] = d_5d9c_9f67;
-            d_5d9c_9f6d++;
+            cur_y++;
+            swap_bytes(&row_colour_a, &row_colour_b, 2);
+            used[selected_team] = -1;
+            order[loop_i] = selected_team;
+            loop_i++;
         }
-        f_a1c3_2d08(2, 1.25, 23.0, 6, 2, 0x35, " - DIV");
-        f_a1c3_2d08(2, 32.25, 23.0, 6, 2, 0x35, " + DIV");
-        f_a1c3_2d08(2, 8.5, 23.0, 1, 4, 0xb9, "          EXIT");
+        add_button(2, 1.25, 23.0, 6, 2, 0x35, " - DIV");
+        add_button(2, 32.25, 23.0, 6, 2, 0x35, " + DIV");
+        add_button(2, 8.5, 23.0, 1, 4, 0xb9, "          EXIT");
         do
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        while (d_5d9c_9faf <= 0);
-        if (d_5d9c_9faf >= 1 && d_5d9c_9faf <= 20) {
-            if (f_1680_0003(d_5d9c_9f69 = list[d_5d9c_9faf]))
-                f_6e68_33d9(d_5d9c_9f69);
+            menu_choice = wait_for_button(last_button);
+        while (menu_choice <= 0);
+        if (menu_choice >= 1 && menu_choice <= 20) {
+            if (is_human_team(d_5d9c_9f69 = order[menu_choice]))
+                squad_screen(d_5d9c_9f69);
             else
-                f_67ee_5641(d_5d9c_9f69);
-        } else if (d_5d9c_9faf == 21) {
-            d_5d9c_9f6f--;
-            if (d_5d9c_9f6f < 0)
-                d_5d9c_9f6f = 3;
-        } else if (d_5d9c_9faf == 22) {
-            d_5d9c_9f6f++;
-            if (d_5d9c_9f6f > 3)
-                d_5d9c_9f6f = 0;
-        } else if (d_5d9c_9faf == 23)
-            d_5d9c_9f6f = -1;
-    } while (d_5d9c_9f6f != -1);
+                club_squad_screen(d_5d9c_9f69);
+        } else if (menu_choice == 21) {
+            shown_division--;
+            if (shown_division < 0)
+                shown_division = 3;
+        } else if (menu_choice == 22) {
+            shown_division++;
+            if (shown_division > 3)
+                shown_division = 0;
+        } else if (menu_choice == 23)
+            shown_division = -1;
+    } while (shown_division != -1);
 }
 
 /* the managers' points table of a division */
-void f_67ee_2598(void)
+void manager_points_screen(void)
 {
     char used[80];
     char buf[320];
 
-    d_5d9c_9f61 = f_a1c3_2553();
+    stats_division = top_human_division();
     do {
         memset(used, 0, 80);
-        f_a1c3_27e4("");
-        sprintf(buf, "Manager Pts Division %d", d_5d9c_9f61 + 1);
-        f_1680_2867(1.125, 1.5, 0, 1, 0x88, buf);
-        f_1680_2867(18.375, 1.5, 1, 4, 0x6e, " CLUB");
-        f_1680_2867(32.375, 1.5, 1, 4, 0x36, " PTS");
-        d_5d9c_9f7f = 6;
-        d_5d9c_9f7b = 2;
-        d_5d9c_9f6b = 9;
-        for (d_5d9c_9f6d = 1; d_5d9c_9f6d <= 20; d_5d9c_9f6d++) {
-            d_5d9c_9a5c = 0;
-            for (d_5d9c_9f69 = d_5d9c_9f61 * 20; d_5d9c_9f69 <= d_5d9c_9f61 * 20 + 19;
+        new_screen("");
+        sprintf(buf, "Manager Pts Division %d", stats_division + 1);
+        draw_label(1.125, 1.5, 0, 1, 0x88, buf);
+        draw_label(18.375, 1.5, 1, 4, 0x6e, " CLUB");
+        draw_label(32.375, 1.5, 1, 4, 0x36, " PTS");
+        cur_y = 6;
+        row_colour_a = 2;
+        row_colour_b = 9;
+        for (loop_i = 1; loop_i <= 20; loop_i++) {
+            best_long_value = 0;
+            for (d_5d9c_9f69 = stats_division * 20; d_5d9c_9f69 <= stats_division * 20 + 19;
                  d_5d9c_9f69++) {
                 if (used[d_5d9c_9f69] == 0) {
-                    d_5d9c_a054 = f_14d2_16bc(d_5d9c_a35e, 0);
-                    if ((d_5d9c_9a54 = d_5d9c_a054[d_2f3c_7f93[d_5d9c_9f69]]) >= d_5d9c_9a5c) {
-                        d_5d9c_9a5c = d_5d9c_9a54;
-                        d_5d9c_9f67 = d_5d9c_9f69;
+                    manager_points_ptr = vm_map(manager_points_handle, 0);
+                    if ((manager_points = manager_points_ptr[team_manager[d_5d9c_9f69]]) >= best_long_value) {
+                        best_long_value = manager_points;
+                        selected_team = d_5d9c_9f69;
                     }
                 }
             }
-            if (f_1680_0003(d_5d9c_9f67))
-                d_5d9c_9f65 = 12;
+            if (is_human_team(selected_team))
+                shirt_fg = 12;
             else
-                d_5d9c_9f65 = d_5d9c_9f6b;
-            sprintf(buf, " %02d ", d_5d9c_9f6d);
-            f_1680_2867(1.125, d_5d9c_9f7f + 0.25 - 3.5, 1, 8, 0, buf);
-            sprintf(buf, " %s", f_a1c3_229c(d_2f3c_7f93[d_5d9c_9f67], 0));
-            f_1680_2867(4.375, d_5d9c_9f7f + 0.25 - 3.5, 1, d_5d9c_9f65, 0x6e, buf);
-            sprintf(buf, " %.17s", (char far *)d_5d9c_08bc[d_5d9c_9f67]);
-            f_1680_2867(18.375, d_5d9c_9f7f + 0.25 - 3.5, 1, 3, 0x6e, buf);
-            sprintf(buf, " %06ld", d_5d9c_9a5c);
-            f_1680_2867(32.375, d_5d9c_9f7f + 0.25 - 3.5, 2, 6, 0x36, buf);
-            d_5d9c_9f7f++;
-            f_14d2_148f(&d_5d9c_9f7b, &d_5d9c_9f6b, 2);
-            used[d_5d9c_9f67] = -1;
+                shirt_fg = row_colour_b;
+            sprintf(buf, " %02d ", loop_i);
+            draw_label(1.125, cur_y + 0.25 - 3.5, 1, 8, 0, buf);
+            sprintf(buf, " %s", manager_name(team_manager[selected_team], 0));
+            draw_label(4.375, cur_y + 0.25 - 3.5, 1, shirt_fg, 0x6e, buf);
+            sprintf(buf, " %.17s", (char far *)team_names[selected_team]);
+            draw_label(18.375, cur_y + 0.25 - 3.5, 1, 3, 0x6e, buf);
+            sprintf(buf, " %06ld", best_long_value);
+            draw_label(32.375, cur_y + 0.25 - 3.5, 2, 6, 0x36, buf);
+            cur_y++;
+            swap_bytes(&row_colour_a, &row_colour_b, 2);
+            used[selected_team] = -1;
         }
-        f_a1c3_2d08(2, 1.25, 23.0, 6, 2, 0x35, " - DIV");
-        f_a1c3_2d08(2, 32.25, 23.0, 6, 2, 0x35, " + DIV");
-        f_a1c3_2d08(2, 8.5, 23.0, 1, 4, 0xb9, "          EXIT");
+        add_button(2, 1.25, 23.0, 6, 2, 0x35, " - DIV");
+        add_button(2, 32.25, 23.0, 6, 2, 0x35, " + DIV");
+        add_button(2, 8.5, 23.0, 1, 4, 0xb9, "          EXIT");
         do
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        while (d_5d9c_9faf <= 0);
-        if (d_5d9c_9faf == 1) {
-            d_5d9c_9f61--;
-            if (d_5d9c_9f61 < 0)
-                d_5d9c_9f61 = 3;
-        } else if (d_5d9c_9faf == 2) {
-            d_5d9c_9f61++;
-            if (d_5d9c_9f61 > 3)
-                d_5d9c_9f61 = 0;
+            menu_choice = wait_for_button(last_button);
+        while (menu_choice <= 0);
+        if (menu_choice == 1) {
+            stats_division--;
+            if (stats_division < 0)
+                stats_division = 3;
+        } else if (menu_choice == 2) {
+            stats_division++;
+            if (stats_division > 3)
+                stats_division = 0;
         } else
-            d_5d9c_9f61 = -1;
-    } while (d_5d9c_9f61 != -1);
+            stats_division = -1;
+    } while (stats_division != -1);
 }
 
 /* the manager rankings */
-void f_67ee_2a22(void)
+void manager_rankings_screen(void)
 {
     int i;
     char used[650];
@@ -981,864 +981,864 @@ void f_67ee_2a22(void)
     char buf[320];
 
     memset(used, 0, 650);
-    d_5d9c_9f53 = 1;
-    d_5d9c_9b87 = 0;
+    rankings_page = 1;
+    draw_involves_human = 0;
     for (i = 0; i <= 79; i++) {
-        d_5d9c_9f4f = -1;
+        ranked_manager = -1;
         for (d_5d9c_9f69 = 0; d_5d9c_9f69 <= 79; d_5d9c_9f69++) {
-            d_5d9c_9f51 = d_2f3c_7f93[d_5d9c_9f69];
+            d_5d9c_9f51 = team_manager[d_5d9c_9f69];
             if (used[d_5d9c_9f51] == 0) {
-                d_5d9c_9f4d = d_2f3c_5e19[d_5d9c_9f51];
-                if (d_2f3c_53f1[d_5d9c_9f51] == 35)
+                d_5d9c_9f4d = staff_skills[d_5d9c_9f51];
+                if (staff_age[d_5d9c_9f51] == 35)
                     d_5d9c_9f4d = 0;
-                if (d_5d9c_9f4d > d_5d9c_9f5f || d_5d9c_9f4f == -1) {
-                    d_5d9c_9f4f = d_5d9c_9f51;
-                    d_5d9c_9f5f = d_5d9c_9f4d;
+                if (d_5d9c_9f4d > last_ranked_row || ranked_manager == -1) {
+                    ranked_manager = d_5d9c_9f51;
+                    last_ranked_row = d_5d9c_9f4d;
                 }
             }
         }
-        order[i] = d_5d9c_9f4f;
-        if (d_5d9c_9f4f != -1) {
-            used[d_5d9c_9f4f] = -1;
-            if (d_5d9c_9f4f >= 646 && d_5d9c_9b87 == 0) {
-                d_5d9c_9f53 = i / 20 + 1;
-                d_5d9c_9b87 = -1;
+        order[i] = ranked_manager;
+        if (ranked_manager != -1) {
+            used[ranked_manager] = -1;
+            if (ranked_manager >= 646 && draw_involves_human == 0) {
+                rankings_page = i / 20 + 1;
+                draw_involves_human = -1;
             }
         }
     }
     do {
-        d_5d9c_9f4b = (d_5d9c_9f53 - 1) * 20;
-        f_a1c3_27e4("");
-        f_1680_2867(1.125, 1.5, 0, 1, 0x88, "Manager Rankings");
-        f_1680_2867(18.375, 1.5, 1, 4, 0x6e, " CLUB");
-        f_1680_2867(32.375, 1.5, 1, 4, 0x36, " REP");
-        d_5d9c_9f7f = 6;
-        d_5d9c_9f7b = 14;
-        d_5d9c_9f6b = 8;
-        for (d_5d9c_9f6d = 1; d_5d9c_9f6d <= 20; d_5d9c_9f6d++) {
-            d_5d9c_9f71 = d_5d9c_9f6d + d_5d9c_9f4b;
-            d_5d9c_9f4f = order[d_5d9c_9f71 - 1];
-            if (d_5d9c_9f4f == -1)
+        d_5d9c_9f4b = (rankings_page - 1) * 20;
+        new_screen("");
+        draw_label(1.125, 1.5, 0, 1, 0x88, "Manager Rankings");
+        draw_label(18.375, 1.5, 1, 4, 0x6e, " CLUB");
+        draw_label(32.375, 1.5, 1, 4, 0x36, " REP");
+        cur_y = 6;
+        row_colour_a = 14;
+        row_colour_b = 8;
+        for (loop_i = 1; loop_i <= 20; loop_i++) {
+            d_5d9c_9f71 = loop_i + d_5d9c_9f4b;
+            ranked_manager = order[d_5d9c_9f71 - 1];
+            if (ranked_manager == -1)
                 continue;
-            if (d_5d9c_9f4f >= 646)
-                d_5d9c_9f65 = 9;
+            if (ranked_manager >= 646)
+                shirt_fg = 9;
             else
-                d_5d9c_9f65 = d_5d9c_9f6b;
+                shirt_fg = row_colour_b;
             if (d_5d9c_9f71 < 100)
                 sprintf(buf, " %02d ", d_5d9c_9f71);
             else
                 strcpy(buf, "100 ");
-            f_1680_2867(1.125, d_5d9c_9f7f + 0.25 - 3.5, 1, 12, 0, buf);
-            sprintf(buf, " %s", f_a1c3_229c(d_5d9c_9f4f, 0));
-            f_1680_2867(4.375, d_5d9c_9f7f + 0.25 - 3.5, 1, d_5d9c_9f65, 0x6e, buf);
-            d_5d9c_9f67 = d_2f3c_5167[d_5d9c_9f4f];
-            sprintf(buf, " %.17s", (char far *)d_5d9c_08bc[d_5d9c_9f67]);
-            f_1680_2867(18.375, d_5d9c_9f7f + 0.25 - 3.5, 1, 2, 0x6e, buf);
-            sprintf(buf, " %s", f_88c9_72fa(d_5d9c_9f4f, 0));
-            f_1680_2867(32.375, d_5d9c_9f7f + 0.25 - 3.5, 1, 3, 0x36, buf);
-            d_5d9c_9f7f++;
-            f_14d2_148f(&d_5d9c_9f7b, &d_5d9c_9f6b, 2);
+            draw_label(1.125, cur_y + 0.25 - 3.5, 1, 12, 0, buf);
+            sprintf(buf, " %s", manager_name(ranked_manager, 0));
+            draw_label(4.375, cur_y + 0.25 - 3.5, 1, shirt_fg, 0x6e, buf);
+            selected_team = manager_team[ranked_manager];
+            sprintf(buf, " %.17s", (char far *)team_names[selected_team]);
+            draw_label(18.375, cur_y + 0.25 - 3.5, 1, 2, 0x6e, buf);
+            sprintf(buf, " %s", staff_rating_text(ranked_manager, 0));
+            draw_label(32.375, cur_y + 0.25 - 3.5, 1, 3, 0x36, buf);
+            cur_y++;
+            swap_bytes(&row_colour_a, &row_colour_b, 2);
         }
-        f_a1c3_2d08(2, 1.25, 23.0, 6, 2, 0x35, " - SCR");
-        f_a1c3_2d08(2, 32.25, 23.0, 6, 2, 0x35, " + SCR");
-        f_a1c3_2d08(2, 8.5, 23.0, 1, 4, 0xb9, "          EXIT");
+        add_button(2, 1.25, 23.0, 6, 2, 0x35, " - SCR");
+        add_button(2, 32.25, 23.0, 6, 2, 0x35, " + SCR");
+        add_button(2, 8.5, 23.0, 1, 4, 0xb9, "          EXIT");
         do
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        while (d_5d9c_9faf <= 0);
-        if (d_5d9c_9faf == 1) {
-            d_5d9c_9f53--;
-            if (d_5d9c_9f53 < 1)
-                d_5d9c_9f53 = 4;
-        } else if (d_5d9c_9faf == 2) {
-            d_5d9c_9f53++;
-            if (d_5d9c_9f53 > 4)
-                d_5d9c_9f53 = 1;
+            menu_choice = wait_for_button(last_button);
+        while (menu_choice <= 0);
+        if (menu_choice == 1) {
+            rankings_page--;
+            if (rankings_page < 1)
+                rankings_page = 4;
+        } else if (menu_choice == 2) {
+            rankings_page++;
+            if (rankings_page > 4)
+                rankings_page = 1;
         } else
-            d_5d9c_9f53 = -1;
-    } while (d_5d9c_9f53 != -1);
+            rankings_page = -1;
+    } while (rankings_page != -1);
 }
 
 /* the hall of fame */
-void f_67ee_2f13(void)
+void hall_of_fame_screen(void)
 {
     char buf[320];
 
-    f_a1c3_27e4("");
-    f_1680_2867(1.125, 1.5, 0, 1, 0x88, "Hall of Fame");
-    f_1680_2867(18.375, 1.5, 1, 4, 0x6e, " CLUB");
-    f_1680_2867(32.375, 1.5, 1, 4, 0x36, " PTS");
-    d_5d9c_9f7f = 6;
-    d_5d9c_9f7b = 14;
-    d_5d9c_9f6b = 8;
-    d_5d9c_9fd2 = f_14d2_16bc(d_5d9c_a34e, 0);
-    for (d_5d9c_9f6d = 1; d_5d9c_9f6d <= 20; d_5d9c_9f6d++) {
-        sprintf(buf, " %02d ", d_5d9c_9f6d);
-        f_1680_2867(1.125, d_5d9c_9f7f + 0.25 - 3.5, 1, 2, 0, buf);
-        sprintf(buf, " %.17s", d_5d9c_9fd2 + (d_5d9c_9f6d - 1) * 80);
-        f_1680_2867(4.375, d_5d9c_9f7f + 0.25 - 3.5, 1, d_5d9c_9f6b, 0x6e, buf);
-        sprintf(buf, " %.17s", d_5d9c_9fd2 + (d_5d9c_9f6d - 1) * 80 + 1600);
-        f_1680_2867(18.375, d_5d9c_9f7f + 0.25 - 3.5, 0, 6, 0x6e, buf);
-        sprintf(buf, " %6ld", d_2f3c_1d40[d_5d9c_9f6d]);
-        f_1680_2867(32.375, d_5d9c_9f7f + 0.25 - 3.5, 1, 9, 0x36, buf);
-        d_5d9c_9f7f++;
-        f_14d2_148f(&d_5d9c_9f7b, &d_5d9c_9f6b, 2);
+    new_screen("");
+    draw_label(1.125, 1.5, 0, 1, 0x88, "Hall of Fame");
+    draw_label(18.375, 1.5, 1, 4, 0x6e, " CLUB");
+    draw_label(32.375, 1.5, 1, 4, 0x36, " PTS");
+    cur_y = 6;
+    row_colour_a = 14;
+    row_colour_b = 8;
+    hall_of_fame_ptr = vm_map(hall_of_fame_handle, 0);
+    for (loop_i = 1; loop_i <= 20; loop_i++) {
+        sprintf(buf, " %02d ", loop_i);
+        draw_label(1.125, cur_y + 0.25 - 3.5, 1, 2, 0, buf);
+        sprintf(buf, " %.17s", hall_of_fame_ptr + (loop_i - 1) * 80);
+        draw_label(4.375, cur_y + 0.25 - 3.5, 1, row_colour_b, 0x6e, buf);
+        sprintf(buf, " %.17s", hall_of_fame_ptr + (loop_i - 1) * 80 + 1600);
+        draw_label(18.375, cur_y + 0.25 - 3.5, 0, 6, 0x6e, buf);
+        sprintf(buf, " %6ld", hall_of_fame_points[loop_i]);
+        draw_label(32.375, cur_y + 0.25 - 3.5, 1, 9, 0x36, buf);
+        cur_y++;
+        swap_bytes(&row_colour_a, &row_colour_b, 2);
     }
-    f_a1c3_2d08(2, 1.25, 23.0, 1, 4, 0x12d, "                 EXIT");
+    add_button(2, 1.25, 23.0, 1, 4, 0x12d, "                 EXIT");
     do
-        d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-    while (d_5d9c_9faf <= 0);
+        menu_choice = wait_for_button(last_button);
+    while (menu_choice <= 0);
 }
 
 /* per-player tables, 1702 players */
-void f_67ee_3212(char year)
+void awards_screen(char year)
 {
     char buf[320];
 
-    if (d_5d9c_9fab > 11) {
+    if (current_week > 11) {
         if (year) {
-            strcpy(d_1f3e_5454, "");
-            strcpy(d_1f3e_5404, "Year");
+            strcpy(award_points_prefix, "");
+            strcpy(award_period_name, "Year");
         } else {
-            strcpy(d_1f3e_5454, " ");
-            strcpy(d_1f3e_5404, "Month");
+            strcpy(award_points_prefix, " ");
+            strcpy(award_period_name, "Month");
         }
-        sprintf(buf, "%sly Awards", d_1f3e_5404);
-        f_a1c3_27e4(buf);
-        sprintf(buf, " MANAGER OF THE %s", d_1f3e_5404);
-        f_1680_2867(1.125, 4.0, 0, 1, 178, buf);
-        f_1680_2867(23.625, 4.0, 0, 6, 36, " PTS");
-        f_1680_2867(28.375, 4.0, 0, 6, 86, " CLUB");
+        sprintf(buf, "%sly Awards", award_period_name);
+        new_screen(buf);
+        sprintf(buf, " MANAGER OF THE %s", award_period_name);
+        draw_label(1.125, 4.0, 0, 1, 178, buf);
+        draw_label(23.625, 4.0, 0, 6, 36, " PTS");
+        draw_label(28.375, 4.0, 0, 6, 86, " CLUB");
         for (d_5d9c_9f47 = 0; d_5d9c_9f47 <= 3; d_5d9c_9f47++) {
-            sprintf(buf, " %s DIVISION", f_a1c3_261d(d_5d9c_9f47 + 1));
-            f_1680_2867(1.125, d_5d9c_9f47 + 5.25, 1, d_5d9c_9f47 & 1 ? 8 : 14, 86, buf);
-            if (d_5d9c_9fee[d_5d9c_9f47] != -1) {
-                sprintf(buf, " %s", f_a1c3_229c(d_5d9c_9fee[d_5d9c_9f47], -1));
-                f_1680_2867(12.125, d_5d9c_9f47 + 5.25, 1, d_5d9c_9fee[d_5d9c_9f47] >= 646 ? 3 : 12, 90, buf);
-                sprintf(buf, "%s%ld", d_1f3e_5454, d_2f3c_0040[d_5d9c_9f47]);
-                f_1680_2867(23.625, d_5d9c_9f47 + 5.25, 1, 9, 36, buf);
-                sprintf(buf, " %.13s", (char far *)d_5d9c_08bc[d_2f3c_5167[d_5d9c_9fee[d_5d9c_9f47]]]);
-                f_1680_2867(28.375, d_5d9c_9f47 + 5.25, 1, 2, 86, buf);
+            sprintf(buf, " %s DIVISION", ordinal_text(d_5d9c_9f47 + 1));
+            draw_label(1.125, d_5d9c_9f47 + 5.25, 1, d_5d9c_9f47 & 1 ? 8 : 14, 86, buf);
+            if (manager_award_winners[d_5d9c_9f47] != -1) {
+                sprintf(buf, " %s", manager_name(manager_award_winners[d_5d9c_9f47], -1));
+                draw_label(12.125, d_5d9c_9f47 + 5.25, 1, manager_award_winners[d_5d9c_9f47] >= 646 ? 3 : 12, 90, buf);
+                sprintf(buf, "%s%ld", award_points_prefix, manager_award_points[d_5d9c_9f47]);
+                draw_label(23.625, d_5d9c_9f47 + 5.25, 1, 9, 36, buf);
+                sprintf(buf, " %.13s", (char far *)team_names[manager_team[manager_award_winners[d_5d9c_9f47]]]);
+                draw_label(28.375, d_5d9c_9f47 + 5.25, 1, 2, 86, buf);
             } else {
-                f_1680_2867(12.125, d_5d9c_9f47 + 5.25, 1, 12, 90, "");
-                f_1680_2867(23.625, d_5d9c_9f47 + 5.25, 1, 9, 36, "");
-                f_1680_2867(28.375, d_5d9c_9f47 + 5.25, 1, 2, 86, "");
+                draw_label(12.125, d_5d9c_9f47 + 5.25, 1, 12, 90, "");
+                draw_label(23.625, d_5d9c_9f47 + 5.25, 1, 9, 36, "");
+                draw_label(28.375, d_5d9c_9f47 + 5.25, 1, 2, 86, "");
             }
         }
-        sprintf(buf, " SENIOR PLAYER OF THE %s", d_1f3e_5404);
-        f_1680_2867(1.125, 10.0, 0, 1, 178, buf);
-        f_1680_2867(23.625, 10.0, 0, 6, 36, " AV R");
-        f_1680_2867(28.375, 10.0, 0, 6, 86, " CLUB");
-        sprintf(buf, " YOUNG PLAYER OF THE %s", d_1f3e_5404);
-        f_1680_2867(1.125, 16.0, 0, 1, 178, buf);
-        f_1680_2867(23.625, 16.0, 0, 6, 36, " AV R");
-        f_1680_2867(28.375, 16.0, 0, 6, 86, " CLUB");
+        sprintf(buf, " SENIOR PLAYER OF THE %s", award_period_name);
+        draw_label(1.125, 10.0, 0, 1, 178, buf);
+        draw_label(23.625, 10.0, 0, 6, 36, " AV R");
+        draw_label(28.375, 10.0, 0, 6, 86, " CLUB");
+        sprintf(buf, " YOUNG PLAYER OF THE %s", award_period_name);
+        draw_label(1.125, 16.0, 0, 1, 178, buf);
+        draw_label(23.625, 16.0, 0, 6, 36, " AV R");
+        draw_label(28.375, 16.0, 0, 6, 86, " CLUB");
         for (d_5d9c_9f43 = 0; d_5d9c_9f43 <= 1; d_5d9c_9f43++) {
             d_5d9c_9afc = d_5d9c_9f43 * 6 + 11.25;
             for (d_5d9c_9f45 = 0; d_5d9c_9f45 <= 3; d_5d9c_9f45++) {
-                d_5d9c_9f91 = d_2f3c_0070[d_5d9c_9f43][d_5d9c_9f45];
-                if (d_5d9c_9f91 != -1) {
-                    sprintf(buf, " %s DIVISION", f_a1c3_261d(d_5d9c_9f45 + 1));
-                    f_1680_2867(1.125, d_5d9c_9f45 + d_5d9c_9afc, 1, d_5d9c_9f45 & 1 ? 8 : 14, 86, buf);
-                    sprintf(buf, " %.14s", f_a1c3_21cc(d_5d9c_9f91));
-                    f_1680_2867(12.125, d_5d9c_9f45 + d_5d9c_9afc, 1, f_1680_0003(d_483b_0000[18][d_5d9c_9f91]) ? 21 : 12, 90, buf);
-                    sprintf(d_1f3e_5396, "%d", (int)(d_2f3c_0050[d_5d9c_9f43][d_5d9c_9f45] * 100) / 100);
-                    if (strlen(d_1f3e_5396) == 1)
-                        strcat(d_1f3e_5396, ".00");
-                    else if (strlen(d_1f3e_5396) == 3)
-                        strcat(d_1f3e_5396, "0");
-                    sprintf(buf, " %s", d_1f3e_5396);
-                    f_1680_2867(23.625, d_5d9c_9f45 + d_5d9c_9afc, 1, 9, 36, buf);
-                    sprintf(buf, " %.13s", (char far *)d_5d9c_08bc[d_483b_0000[18][d_5d9c_9f91]]);
-                    f_1680_2867(28.375, d_5d9c_9f45 + d_5d9c_9afc, 1, 2, 86, buf);
+                cur_player = player_award_winners[d_5d9c_9f43][d_5d9c_9f45];
+                if (cur_player != -1) {
+                    sprintf(buf, " %s DIVISION", ordinal_text(d_5d9c_9f45 + 1));
+                    draw_label(1.125, d_5d9c_9f45 + d_5d9c_9afc, 1, d_5d9c_9f45 & 1 ? 8 : 14, 86, buf);
+                    sprintf(buf, " %.14s", player_short_name(cur_player));
+                    draw_label(12.125, d_5d9c_9f45 + d_5d9c_9afc, 1, is_human_team(player_attrs[18][cur_player]) ? 21 : 12, 90, buf);
+                    sprintf(award_rating_text, "%d", (int)(player_award_ratings[d_5d9c_9f43][d_5d9c_9f45] * 100) / 100);
+                    if (strlen(award_rating_text) == 1)
+                        strcat(award_rating_text, ".00");
+                    else if (strlen(award_rating_text) == 3)
+                        strcat(award_rating_text, "0");
+                    sprintf(buf, " %s", award_rating_text);
+                    draw_label(23.625, d_5d9c_9f45 + d_5d9c_9afc, 1, 9, 36, buf);
+                    sprintf(buf, " %.13s", (char far *)team_names[player_attrs[18][cur_player]]);
+                    draw_label(28.375, d_5d9c_9f45 + d_5d9c_9afc, 1, 2, 86, buf);
                 } else {
-                    f_1680_2867(1.125, d_5d9c_9f45 + d_5d9c_9afc, 1, d_5d9c_9f45 & 1 ? 8 : 14, 86, "");
-                    f_1680_2867(12.125, d_5d9c_9f45 + d_5d9c_9afc, 1, 12, 90, "");
-                    f_1680_2867(23.625, d_5d9c_9f45 + d_5d9c_9afc, 1, 9, 36, "");
-                    f_1680_2867(28.375, d_5d9c_9f45 + d_5d9c_9afc, 1, 2, 86, "");
+                    draw_label(1.125, d_5d9c_9f45 + d_5d9c_9afc, 1, d_5d9c_9f45 & 1 ? 8 : 14, 86, "");
+                    draw_label(12.125, d_5d9c_9f45 + d_5d9c_9afc, 1, 12, 90, "");
+                    draw_label(23.625, d_5d9c_9f45 + d_5d9c_9afc, 1, 9, 36, "");
+                    draw_label(28.375, d_5d9c_9f45 + d_5d9c_9afc, 1, 2, 86, "");
                 }
             }
         }
-        f_a1c3_2d08(2, 1.25, 22.5, 1, 4, 301, "                 DONE");
+        add_button(2, 1.25, 22.5, 1, 4, 301, "                 DONE");
         do {
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        } while (d_5d9c_9faf <= 0);
+            menu_choice = wait_for_button(last_button);
+        } while (menu_choice <= 0);
     } else
-        f_88c9_24f1("No awards yet this season");
+        message_box("No awards yet this season");
 }
 
-void f_67ee_3b26(void)
+void national_squads_menu(void)
 {
-    if (d_5d9c_9fab < 16)
-        f_88c9_24f1("National squads not chosen");
+    if (current_week < 16)
+        message_box("National squads not chosen");
     else
-        f_67ee_3b45();
+        international_squads_screen();
 }
 
-void f_67ee_3b45(void)
+void international_squads_screen(void)
 {
     char buf[320];
 
     do {
-        f_1680_150c(0, "International Squads", "*Exit|England|Scotland|Ireland|N.Ireland|Wales|England U-21|Scotland U-21|Ireland U-21|N.Ireland U-21|Wales U-21|");
-        d_5d9c_9f41 = d_5d9c_9faf;
-        if (d_5d9c_9f41 > 0) {
-            d_5d9c_9f3f = 0;
-            strcpy(d_1f3e_5346, "");
-            if (d_5d9c_9f41 > 5) {
-                d_5d9c_9f3f = 1;
-                strcpy(d_1f3e_5346, "U-21 ");
-                d_5d9c_9f41 -= 5;
+        show_menu(0, "International Squads", "*Exit|England|Scotland|Ireland|N.Ireland|Wales|England U-21|Scotland U-21|Ireland U-21|N.Ireland U-21|Wales U-21|");
+        squad_nation = menu_choice;
+        if (squad_nation > 0) {
+            under_21_flag = 0;
+            strcpy(under_21_suffix, "");
+            if (squad_nation > 5) {
+                under_21_flag = 1;
+                strcpy(under_21_suffix, "U-21 ");
+                squad_nation -= 5;
             }
             do {
-                f_a1c3_27e4("International squad");
-                switch (d_5d9c_9f41) {
+                new_screen("International squad");
+                switch (squad_nation) {
                 case 1:
-                    d_5d9c_9f55 = 65;
+                    loop_k = 65;
                     break;
                 case 2:
-                    d_5d9c_9f55 = 20;
+                    loop_k = 20;
                     break;
                 case 3:
                 case 4:
-                    d_5d9c_9f55 = 19;
+                    loop_k = 19;
                     break;
                 case 5:
-                    d_5d9c_9f55 = 18;
+                    loop_k = 18;
                     break;
                 }
-                sprintf(buf, " %s %s", f_992a_5114(d_5d9c_9f41 - 1), d_1f3e_5346);
-                f_1680_2ea0(1.25, 4.0, d_5d9c_9f55 / 16, d_5d9c_9f55 % 16, 0, buf);
-                f_1680_2867(1.125, 7.0, 1, 2, 76, " NAME");
-                f_1680_2867(10.875, 7.0, 1, 2, 73, " CLUB");
-                f_1680_2867(20.25, 7.0, 1, 2, 76, " NAME");
-                f_1680_2867(30.0, 7.0, 1, 2, 73, " CLUB");
-                f_a1c3_2c23();
-                f_a1c3_2d08(2, 1.25, 22.5, 1, 4, 301, "                 EXIT");
+                sprintf(buf, " %s %s", home_nation_name(squad_nation - 1), under_21_suffix);
+                draw_text_box(1.25, 4.0, loop_k / 16, loop_k % 16, 0, buf);
+                draw_label(1.125, 7.0, 1, 2, 76, " NAME");
+                draw_label(10.875, 7.0, 1, 2, 73, " CLUB");
+                draw_label(20.25, 7.0, 1, 2, 76, " NAME");
+                draw_label(30.0, 7.0, 1, 2, 73, " CLUB");
+                reset_buttons();
+                add_button(2, 1.25, 22.5, 1, 4, 301, "                 EXIT");
                 for (d_5d9c_9f3d = 0; d_5d9c_9f3d <= 21; d_5d9c_9f3d++) {
-                    d_5d9c_9f3b = d_5d9c_0094[d_5d9c_9f3d];
-                    d_5d9c_9b00 = d_5d9c_9f3d > 10 ? 20.25 : 1.125;
-                    d_5d9c_9b08 = d_5d9c_9f3d > 10 ? d_5d9c_9f3d - 2 : d_5d9c_9f3d + 9;
-                    d_5d9c_9f55 = d_5d9c_9f3d & 1 ? 8 : 14;
-                    d_5d9c_9ff6 = f_14d2_16bc(d_5d9c_a344, 0);
-                    d_5d9c_9f91 = d_5d9c_9ff6[d_5d9c_9f41 - 1][d_5d9c_9f3f][d_5d9c_9f3d];
-                    if (d_5d9c_9f91 > -1) {
-                        strcpy(d_1f3e_52f6, f_a1c3_2243(d_5d9c_9f91));
-                        strcpy(d_1f3e_52a6, d_5d9c_08bc[d_483b_0000[18][d_5d9c_9f91]]);
-                        if (f_1680_0003(d_483b_0000[18][d_5d9c_9f91]))
-                            d_5d9c_9f55 = 3;
+                    d_5d9c_9f3b = intl_squad_positions[d_5d9c_9f3d];
+                    text_x = d_5d9c_9f3d > 10 ? 20.25 : 1.125;
+                    text_y = d_5d9c_9f3d > 10 ? d_5d9c_9f3d - 2 : d_5d9c_9f3d + 9;
+                    loop_k = d_5d9c_9f3d & 1 ? 8 : 14;
+                    intl_squads = vm_map(national_squads_handle, 0);
+                    cur_player = intl_squads[squad_nation - 1][under_21_flag][d_5d9c_9f3d];
+                    if (cur_player > -1) {
+                        strcpy(squad_name_text, player_surname(cur_player));
+                        strcpy(squad_club_text, team_names[player_attrs[18][cur_player]]);
+                        if (is_human_team(player_attrs[18][cur_player]))
+                            loop_k = 3;
                     } else {
-                        strcpy(d_1f3e_52f6, d_5471_17c4[d_5d9c_9f3b]);
-                        switch (d_5d9c_9f41) {
+                        strcpy(squad_name_text, position_names[d_5d9c_9f3b]);
+                        switch (squad_nation) {
                         case 1:
                         case 5:
-                            strcpy(d_1f3e_52a6, "Non-lge");
+                            strcpy(squad_club_text, "Non-lge");
                             break;
                         case 2:
-                            strcpy(d_1f3e_52a6, "Scots-lge");
+                            strcpy(squad_club_text, "Scots-lge");
                             break;
                         case 3:
                         case 4:
-                            strcpy(d_1f3e_52a6, "Irish-lge");
+                            strcpy(squad_club_text, "Irish-lge");
                             break;
                         }
                     }
-                    sprintf(buf, " %.11s", d_1f3e_52f6);
-                    f_a1c3_2d08(0, d_5d9c_9b00, d_5d9c_9b08, 1, d_5d9c_9f55, 76, buf);
-                    sprintf(buf, " %.11s", d_1f3e_52a6);
-                    f_1680_2867(d_5d9c_9b00 + 9.75, d_5d9c_9b08, 1, 4, 73, buf);
+                    sprintf(buf, " %.11s", squad_name_text);
+                    add_button(0, text_x, text_y, 1, loop_k, 76, buf);
+                    sprintf(buf, " %.11s", squad_club_text);
+                    draw_label(text_x + 9.75, text_y, 1, 4, 73, buf);
                 }
                 do {
-                    d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-                } while (d_5d9c_9faf <= 0);
-                if (d_5d9c_9faf > 1) {
-                    d_5d9c_9ff6 = f_14d2_16bc(d_5d9c_a344, 0);
-                    d_5d9c_9f91 = d_5d9c_9ff6[d_5d9c_9f41 - 1][d_5d9c_9f3f][d_5d9c_9faf - 2];
-                    if (d_5d9c_9f91 > -1) {
+                    menu_choice = wait_for_button(last_button);
+                } while (menu_choice <= 0);
+                if (menu_choice > 1) {
+                    intl_squads = vm_map(national_squads_handle, 0);
+                    cur_player = intl_squads[squad_nation - 1][under_21_flag][menu_choice - 2];
+                    if (cur_player > -1) {
                         do {
-                            f_a1c3_5e7a(d_5d9c_9f91, -1, -1);
-                            f_8352_4556(d_5d9c_9f91, d_5d9c_9f57);
-                        } while (!d_5d9c_9b88);
+                            player_details_screen(cur_player, -1, -1);
+                            do_player_action(cur_player, player_screen_action);
+                        } while (!exit_chosen);
                     } else
-                        f_88c9_24f1("No information available");
+                        message_box("No information available");
                 }
-            } while (d_5d9c_9faf != 1);
+            } while (menu_choice != 1);
         }
-    } while (d_5d9c_9f41 != 0);
+    } while (squad_nation != 0);
 }
 
-void f_67ee_4060(void)
+void fixture_info_menu(void)
 {
     char buf[300];
-    char name[80];
+    char cup_name[80];
 
     do {
-        f_a1c3_27e4("Fixture Info");
-        f_1680_150c(0, "", "*Exit|Last Results|Next Fixtures|Next FA Cup|Next Rumbelows|Next Zenith|Next Domark|Next UEFA|Next Cup Winners|Next European|Next Playoffs|Euro Seedings|Past Winners|");
-        f_1680_18b2(12);
-        d_5d9c_9f39 = d_5d9c_9faf;
-        if (d_5d9c_9f39 == 1) {
-            if (d_5d9c_9fab > 1) {
-                for (d_5d9c_9f37 = d_5d9c_9fab - 1; d_5d9c_9f37 >= 1; d_5d9c_9f37--) {
-                    if (d_483b_a174[d_5d9c_9f37] > 0) {
-                        f_6e68_12fd(d_5d9c_9f37, 1, -1);
-                        d_5d9c_9f37 = 1;
+        new_screen("Fixture Info");
+        show_menu(0, "", "*Exit|Last Results|Next Fixtures|Next FA Cup|Next Rumbelows|Next Zenith|Next Domark|Next UEFA|Next Cup Winners|Next European|Next Playoffs|Euro Seedings|Past Winners|");
+        wait_menu_choice(12);
+        fixture_menu_choice = menu_choice;
+        if (fixture_menu_choice == 1) {
+            if (current_week > 1) {
+                for (fixture_week = current_week - 1; fixture_week >= 1; fixture_week--) {
+                    if (week_fixture_counts[fixture_week] > 0) {
+                        show_week_fixtures(fixture_week, 1, -1);
+                        fixture_week = 1;
                     }
                 }
                 0;      /* no code: an expression statement after the loop, which makes
-                         * BCC merge the f_88c9_24f1 tails into the last copy */
+                         * BCC merge the message_box tails into the last copy */
             } else
-                f_88c9_24f1("No matches last week");
-        } else if (d_5d9c_9f39 == 2) {
-            if (d_5d9c_9fab < 95) {
-                d_5d9c_9f37 = d_5d9c_9fab;
+                message_box("No matches last week");
+        } else if (fixture_menu_choice == 2) {
+            if (current_week < 95) {
+                fixture_week = current_week;
                 do {
-                    d_5d9c_9b75 = -1;
-                    if (f_992a_7831(d_5d9c_9f37)) {
-                        if (d_483b_a174[d_5d9c_9f37] == 0)
-                            d_5d9c_9b75 = 0;
-                    } else if (d_5d9c_9f37 == 7 && d_5d9c_9ee3 == 0)
-                        d_5d9c_9b75 = 0;
-                    else if (d_5d9c_9f37 == 81 || d_5d9c_9f37 == 93)
-                        d_5d9c_9b75 = 0;
-                    else if (d_5d9c_9f37 < 5 && d_5d9c_a062[d_5d9c_9f37] == 0)
-                        d_5d9c_9b75 = 0;
-                    d_5d9c_9f37 += d_5d9c_9b75 != 0 ? 0 : 1;
-                } while (!d_5d9c_9b75);
-                f_6e68_12fd(d_5d9c_9f37, 0, -1);
+                    position_ok = -1;
+                    if (is_cup_replay_week(fixture_week)) {
+                        if (week_fixture_counts[fixture_week] == 0)
+                            position_ok = 0;
+                    } else if (fixture_week == 7 && zenith_qualifier_count == 0)
+                        position_ok = 0;
+                    else if (fixture_week == 81 || fixture_week == 93)
+                        position_ok = 0;
+                    else if (fixture_week < 5 && friendly_counts[fixture_week] == 0)
+                        position_ok = 0;
+                    fixture_week += position_ok != 0 ? 0 : 1;
+                } while (!position_ok);
+                show_week_fixtures(fixture_week, 0, -1);
             } else
-                f_88c9_24f1("The season is over");
-        } else if (d_5d9c_9f39 == 3) {
-            if (d_5d9c_9f8d > -1) {
-                if (d_5d9c_9f8d > 0)
-                    f_6e68_12fd(d_5d9c_9f8d, f_992a_7831(d_5d9c_9f8d) || d_5d9c_9f8d == 88 ? 0 : 2, 1);
+                message_box("The season is over");
+        } else if (fixture_menu_choice == 3) {
+            if (fa_cup_next_week > -1) {
+                if (fa_cup_next_week > 0)
+                    show_week_fixtures(fa_cup_next_week, is_cup_replay_week(fa_cup_next_week) || fa_cup_next_week == 88 ? 0 : 2, 1);
                 else
-                    f_67ee_44b1();
+                    show_draw_not_made();
             } else {
-                sprintf(buf, "%s won the FA Cup", (char far *)d_5d9c_08bc[d_2f3c_27e4[0][0]]);
-                f_88c9_24f1(buf);
+                sprintf(buf, "%s won the FA Cup", (char far *)team_names[cup_entrants[0][0]]);
+                message_box(buf);
             }
-        } else if (d_5d9c_9f39 == 4) {
-            if (d_5d9c_9f8f > -1) {
-                if (d_5d9c_9f8f > 0)
-                    f_6e68_12fd(d_5d9c_9f8f, d_5d9c_9f8f == 13 || d_5d9c_9f8f == 65 || d_5d9c_9f8f == 82 || d_5d9c_9f8f == 83 ? 0 : 2, 2);
+        } else if (fixture_menu_choice == 4) {
+            if (league_cup_next_week > -1) {
+                if (league_cup_next_week > 0)
+                    show_week_fixtures(league_cup_next_week, league_cup_next_week == 13 || league_cup_next_week == 65 || league_cup_next_week == 82 || league_cup_next_week == 83 ? 0 : 2, 2);
                 else
-                    f_67ee_44b1();
+                    show_draw_not_made();
             } else {
-                sprintf(buf, "%s won the Rumbelows Cup", (char far *)d_5d9c_08bc[d_2f3c_27e4[1][0]]);
-                f_88c9_24f1(buf);
+                sprintf(buf, "%s won the Rumbelows Cup", (char far *)team_names[cup_entrants[1][0]]);
+                message_box(buf);
             }
-        } else if (d_5d9c_9f39 == 5) {
-            if (d_5d9c_9f35 > -1) {
-                if (d_5d9c_9f35 > 0)
-                    f_6e68_12fd(d_5d9c_9f35, d_5d9c_9f35 == 53 ? 0 : 2, 3);
+        } else if (fixture_menu_choice == 5) {
+            if (zenith_cup_next_week > -1) {
+                if (zenith_cup_next_week > 0)
+                    show_week_fixtures(zenith_cup_next_week, zenith_cup_next_week == 53 ? 0 : 2, 3);
                 else
-                    f_67ee_44b1();
+                    show_draw_not_made();
             } else {
-                sprintf(buf, "%s won the Zenith Cup", (char far *)d_5d9c_08bc[d_2f3c_27e4[2][0]]);
-                f_88c9_24f1(buf);
+                sprintf(buf, "%s won the Zenith Cup", (char far *)team_names[cup_entrants[2][0]]);
+                message_box(buf);
             }
-        } else if (d_5d9c_9f39 == 6) {
-            if (d_5d9c_9f33 > -1) {
-                if (d_5d9c_9f33 > 0)
-                    f_6e68_12fd(d_5d9c_9f33, d_5d9c_9f33 == 71 || d_5d9c_9f33 == 73 ? 2 : 0, 4);
+        } else if (fixture_menu_choice == 6) {
+            if (domark_cup_next_week > -1) {
+                if (domark_cup_next_week > 0)
+                    show_week_fixtures(domark_cup_next_week, domark_cup_next_week == 71 || domark_cup_next_week == 73 ? 2 : 0, 4);
                 else
-                    f_67ee_44b1();
+                    show_draw_not_made();
             } else {
-                sprintf(buf, "%s won the Domark Cup", (char far *)d_5d9c_08bc[d_2f3c_27e4[3][0]]);
-                f_88c9_24f1(buf);
+                sprintf(buf, "%s won the Domark Cup", (char far *)team_names[cup_entrants[3][0]]);
+                message_box(buf);
             }
-        } else if (d_5d9c_9f39 == 7 || d_5d9c_9f39 == 8 || d_5d9c_9f39 == 9) {
-            if (d_5d9c_9f39 == 7)
-                d_5d9c_9f37 = d_5d9c_9f8b;
-            else if (d_5d9c_9f39 == 8)
-                d_5d9c_9f37 = d_5d9c_9f89;
+        } else if (fixture_menu_choice == 7 || fixture_menu_choice == 8 || fixture_menu_choice == 9) {
+            if (fixture_menu_choice == 7)
+                fixture_week = uefa_cup_next_week;
+            else if (fixture_menu_choice == 8)
+                fixture_week = cup_winners_next_week;
             else
-                d_5d9c_9f37 = d_5d9c_9f87;
-            if (d_5d9c_9fab <= 91) {
-                if (d_5d9c_9f37 > 0) {
-                    d_5d9c_9b86 = f_992a_7713(d_5d9c_9f37) || d_5d9c_9f37 == 91 && d_5d9c_9f39 == 7 ? -1 : 0;
-                    d_5d9c_9b85 = d_5d9c_9f37 == 87 || d_5d9c_9f37 == 91 ? -1 : 0;
-                    f_6e68_12fd(d_5d9c_9f37, d_5d9c_9b86 || d_5d9c_9b85 ? 0 : 2, d_5d9c_9f39 - 2);
+                fixture_week = european_cup_next_week;
+            if (current_week <= 91) {
+                if (fixture_week > 0) {
+                    is_second_leg = is_second_leg_week(fixture_week) || fixture_week == 91 && fixture_menu_choice == 7 ? -1 : 0;
+                    d_5d9c_9b85 = fixture_week == 87 || fixture_week == 91 ? -1 : 0;
+                    show_week_fixtures(fixture_week, is_second_leg || d_5d9c_9b85 ? 0 : 2, fixture_menu_choice - 2);
                 } else
-                    f_67ee_44b1();
+                    show_draw_not_made();
             } else {
-                if (d_5d9c_9f39 == 7)
-                    strcpy(name, "UEFA Cup");
-                else if (d_5d9c_9f39 == 8)
-                    strcpy(name, "Cup Winners Cup");
+                if (fixture_menu_choice == 7)
+                    strcpy(cup_name, "UEFA Cup");
+                else if (fixture_menu_choice == 8)
+                    strcpy(cup_name, "Cup Winners Cup");
                 else
-                    strcpy(name, "European Cup");
-                sprintf(buf, "%s won the %s", f_1680_1a91(d_2f3c_27e4[d_5d9c_9f39 - 3][0]), name);
-                f_88c9_24f1(buf);
+                    strcpy(cup_name, "European Cup");
+                sprintf(buf, "%s won the %s", club_name(cup_entrants[fixture_menu_choice - 3][0]), cup_name);
+                message_box(buf);
             }
-        } else if (d_5d9c_9f39 == 10) {
-            switch (d_5d9c_9fab) {
+        } else if (fixture_menu_choice == 10) {
+            switch (current_week) {
             case 87: case 88: case 89: case 90:
-                f_6e68_12fd(90, 0, 8);
+                show_week_fixtures(90, 0, 8);
                 break;
             case 91: case 92:
-                f_6e68_12fd(92, 0, 8);
+                show_week_fixtures(92, 0, 8);
                 break;
             case 93: case 94:
-                f_6e68_12fd(94, 0, 8);
+                show_week_fixtures(94, 0, 8);
                 break;
             default:
-                if (d_5d9c_9fab <= 86)
-                    f_88c9_24f1("Playoffs not yet decided");
+                if (current_week <= 86)
+                    message_box("Playoffs not yet decided");
                 else
-                    f_88c9_24f1("Playoffs have finished");
+                    message_box("Playoffs have finished");
             }
-        } else if (d_5d9c_9f39 == 11)
-            f_67ee_44c2();
-        else if (d_5d9c_9f39 == 12)
-            f_9100_6dd0();
-    } while (d_5d9c_9f39 != 0);
+        } else if (fixture_menu_choice == 11)
+            euro_seedings_screen();
+        else if (fixture_menu_choice == 12)
+            past_winners_screen();
+    } while (fixture_menu_choice != 0);
 }
 
-void f_67ee_44b1(void)
+void show_draw_not_made(void)
 {
-    f_88c9_24f1("Draw not yet made");
+    message_box("Draw not yet made");
 }
 
-void f_67ee_44c2(void)
+void euro_seedings_screen(void)
 {
-    char done[540];
+    char listed[540];
     char buf[320];
 
-    memset(done, 0, 540);
-    f_a1c3_27e4("European Seedings");
+    memset(listed, 0, 540);
+    new_screen("European Seedings");
     for (d_5d9c_9f31 = 4; d_5d9c_9f31 <= 6; d_5d9c_9f31++) {
         if (d_5d9c_9f31 == 4)
-            strcpy(d_1f3e_5256, "UEFA CUP");
+            strcpy(euro_cup_title, "UEFA CUP");
         else if (d_5d9c_9f31 == 5)
-            strcpy(d_1f3e_5256, "CUP WINNERS CUP");
+            strcpy(euro_cup_title, "CUP WINNERS CUP");
         else
-            strcpy(d_1f3e_5256, "EUROPEAN CUP");
-        sprintf(buf, " %s", d_1f3e_5256);
-        f_1680_2867(1.125, (d_5d9c_9f31 - 4) * 6.25 + 4.0, 0, 1, 0x130, buf);
+            strcpy(euro_cup_title, "EUROPEAN CUP");
+        sprintf(buf, " %s", euro_cup_title);
+        draw_label(1.125, (d_5d9c_9f31 - 4) * 6.25 + 4.0, 0, 1, 0x130, buf);
         for (d_5d9c_9f2f = 1; d_5d9c_9f2f <= 8; d_5d9c_9f2f++) {
             for (d_5d9c_9f69 = 0; d_5d9c_9f69 <= 539; d_5d9c_9f69++) {
-                if (d_2f3c_0080[d_5d9c_9f69] == d_5d9c_9f31 && done[d_5d9c_9f69] == 0) {
-                    d_5d9c_9b00 = d_5d9c_9f2f > 4 ? 20.25 : 1.125;
-                    d_5d9c_9b08 = (d_5d9c_9f31 - 4) * 6.25 + 5.25 + d_5d9c_9f2f - 1 - (d_5d9c_9f2f > 4 ? 4 : 0);
-                    sprintf(buf, " %.12s", f_1680_1a91(d_5d9c_9f69));
+                if (cup_seeding[d_5d9c_9f69] == d_5d9c_9f31 && listed[d_5d9c_9f69] == 0) {
+                    text_x = d_5d9c_9f2f > 4 ? 20.25 : 1.125;
+                    text_y = (d_5d9c_9f31 - 4) * 6.25 + 5.25 + d_5d9c_9f2f - 1 - (d_5d9c_9f2f > 4 ? 4 : 0);
+                    sprintf(buf, " %.12s", club_name(d_5d9c_9f69));
                     buf[13] = 0;
-                    if (f_1680_0003(d_5d9c_9f69))
-                        d_5d9c_9f6b = 3;
+                    if (is_human_team(d_5d9c_9f69))
+                        row_colour_b = 3;
                     else
-                        d_5d9c_9f6b = d_5d9c_9f2f & 1 ? 8 : 14;
-                    f_1680_2867(d_5d9c_9b00, d_5d9c_9b08, d_5d9c_9f69 < 80 ? 6 : 1, d_5d9c_9f6b, 0x59, buf);
+                        row_colour_b = d_5d9c_9f2f & 1 ? 8 : 14;
+                    draw_label(text_x, text_y, d_5d9c_9f69 < 80 ? 6 : 1, row_colour_b, 0x59, buf);
                     if (d_5d9c_9f69 < 80)
                         strcpy(buf, " ENGLAND");
                     else {
-                        sprintf(buf, " %s", d_5471_16f0[d_5739_1b0e[d_5d9c_9f69]]);
+                        sprintf(buf, " %s", country_names[team_country[d_5d9c_9f69]]);
                         buf[9] = 0;
                     }
-                    f_1680_2867(d_5d9c_9b00 + 11.375, d_5d9c_9b08, 1, 2, 0x3c, buf);
-                    done[d_5d9c_9f69] = -1;
+                    draw_label(text_x + 11.375, text_y, 1, 2, 0x3c, buf);
+                    listed[d_5d9c_9f69] = -1;
                     d_5d9c_9f69 = 539;
                 }
             }
         }
     }
-    f_a1c3_2d08(2, 1.25, 22.5, 1, 4, 0x12d, "                 DONE");
+    add_button(2, 1.25, 22.5, 1, 4, 0x12d, "                 DONE");
     do
-        d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-    while (d_5d9c_9faf <= 0);
+        menu_choice = wait_for_button(last_button);
+    while (menu_choice <= 0);
 }
 
-void f_67ee_47dc(void)
+void european_cup_groups_screen(void)
 {
-    f_a1c3_27e4("European Cup Groups");
-    f_67ee_4a20(0, 0, 4.0);
-    f_67ee_4a20(0, 1, 11.375);
-    f_a1c3_2d08(2, 1.25, 22.5, 1, 4, 0x12d, "                 DONE");
+    new_screen("European Cup Groups");
+    draw_group_table(0, 0, 4.0);
+    draw_group_table(0, 1, 11.375);
+    add_button(2, 1.25, 22.5, 1, 4, 0x12d, "                 DONE");
     do
-        d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-    while (d_5d9c_9faf <= 0);
+        menu_choice = wait_for_button(last_button);
+    while (menu_choice <= 0);
 }
 
-void f_67ee_486f(void)
+void domark_groups_screen(void)
 {
-    d_5d9c_9f2d = 0;
+    domark_group_page = 0;
     for (d_5d9c_9f2b = 0; d_5d9c_9f2b <= 7; d_5d9c_9f2b++)
-        for (d_5d9c_9fa1 = 0; d_5d9c_9fa1 <= 4; d_5d9c_9fa1++)
-            if (f_1680_0003(d_1f3e_ff85[d_5d9c_9f2b][d_5d9c_9fa1])) {
-                d_5d9c_9f2d = d_5d9c_9f2b / 2;
-                d_5d9c_9fa1 = 4;
+        for (loop_j = 0; loop_j <= 4; loop_j++)
+            if (is_human_team(domark_groups[d_5d9c_9f2b][loop_j])) {
+                domark_group_page = d_5d9c_9f2b / 2;
+                loop_j = 4;
                 d_5d9c_9f2b = 7;
             }
     do {
-        f_a1c3_27e4("Domark Trophy");
-        d_5d9c_9f2b = d_5d9c_9f2d * 2;
-        f_67ee_4a20(1, d_5d9c_9f2b, 4.0);
-        f_67ee_4a20(1, d_5d9c_9f2b + 1, 12.375);
-        f_a1c3_2d08(2, 1.25, 22.5, 6, 2, 0x35, " - SCR");
-        f_a1c3_2d08(2, 32.25, 22.5, 6, 2, 0x35, " + SCR");
-        f_a1c3_2d08(2, 8.5, 22.5, 1, 4, 0xb9, "          EXIT");
+        new_screen("Domark Trophy");
+        d_5d9c_9f2b = domark_group_page * 2;
+        draw_group_table(1, d_5d9c_9f2b, 4.0);
+        draw_group_table(1, d_5d9c_9f2b + 1, 12.375);
+        add_button(2, 1.25, 22.5, 6, 2, 0x35, " - SCR");
+        add_button(2, 32.25, 22.5, 6, 2, 0x35, " + SCR");
+        add_button(2, 8.5, 22.5, 1, 4, 0xb9, "          EXIT");
         do
-            d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        while (d_5d9c_9faf <= 0);
-        if (d_5d9c_9faf == 1) {
-            d_5d9c_9f2d--;
-            if (d_5d9c_9f2d == -1)
-                d_5d9c_9f2d = 3;
-        } else if (d_5d9c_9faf == 2) {
-            d_5d9c_9f2d++;
-            if (d_5d9c_9f2d == 4)
-                d_5d9c_9f2d = 0;
+            menu_choice = wait_for_button(last_button);
+        while (menu_choice <= 0);
+        if (menu_choice == 1) {
+            domark_group_page--;
+            if (domark_group_page == -1)
+                domark_group_page = 3;
+        } else if (menu_choice == 2) {
+            domark_group_page++;
+            if (domark_group_page == 4)
+                domark_group_page = 0;
         }
-    } while (d_5d9c_9faf != 3);
+    } while (menu_choice != 3);
 }
 
 /* the group table's column headings */
-static char far *d_5d9c_2d53[] = {
+static char far *group_table_headings[] = {
     " P ", " W ", " D ", " L ", " F ", " A ", "PTS"
 };
 
-void f_67ee_4a20(int a, int b, float x)
+void draw_group_table(int cup, int group, float top)
 {
-    float y;
-    float ys[7];
+    float col;
+    float cols[7];
     char buf[320];
 
-    sprintf(buf, " Group %c", b + 'A');
-    f_1680_2867(1.125, x, 0, 1, 0x130, buf);
-    f_1680_2867(1.125, x + 1.125, 1, 12, 0x50, " Team");
-    for (d_5d9c_9f6d = 0, y = 11.375; d_5d9c_9f6d <= 6; d_5d9c_9f6d++, y += 4.0) {
-        ys[d_5d9c_9f6d] = y;
-        sprintf(buf, " %s ", d_5d9c_2d53[d_5d9c_9f6d]);
-        f_1680_2867(ys[d_5d9c_9f6d], x + 1.125, 1, 2, 0, buf);
+    sprintf(buf, " Group %c", group + 'A');
+    draw_label(1.125, top, 0, 1, 0x130, buf);
+    draw_label(1.125, top + 1.125, 1, 12, 0x50, " Team");
+    for (loop_i = 0, col = 11.375; loop_i <= 6; loop_i++, col += 4.0) {
+        cols[loop_i] = col;
+        sprintf(buf, " %s ", group_table_headings[loop_i]);
+        draw_label(cols[loop_i], top + 1.125, 1, 2, 0, buf);
     }
-    for (d_5d9c_9f71 = 0; d_5d9c_9f71 <= a + 3; d_5d9c_9f71++) {
-        if (a == 0)
-            d_5d9c_9f69 = d_2f3c_0030[b][d_5d9c_9f71];
+    for (d_5d9c_9f71 = 0; d_5d9c_9f71 <= cup + 3; d_5d9c_9f71++) {
+        if (cup == 0)
+            d_5d9c_9f69 = euro_cup_groups[group][d_5d9c_9f71];
         else
-            d_5d9c_9f69 = d_1f3e_ff85[b][d_5d9c_9f71];
-        if (f_1680_0003(d_5d9c_9f69))
-            d_5d9c_9f55 = 3;
+            d_5d9c_9f69 = domark_groups[group][d_5d9c_9f71];
+        if (is_human_team(d_5d9c_9f69))
+            loop_k = 3;
         else
-            d_5d9c_9f55 = d_5d9c_9f71 & 1 ? 14 : 8;
-        sprintf(buf, " %s", f_1680_1a91(d_5d9c_9f69));
-        f_1680_2867(1.125, x + 2.375 + d_5d9c_9f71, a == 0 && d_5d9c_9f69 < 80 ? 6 : 1, d_5d9c_9f55, 0x50, buf);
-        for (d_5d9c_9f6d = 0; d_5d9c_9f6d <= 6; d_5d9c_9f6d++) {
-            if (d_5d9c_9f6d < 6) {
-                if (a == 0)
-                    d_5d9c_9f29 = d_2f3c_0000[d_5d9c_9f6d][b][d_5d9c_9f71];
+            loop_k = d_5d9c_9f71 & 1 ? 14 : 8;
+        sprintf(buf, " %s", club_name(d_5d9c_9f69));
+        draw_label(1.125, top + 2.375 + d_5d9c_9f71, cup == 0 && d_5d9c_9f69 < 80 ? 6 : 1, loop_k, 0x50, buf);
+        for (loop_i = 0; loop_i <= 6; loop_i++) {
+            if (loop_i < 6) {
+                if (cup == 0)
+                    d_5d9c_9f29 = euro_group_stats[loop_i][group][d_5d9c_9f71];
                 else
-                    d_5d9c_9f29 = d_1f3e_fcb5[d_5d9c_9f6d][b][d_5d9c_9f71];
+                    d_5d9c_9f29 = domark_group_stats[loop_i][group][d_5d9c_9f71];
             } else {
-                if (a == 0)
-                    d_5d9c_9f29 = d_2f3c_0000[1][b][d_5d9c_9f71] * 2 + d_2f3c_0000[2][b][d_5d9c_9f71];
+                if (cup == 0)
+                    d_5d9c_9f29 = euro_group_stats[1][group][d_5d9c_9f71] * 2 + euro_group_stats[2][group][d_5d9c_9f71];
                 else
-                    d_5d9c_9f29 = d_1f3e_fcb5[1][b][d_5d9c_9f71] * 2 + d_1f3e_fcb5[2][b][d_5d9c_9f71];
+                    d_5d9c_9f29 = domark_group_stats[1][group][d_5d9c_9f71] * 2 + domark_group_stats[2][group][d_5d9c_9f71];
             }
             sprintf(buf, "  %d", d_5d9c_9f29);
-            f_1680_2867(ys[d_5d9c_9f6d], x + 2.375 + d_5d9c_9f71, 1, 4, 0x1e, buf);
+            draw_label(cols[loop_i], top + 2.375 + d_5d9c_9f71, 1, 4, 0x1e, buf);
         }
     }
-    if (x > 10.0)
-        f_1680_2867(1.125, x + 8.375 - (a == 0), 1, 3, 0, " Top team in each group qualifies ");
+    if (top > 10.0)
+        draw_label(1.125, top + 8.375 - (cup == 0), 1, 3, 0, " Top team in each group qualifies ");
 }
 
-void f_67ee_4e10(int team)
+void team_fixtures_screen(int team)
 {
     char names[4][94][20];
     char buf[320];
     unsigned char comp[94];
     unsigned char week[94];
 
-    f_67ee_52ba(team, names, comp, week);
+    build_team_fixtures(team, names, comp, week);
     for (;;) {
-        d_5d9c_9f27 = d_5d9c_9f25 / 3.0 + 0.49;
-        if (d_5d9c_9f27 <= 20)
-            f_67ee_5ab6(-1.0, team, "Fixtures");
+        fixtures_per_column = fixture_count / 3.0 + 0.49;
+        if (fixtures_per_column <= 20)
+            draw_club_title(-1.0, team, "Fixtures");
         else {
-            f_a1c3_27e4("");
-            sprintf(buf, " %s fixtures ", (char far *)d_5d9c_08bc[team]);
-            f_1680_2867(1.5, 1.5, -(d_5739_00a4[team] / 16), d_5739_00a4[team] % 16, 0, buf);
+            new_screen("");
+            sprintf(buf, " %s fixtures ", (char far *)team_names[team]);
+            draw_label(1.5, 1.5, -(team_colours[team] / 16), team_colours[team] % 16, 0, buf);
         }
-        d_5d9c_9f55 = 4;
-        d_5d9c_9f21 = (d_5d9c_9f23 = d_5d9c_9f27) + 1;
-        d_5d9c_9f1f = d_5d9c_9f27 * 2;
-        d_5d9c_9f1d = d_5d9c_9f27 * 2 + 1;
-        d_5d9c_9f1b = d_5d9c_9f27 * 3;
-        for (d_5d9c_9f19 = 0; d_5d9c_9f25 - 1 >= d_5d9c_9f19; d_5d9c_9f19++) {
-            d_5d9c_9b08 = d_5d9c_9f19 % d_5d9c_9f27 + 4.5 - (d_5d9c_9f27 > 20 ? 1.5 : 0);
-            if (d_5d9c_9f19 + 1 <= d_5d9c_9f23)
-                d_5d9c_9b00 = 0.5;
-            else if (d_5d9c_9f19 + 1 <= d_5d9c_9f1f)
-                d_5d9c_9b00 = 13.3;
+        loop_k = 4;
+        d_5d9c_9f21 = (d_5d9c_9f23 = fixtures_per_column) + 1;
+        d_5d9c_9f1f = fixtures_per_column * 2;
+        d_5d9c_9f1d = fixtures_per_column * 2 + 1;
+        d_5d9c_9f1b = fixtures_per_column * 3;
+        for (button_style = 0; fixture_count - 1 >= button_style; button_style++) {
+            text_y = button_style % fixtures_per_column + 4.5 - (fixtures_per_column > 20 ? 1.5 : 0);
+            if (button_style + 1 <= d_5d9c_9f23)
+                text_x = 0.5;
+            else if (button_style + 1 <= d_5d9c_9f1f)
+                text_x = 13.3;
             else
-                d_5d9c_9b00 = 26.1;
-            sprintf(buf, "%.2s", names[0][d_5d9c_9f19]);
-            d_5d9c_9f59 = atol(buf);
-            sprintf(buf, "%s", names[0][d_5d9c_9f19] + 2);
-            f_1680_2867(d_5d9c_9b00 + 1, d_5d9c_9b08, d_5d9c_9f59 / 16, d_5d9c_9f59 % 16, 0, buf);
-            if (d_5d9c_9f19 + 1 >= d_5d9c_9f17 && d_5d9c_9f17 > -1) {
-                if (d_5d9c_9f19 + 1 == d_5d9c_9f17)
-                    d_5d9c_9f59 = 3;
+                text_x = 26.1;
+            sprintf(buf, "%.2s", names[0][button_style]);
+            row_name_colour = atol(buf);
+            sprintf(buf, "%s", names[0][button_style] + 2);
+            draw_label(text_x + 1, text_y, row_name_colour / 16, row_name_colour % 16, 0, buf);
+            if (button_style + 1 >= next_fixture_row && next_fixture_row > -1) {
+                if (button_style + 1 == next_fixture_row)
+                    row_name_colour = 3;
                 else
-                    d_5d9c_9f59 = d_5d9c_9f55;
-                sprintf(buf, "%-11s", names[1][d_5d9c_9f19]);
+                    row_name_colour = loop_k;
+                sprintf(buf, "%-11s", names[1][button_style]);
                 buf[11] = 0;
-                f_1680_2867(d_5d9c_9b00 + 3.0, d_5d9c_9b08, 1, d_5d9c_9f59, 0, buf);
+                draw_label(text_x + 3.0, text_y, 1, row_name_colour, 0, buf);
             } else {
-                sprintf(buf, "%-11s", names[1][d_5d9c_9f19]);
+                sprintf(buf, "%-11s", names[1][button_style]);
                 buf[11] = 0;
-                f_a1c3_2d08(0, d_5d9c_9b00 + 3.0, d_5d9c_9b08, 1, d_5d9c_9f55, 0, buf);
+                add_button(0, text_x + 3.0, text_y, 1, loop_k, 0, buf);
             }
-            f_1680_2867(d_5d9c_9b00 + 11.75, d_5d9c_9b08, 3, 6, 0, names[2][d_5d9c_9f19]);
-            if (d_5d9c_9f55 == 12)
-                d_5d9c_9f55 = 4;
+            draw_label(text_x + 11.75, text_y, 3, 6, 0, names[2][button_style]);
+            if (loop_k == 12)
+                loop_k = 4;
             else
-                d_5d9c_9f55 = 12;
+                loop_k = 12;
         }
-        d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-        if (d_5d9c_9faf <= 0)
+        menu_choice = wait_for_button(last_button);
+        if (menu_choice <= 0)
             break;
         {
         FILE *fp;
-        d_5d9c_9f15 = week[d_5d9c_9faf - 1] - 1;
-        d_5d9c_9f13 = comp[d_5d9c_9f15];
-        d_5d9c_9f11 = d_483b_a0ba[d_5d9c_9f15] + d_5d9c_9f13;
+        fixture_week_index = week[menu_choice - 1] - 1;
+        home_midfield = comp[fixture_week_index];
+        match_facts_record = week_matchfax_base[fixture_week_index] + home_midfield;
         fp = fopen("matchfax", "rb");
-        fseek(fp, (long)(d_5d9c_9f11 - 1) * 149, 0);
-        fread(d_1f3e_49e6, 1, 149, fp);
+        fseek(fp, (long)(match_facts_record - 1) * 149, 0);
+        fread(match_record, 1, 149, fp);
         fclose(fp);
-        f_7a28_360e(d_5739_1d2a[comp[d_5d9c_9f15]][0][d_5d9c_9f15] / 32,
-                    d_5739_1d2a[comp[d_5d9c_9f15]][1][d_5d9c_9f15] / 32, -1);
+        match_stats_screen(week_fixtures[comp[fixture_week_index]][0][fixture_week_index] / 32,
+                    week_fixtures[comp[fixture_week_index]][1][fixture_week_index] / 32, -1);
         }
     }
 }
 
-void f_67ee_52ba(int team, char far names[][94][20], unsigned char far *comp,
+void build_team_fixtures(int team, char far names[][94][20], unsigned char far *comp,
                  unsigned char far *week)
 {
     d_5d9c_9f0d = -1;
-    d_5d9c_9f25 = 0;
-    d_5d9c_9f17 = -1;
-    for (d_5d9c_9f19 = 0; d_5d9c_9f19 <= 93; d_5d9c_9f19++) {
+    fixture_count = 0;
+    next_fixture_row = -1;
+    for (button_style = 0; button_style <= 93; button_style++) {
         d_5d9c_9f0f = -1;
-        for (d_5d9c_9f6d = 0; d_5d9c_9f6d <= 1; d_5d9c_9f6d++)
-            for (d_5d9c_9fa1 = 0; d_5d9c_9fa1 <= 39; d_5d9c_9fa1++)
-                if (d_5739_1d2a[d_5d9c_9fa1][d_5d9c_9f6d][d_5d9c_9f19] / 32 == team)
-                    d_5d9c_9f0f = d_5d9c_9fa1;
+        for (loop_i = 0; loop_i <= 1; loop_i++)
+            for (loop_j = 0; loop_j <= 39; loop_j++)
+                if (week_fixtures[loop_j][loop_i][button_style] / 32 == team)
+                    d_5d9c_9f0f = loop_j;
         if (d_5d9c_9f0f > -1) {
-            if (d_5d9c_9f19 < 4)
-                strcpy(names[0][d_5d9c_9f25], "38PF");
-            else if (d_5d9c_9f19 == 4)
-                strcpy(names[0][d_5d9c_9f25], "38CH");
-            else if (f_992a_70a8(d_5d9c_9f19 + 1))
-                strcpy(names[0][d_5d9c_9f25], "38FA");
-            else if (f_992a_74c1(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1))
-                strcpy(names[0][d_5d9c_9f25], "38Ru");
-            else if (f_992a_752d(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1))
-                strcpy(names[0][d_5d9c_9f25], "38Ze");
-            else if (f_992a_75bc(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1))
-                strcpy(names[0][d_5d9c_9f25], "38Do");
-            else if (f_992a_78ca(d_5d9c_9f19 + 1))
-                strcpy(names[0][d_5d9c_9f25], "38PL");
-            else if (f_992a_7430(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1))
-                strcpy(names[0][d_5d9c_9f25], "01EC");
-            else if (f_992a_7399(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1))
-                strcpy(names[0][d_5d9c_9f25], "01CW");
-            else if (f_992a_72e8(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1))
-                strcpy(names[0][d_5d9c_9f25], "01UE");
+            if (button_style < 4)
+                strcpy(names[0][fixture_count], "38PF");
+            else if (button_style == 4)
+                strcpy(names[0][fixture_count], "38CH");
+            else if (is_fa_cup_week(button_style + 1))
+                strcpy(names[0][fixture_count], "38FA");
+            else if (is_rumbelows_match(button_style + 1, d_5d9c_9f0f + 1))
+                strcpy(names[0][fixture_count], "38Ru");
+            else if (is_zenith_match(button_style + 1, d_5d9c_9f0f + 1))
+                strcpy(names[0][fixture_count], "38Ze");
+            else if (is_domark_match(button_style + 1, d_5d9c_9f0f + 1))
+                strcpy(names[0][fixture_count], "38Do");
+            else if (is_playoff_week(button_style + 1))
+                strcpy(names[0][fixture_count], "38PL");
+            else if (is_european_cup_match(button_style + 1, d_5d9c_9f0f + 1))
+                strcpy(names[0][fixture_count], "01EC");
+            else if (is_cup_winners_match(button_style + 1, d_5d9c_9f0f + 1))
+                strcpy(names[0][fixture_count], "01CW");
+            else if (is_uefa_match(button_style + 1, d_5d9c_9f0f + 1))
+                strcpy(names[0][fixture_count], "01UE");
             else
-                strcpy(names[0][d_5d9c_9f25], "98LG");
-            strcpy(names[2][d_5d9c_9f25], "");
-            if (f_992a_7853(d_5d9c_9f19 + 1, d_5d9c_9f0f + 1)
-                && (d_5d9c_9f19 + 1 < 94 || d_5d9c_9f0f == 0))
-                strcpy(names[2][d_5d9c_9f25], "N");
-            d_5d9c_9f0b = d_5739_1d2a[d_5d9c_9f0f][0][d_5d9c_9f19] / 32;
-            d_5d9c_9f09 = d_5739_1d2a[d_5d9c_9f0f][1][d_5d9c_9f19] / 32;
+                strcpy(names[0][fixture_count], "98LG");
+            strcpy(names[2][fixture_count], "");
+            if (is_neutral_venue_match(button_style + 1, d_5d9c_9f0f + 1)
+                && (button_style + 1 < 94 || d_5d9c_9f0f == 0))
+                strcpy(names[2][fixture_count], "N");
+            d_5d9c_9f0b = week_fixtures[d_5d9c_9f0f][0][button_style] / 32;
+            d_5d9c_9f09 = week_fixtures[d_5d9c_9f0f][1][button_style] / 32;
             if (d_5d9c_9f0b == team) {
-                strcpy(names[1][d_5d9c_9f25], f_1680_1a91(d_5d9c_9f09));
-                if (strlen(names[2][d_5d9c_9f25]) == 0)
-                    strcpy(names[2][d_5d9c_9f25], "H");
+                strcpy(names[1][fixture_count], club_name(d_5d9c_9f09));
+                if (strlen(names[2][fixture_count]) == 0)
+                    strcpy(names[2][fixture_count], "H");
             } else {
-                strcpy(names[1][d_5d9c_9f25], f_1680_1a91(d_5d9c_9f0b));
-                if (strlen(names[2][d_5d9c_9f25]) == 0)
-                    strcpy(names[2][d_5d9c_9f25], "A");
+                strcpy(names[1][fixture_count], club_name(d_5d9c_9f0b));
+                if (strlen(names[2][fixture_count]) == 0)
+                    strcpy(names[2][fixture_count], "A");
             }
-            comp[d_5d9c_9f19] = d_5d9c_9f0f;
-            week[d_5d9c_9f25] = d_5d9c_9f19 + 1;
-            d_5d9c_9f25++;
-            if (d_5d9c_9f17 == -1 && d_5d9c_9f19 + 1 >= d_5d9c_9fab)
-                d_5d9c_9f17 = d_5d9c_9f25;
+            comp[button_style] = d_5d9c_9f0f;
+            week[fixture_count] = button_style + 1;
+            fixture_count++;
+            if (next_fixture_row == -1 && button_style + 1 >= current_week)
+                next_fixture_row = fixture_count;
         }
     }
 }
 
-void f_67ee_5608(void)
+void club_details_menu(void)
 {
-    f_1680_1ad8(-1);
-    if (d_5d9c_9f67 > -1) {
-        if (f_1680_0003(d_5d9c_9f67))
-            f_6e68_33d9(d_5d9c_9f67);
+    choose_team_by_division(-1);
+    if (selected_team > -1) {
+        if (is_human_team(selected_team))
+            squad_screen(selected_team);
         else
-            f_67ee_5641(d_5d9c_9f67);
+            club_squad_screen(selected_team);
     }
 }
 
-void f_67ee_5641(int team)
+void club_squad_screen(int team)
 {
     char buf[320];
 
     do {
-        f_67ee_5ab6(1.5, team, "Squad");
-        f_a1c3_2d08(2, 1.5, 19.625, 6, 3, 0x46, "  GOAL");
-        f_a1c3_2d08(2, 10.875, 19.625, 6, 3, 0x47, "  DISP");
-        f_a1c3_2d08(2, 20.375, 19.625, 6, 3, 0x47, "  AV R");
-        f_a1c3_2d08(2, 29.875, 19.625, 6, 3, 0x46, "  TEAM");
-        f_a1c3_2d08(2, 1.5, 22.0, 1, 4, 0x129, "                 DONE");
-        f_a1c3_2d08(2, 1.5, 4.0, 1, 14, 0x2e, " Trns");
-        f_a1c3_2d08(2, 7.875, 4.0, 1, 14, 0x2d, " Staf");
-        f_a1c3_2d08(2, 14.125, 4.0, 1, 14, 0x2d, " Leag");
-        f_a1c3_2d08(2, 20.375, 4.0, 1, 14, 0x2d, " Fixt");
-        f_a1c3_2d08(2, 26.625, 4.0, 1, 14, 0x2d, " Accs");
-        f_a1c3_2d08(2, 32.875, 4.0, 1, 14, 0x2e, " Info");
-        if (d_5739_13dc[team] > 0)
-            f_a1c3_2d08(2, 32.875, 1.125, 1, 2, 0x2e, " Appl");
-        f_1680_20c2(team);
+        draw_club_title(1.5, team, "Squad");
+        add_button(2, 1.5, 19.625, 6, 3, 0x46, "  GOAL");
+        add_button(2, 10.875, 19.625, 6, 3, 0x47, "  DISP");
+        add_button(2, 20.375, 19.625, 6, 3, 0x47, "  AV R");
+        add_button(2, 29.875, 19.625, 6, 3, 0x46, "  TEAM");
+        add_button(2, 1.5, 22.0, 1, 4, 0x129, "                 DONE");
+        add_button(2, 1.5, 4.0, 1, 14, 0x2e, " Trns");
+        add_button(2, 7.875, 4.0, 1, 14, 0x2d, " Staf");
+        add_button(2, 14.125, 4.0, 1, 14, 0x2d, " Leag");
+        add_button(2, 20.375, 4.0, 1, 14, 0x2d, " Fixt");
+        add_button(2, 26.625, 4.0, 1, 14, 0x2d, " Accs");
+        add_button(2, 32.875, 4.0, 1, 14, 0x2e, " Info");
+        if (club_job_vacant[team] > 0)
+            add_button(2, 32.875, 1.125, 1, 2, 0x2e, " Appl");
+        draw_squad_list(team);
         do
-            d_5d9c_9f07 = f_a1c3_3298(0);
-        while (d_5d9c_9f07 <= 0);
-        if (d_5d9c_9f07 == 1 || d_5d9c_9f07 == 2 || d_5d9c_9f07 == 3)
-            f_67ee_0e4c(d_5d9c_9f07 - 1, team);
-        else if (d_5d9c_9f07 == 4)
-            f_7555_00e9(team);
-        else if (d_5d9c_9f07 == 6)
-            f_67ee_5c0f(team);
-        else if (d_5d9c_9f07 == 7)
-            f_88c9_68aa(team);
-        else if (d_5d9c_9f07 == 8)
-            f_67ee_5f96(team);
-        else if (d_5d9c_9f07 == 9)
-            f_67ee_4e10(team);
-        else if (d_5d9c_9f07 == 10) {
-            if (d_5d9c_9b8d || f_14d2_0c2a(50) == 0)
-                f_6e68_0027(team);
+            squad_screen_choice = wait_for_button(0);
+        while (squad_screen_choice <= 0);
+        if (squad_screen_choice == 1 || squad_screen_choice == 2 || squad_screen_choice == 3)
+            top_players_screen(squad_screen_choice - 1, team);
+        else if (squad_screen_choice == 4)
+            view_team_tactics(team);
+        else if (squad_screen_choice == 6)
+            club_transfers_screen(team);
+        else if (squad_screen_choice == 7)
+            staff_screen(team);
+        else if (squad_screen_choice == 8)
+            league_progress_graph(team);
+        else if (squad_screen_choice == 9)
+            team_fixtures_screen(team);
+        else if (squad_screen_choice == 10) {
+            if (is_demo_game || random_below(50) == 0)
+                show_accounts(team);
             else {
-                sprintf(buf, "%s refuse access|to their accounts", (char far *)d_5d9c_08bc[team]);
-                f_88c9_24f1(buf);
+                sprintf(buf, "%s refuse access|to their accounts", (char far *)team_names[team]);
+                message_box(buf);
             }
-        } else if (d_5d9c_9f07 == 11)
-            f_a1c3_093a(team);
-        else if (d_5d9c_9f07 == 12 && d_5739_13dc[team] > 0)
-            f_6e68_084d(team);
-        else if ((d_5739_13dc[team] > 0 ? 13 : 12) <= d_5d9c_9f07) {
-            d_5d9c_9f3d = d_5d9c_9f07 - (d_5739_13dc[team] > 0 ? 13 : 12);
-            d_5d9c_9f91 = d_2f3c_1584[d_5d9c_9f3d];
+        } else if (squad_screen_choice == 11)
+            club_info_screen(team);
+        else if (squad_screen_choice == 12 && club_job_vacant[team] > 0)
+            manager_job_menu(team);
+        else if ((club_job_vacant[team] > 0 ? 13 : 12) <= squad_screen_choice) {
+            d_5d9c_9f3d = squad_screen_choice - (club_job_vacant[team] > 0 ? 13 : 12);
+            cur_player = squad_list_players[d_5d9c_9f3d];
             do {
-                f_a1c3_5e7a(d_5d9c_9f91, -1, -1);
-                f_8352_4556(d_5d9c_9f91, d_5d9c_9f57);
-            } while (!d_5d9c_9b88);
+                player_details_screen(cur_player, -1, -1);
+                do_player_action(cur_player, player_screen_action);
+            } while (!exit_chosen);
         }
-    } while (d_5d9c_9f07 != 5);
+    } while (squad_screen_choice != 5);
 }
 
-void f_67ee_5ab6(float x, int team, char far *title)
+void draw_club_title(float left, int team, char far *title)
 {
     char buf[320];
 
-    f_a1c3_27e4("");
-    sprintf(d_1f3e_51b6, "%s %s", (char far *)d_5d9c_08bc[team], title);
-    if (x == -1)
-        d_5d9c_9af8 = 19 - strlen(d_1f3e_51b6) / 2;
+    new_screen("");
+    sprintf(club_title_text, "%s %s", (char far *)team_names[team], title);
+    if (left == -1)
+        club_title_x = 19 - strlen(club_title_text) / 2;
     else
-        d_5d9c_9af8 = x;
-    f_14d2_0722(16);
-    f_14d2_075a((d_5d9c_9af8 * 8 + 6), 7, ((strlen(d_1f3e_51b6) + d_5d9c_9af8) * 8 + 19), 21);
-    sprintf(buf, " %s ", d_1f3e_51b6);
-    f_1680_2ea0(d_5d9c_9af8, 1.125, -(d_5739_00a4[team] / 16), d_5739_00a4[team] % 16, 0, buf);
+        club_title_x = left;
+    set_fill_colour(16);
+    fill_rect((club_title_x * 8 + 6), 7, ((strlen(club_title_text) + club_title_x) * 8 + 19), 21);
+    sprintf(buf, " %s ", club_title_text);
+    draw_text_box(club_title_x, 1.125, -(team_colours[team] / 16), team_colours[team] % 16, 0, buf);
 }
 
-void f_67ee_5c0f(int team)
+void club_transfers_screen(int team)
 {
     char buf[320];
     register int y;
     register int x;
 
-    f_67ee_5ab6(-1, team, "Transfers");
-    f_1680_2867(1.125, 4, 1, 8, 150, "RECENTLY BOUGHT");
-    f_1680_2867(20.375, 4, 1, 8, 150, "RECENTLY SOLD");
+    draw_club_title(-1, team, "Transfers");
+    draw_label(1.125, 4, 1, 8, 150, "RECENTLY BOUGHT");
+    draw_label(20.375, 4, 1, 8, 150, "RECENTLY SOLD");
     for (d_5d9c_9f69 = 5; d_5d9c_9f69 >= 4; d_5d9c_9f69--) {
-        d_5d9c_9b00 = d_5d9c_9f69 == 4 ? 21.375 : 2.125;
+        text_x = d_5d9c_9f69 == 4 ? 21.375 : 2.125;
         x = d_5d9c_9f69 == 4 ? 171 : 17;
-        d_5d9c_9fc2 = f_14d2_16bc(d_5d9c_a352, 0);
-        strcpy(d_1f3e_5544, f_14d2_0d75(d_5d9c_9fc2[d_5d9c_9f69 - 4][team], 78));
-        if (strlen(d_1f3e_5544) > 0) {
-            d_5d9c_9b08 = 5.5;
+        transfer_history = vm_map(transfer_history_handle, 0);
+        strcpy(transfer_history_text, right_chars(transfer_history[d_5d9c_9f69 - 4][team], 78));
+        if (strlen(transfer_history_text) > 0) {
+            text_y = 5.5;
             y = 44;
-            d_5d9c_9a50 = 0;
-            for (d_5d9c_9f6d = 1; d_5d9c_9f6d <= strlen(d_1f3e_5544); d_5d9c_9f6d += 13) {
-                sprintf(d_1f3e_5166, "%13s", &d_1f3e_5544[d_5d9c_9f6d - 1]);
-                d_1f3e_5166[13] = 0;
-                sprintf(buf, "%4s", d_1f3e_5166);
+            transfer_total = 0;
+            for (loop_i = 1; loop_i <= strlen(transfer_history_text); loop_i += 13) {
+                sprintf(transfer_entry_text, "%13s", &transfer_history_text[loop_i - 1]);
+                transfer_entry_text[13] = 0;
+                sprintf(buf, "%4s", transfer_entry_text);
                 buf[4] = 0;
-                d_5d9c_9f91 = atol(buf);
-                d_5d9c_9a4c = atol(f_14d2_0dc8(d_1f3e_5166, 5, 7));
-                d_5d9c_9f05 = atol(f_14d2_0d75(d_1f3e_5166, 2));
-                f_1680_27aa(x, y, 6, f_a1c3_213c(d_5d9c_9f91));
-                sprintf(buf, "%s %s", (char far *)d_5d9c_08bc[d_5d9c_9f05], f_88c9_27e8(d_5d9c_9a4c));
-                f_1680_27aa(x, y + 8, 5, buf);
-                d_5d9c_9b08 = d_5d9c_9b08 + 2.5;
+                cur_player = atol(buf);
+                transfer_fee = atol(mid_chars(transfer_entry_text, 5, 7));
+                transfer_other_club = atol(right_chars(transfer_entry_text, 2));
+                draw_text_at(x, y, 6, player_full_name(cur_player));
+                sprintf(buf, "%s %s", (char far *)team_names[transfer_other_club], format_fee(transfer_fee));
+                draw_text_at(x, y + 8, 5, buf);
+                text_y = text_y + 2.5;
                 y += 20;
-                d_5d9c_9a50 += d_5d9c_9a4c;
+                transfer_total += transfer_fee;
             }
             sprintf(buf, "TOTAL %s", d_5d9c_9f69 == 5 ? "SPENDING" : "INCOME");
-            f_1680_27aa(x, y, 1, buf);
-            sprintf(buf, "%ld", d_5d9c_9a50);
-            f_1680_27aa(x + (d_5d9c_9f69 == 5 ? 90 : 78), y, 2, buf);
+            draw_text_at(x, y, 1, buf);
+            sprintf(buf, "%ld", transfer_total);
+            draw_text_at(x + (d_5d9c_9f69 == 5 ? 90 : 78), y, 2, buf);
         } else
-            f_1680_27aa(x, 48, 5, "NOBODY");
+            draw_text_at(x, 48, 5, "NOBODY");
     }
-    f_a1c3_2d08(2, 1.25, 22.5, 1, 4, 301, "                 DONE");
+    add_button(2, 1.25, 22.5, 1, 4, 301, "                 DONE");
     do
-        d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-    while (d_5d9c_9faf <= 0);
+        menu_choice = wait_for_button(last_button);
+    while (menu_choice <= 0);
 }
 
 /* the league progress graph's axis labels */
-static struct label d_5d9c_2d6f[] = {
+static struct label progress_graph_labels[] = {
     {17, 34, "1"}, {17, 62, "5"}, {11, 97, "10"}, {11, 132, "15"}, {11, 167, "20"},
     {21, 30, "1"}, {162, 30, "19"}, {314, 30, "38"}
 };
 
-void f_67ee_5f96(int team)
+void league_progress_graph(int team)
 {
-    f_67ee_5ab6(-1, team, "League Progress");
-    f_14d2_0722(16);
-    f_14d2_075a(19, 35, 315, 168);
-    f_14d2_0722(30);
-    f_14d2_075a(15, 31, 311, 164);
-    f_14d2_073e(24);
-    for (d_5d9c_9f81 = 15; d_5d9c_9f81 <= 311; d_5d9c_9f81 += 8)
-        f_14d2_0e27(d_5d9c_9f81, 31, d_5d9c_9f81, 164);
-    for (d_5d9c_9f7f = 31; d_5d9c_9f7f <= 164; d_5d9c_9f7f += 7)
-        f_14d2_0e27(15, d_5d9c_9f7f, 311, d_5d9c_9f7f);
-    if (d_5d9c_9f85 > 1) {
-        d_5d9c_9f03 = -1;
-        for (d_5d9c_9f01 = 1; d_5d9c_9f01 <= d_5d9c_9f85 - 1; d_5d9c_9f01++) {
-            d_5d9c_9f81 = d_5d9c_9f01 * 8 + 7;
-            d_5d9c_9f7f = d_5739_070c[d_5d9c_9f01][team] * 7 + 24;
-            f_14d2_073e(18);
-            f_14d2_0e27(d_5d9c_9f81 - 2, d_5d9c_9f7f + 2, d_5d9c_9f81 + 2, d_5d9c_9f7f - 2);
-            f_14d2_0e27(d_5d9c_9f81 - 2, d_5d9c_9f7f - 2, d_5d9c_9f81 + 2, d_5d9c_9f7f + 2);
-            if (d_5d9c_9f03 > -1) {
-                f_14d2_073e(22);
-                f_14d2_0e27(d_5d9c_9f03, d_5d9c_9eff, d_5d9c_9f81, d_5d9c_9f7f);
+    draw_club_title(-1, team, "League Progress");
+    set_fill_colour(16);
+    fill_rect(19, 35, 315, 168);
+    set_fill_colour(30);
+    fill_rect(15, 31, 311, 164);
+    set_draw_colour(24);
+    for (cur_x = 15; cur_x <= 311; cur_x += 8)
+        draw_line(cur_x, 31, cur_x, 164);
+    for (cur_y = 31; cur_y <= 164; cur_y += 7)
+        draw_line(15, cur_y, 311, cur_y);
+    if (league_round > 1) {
+        graph_prev_x = -1;
+        for (graph_round = 1; graph_round <= league_round - 1; graph_round++) {
+            cur_x = graph_round * 8 + 7;
+            cur_y = league_position_history[graph_round][team] * 7 + 24;
+            set_draw_colour(18);
+            draw_line(cur_x - 2, cur_y + 2, cur_x + 2, cur_y - 2);
+            draw_line(cur_x - 2, cur_y - 2, cur_x + 2, cur_y + 2);
+            if (graph_prev_x > -1) {
+                set_draw_colour(22);
+                draw_line(graph_prev_x, graph_prev_y, cur_x, cur_y);
             }
-            d_5d9c_9f03 = d_5d9c_9f81;
-            d_5d9c_9eff = d_5d9c_9f7f;
+            graph_prev_x = cur_x;
+            graph_prev_y = cur_y;
         }
     }
     for (d_5d9c_9efd = 0; d_5d9c_9efd <= 7; d_5d9c_9efd++)
-        f_1680_27aa(d_5d9c_2d6f[d_5d9c_9efd].x, d_5d9c_2d6f[d_5d9c_9efd].y, 1, d_5d9c_2d6f[d_5d9c_9efd].s);
-    f_a1c3_2d08(2, 2.125, 22.75, 1, 4, 293, "                DONE");
+        draw_text_at(progress_graph_labels[d_5d9c_9efd].x, progress_graph_labels[d_5d9c_9efd].y, 1, progress_graph_labels[d_5d9c_9efd].s);
+    add_button(2, 2.125, 22.75, 1, 4, 293, "                DONE");
     do
-        d_5d9c_9faf = f_a1c3_3298(d_5d9c_9f63);
-    while (d_5d9c_9faf <= 0);
+        menu_choice = wait_for_button(last_button);
+    while (menu_choice <= 0);
 }

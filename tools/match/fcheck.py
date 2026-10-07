@@ -14,7 +14,7 @@ import argparse, os, re, shutil, subprocess, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
-import omf, mkblobs
+import omf, mkblobs, names
 
 TCDOS = os.path.join(os.path.dirname(os.path.dirname(HERE)), '.claude', 'skills', 'turbo-cpp', 'scripts', 'tcdos.sh')
 SIZE = {'ptr32': 4, 'off16': 2, 'seg16': 2, 'off8': 1, 'hi8': 1, 'off16l': 2}
@@ -111,10 +111,11 @@ def main():
     m = mkblobs.Model(a.exe)
     mod = compile_file(a.src, a.cc, a.flags or default_flags(a.cc))
     si, code, fx, funcs = masked_code(mod)
+    nm = names.load(a.src)
     good = bad = 0
     for k, (off, n) in enumerate(funcs):
         end = funcs[k + 1][0] if k + 1 < len(funcs) else len(code)
-        mo = NAME.match(n)
+        mo = NAME.match(nm.addr(n))
         if not mo:
             continue
         w = m.where(int(mo.group(1), 16), int(mo.group(2), 16))
