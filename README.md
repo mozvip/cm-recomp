@@ -106,17 +106,17 @@ make -C games/cm1/decomp progress    # how much is done
 |---|---|---|---|
 | Championship Manager (1992) | 723 / 723 | 300,349 / 300,349 (100%) | — |
 | Championship Manager 93 | 816 / 816 | 368,424 / 368,424 (100%) | — |
-| Championship Manager Italia | 816 / 817 | 371,331 / 374,470 (99.2%) | `8539:5313` (3,139 bytes) |
+| Championship Manager Italia | 817 / 817 | 374,470 / 374,470 (100%) | — |
 | Championship Manager 94 (End of Season) | 855 / 855 | 371,750 / 371,750 (100%) | — |
 
-Every other segment, root and overlay, is fully decompiled. The function left in CM93 and
-CM Italia is the same one, ported from game to game: the menu of actions on one of your
-own players. Several of its branches end with identical code, and BCC merges them into a
-different copy from the one the original keeps. CM1's copy (`8352:46de`) matched once the
-game was compiled with `-y` (line numbers in the objects, which change that choice without
-leaving anything in the executable); CM94, built with Borland C++ 4.02, matches it with
-code-free statements naming a variable (`9007:511f`). See
-[docs/matching.md](docs/matching.md) on merged tails.
+All four games are fully decompiled: every module is linked from its C (or assembly) source
+and the executables are byte-identical. The last function in each of the first three was
+the same one, ported from game to game: the menu of actions on one of your own players.
+Several of its branches end with identical code, and BCC merges them into a different copy
+from the one the original keeps, until the game is compiled with `-y` (line numbers in the
+objects, which change that choice without leaving anything in the executable). CM94, built
+with Borland C++ 4.02, matches it with code-free statements naming a variable
+(`9007:511f`). See [docs/matching.md](docs/matching.md) on merged tails.
 
 ## Repository layout
 

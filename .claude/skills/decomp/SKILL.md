@@ -290,7 +290,11 @@ segment that do not fit.
   `BCCFLAGS`; nothing of it reaches the executable) changes BCC's cross-jumping choices,
   and with it two `goto`s to the first copy of its `= 0` ending plus two `0;`s match
   (src/8352.C). When a function is right to the instruction but merges its tails into
-  other copies, try the file with `-y` before anything else.
+  other copies, try the file with `-y` before anything else, then
+  `python3 tools/match/tailfix.py GAME.EXE SSSS:OOOO-END FILE.C diff|greedy|pairs --cc ... --flags "... -y"`
+  (score = differing instructions + jumps to the wrong place; `greedy` tries `0;`s and
+  gotos to the first copy of a repeated statement). A label nothing jumps to is a barrier
+  too (CM Italia's 8539:5313 needs one). Never `asm`, not even `asm ;`.
 - **`__emit__` with BCC 3.0 (CM93):** an address argument (`(char near *)"..."`, a far
   function) gets a broken fixup (omf.py fails with `KeyError ('F', 0)`). Load addresses
   with `_AX = (unsigned)d_60ae_XXXX;` (an `extern char near` at the address) or

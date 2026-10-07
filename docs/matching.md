@@ -41,7 +41,7 @@ The toolchain was identified from the executable:
 | What | Evidence | Tool used |
 |---|---|---|
 | Compiler | Code only reproduces with the global optimiser (a variable kept in `DX`, `ES` loads not repeated). Turbo C++ 3.0 lacks it. | Borland C++ 3.1 `BCC`, `tools/BCC31` |
-| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. CM1 and CM93 add `-y` (line numbers in the objects): it changes which copy of identical branch endings BCC keeps, which 8352:46de and 8aa1:5253 need (see merged tails below). | per file: `@flags` |
+| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. CM1, CM93 and CM Italia add `-y` (line numbers in the objects): it changes which copy of identical branch endings BCC keeps, which the player-actions menu of each (8352:46de, 8aa1:5253, 8539:5313) needs (see merged tails below). | per file: `@flags` |
 | Linker | Header signature `FB 50 "jr"`, VROOMM overlays | TLINK **5.0** (Turbo C++ 3.0, `tools/TC`). BCC 3.1 ships 5.1. |
 | Link date | `__EXEDATE__` in the overlay table = `1A 08 C8 07` | DOS date set to 26 Aug 1992 |
 | Runtime, emulator, overlay manager | Byte for byte the stock modules: CM1 Borland C++ 3.1's, CM93 3.0's, CM94 4.02's | linked from the libraries (see below) |
@@ -307,7 +307,15 @@ its 129 statements gives its 2500 bytes, nor any `#pragma option`, nor any singl
 between copies. What does is **`-y`**: with line numbers in the object (nothing of them
 reaches the executable) BCC's cross-jumping makes other choices, and two `goto`s to the
 first `= 0` copy plus two `0;`s then give the original's 2500 bytes. `-y` is in CM1's
-`BCCFLAGS` for the whole game: no other function changes with it.
+`BCCFLAGS` for the whole game: no other function changes with it. The same did CM93's
+8aa1:5253 and CM Italia's 8539:5313 (and `f_7eeb_1afc` above), each with its own few
+gotos and `0;`s. Other code-free barriers that change the choice: a label on a statement,
+even one nothing jumps to (Italia's `T2:`), and an empty `asm ;` (which CM93's earlier
+attempts used; `0;` and `-y` do without it). `tools/match/tailfix.py` scores a standalone
+file against the original function, shows what differs with the source lines, and searches
+over `0;` insertions and gotos between the copies of a repeated statement (`greedy`,
+`pairs`): the three menus took one to three rounds each from an attempt that was right to
+the instruction.
 
 ### Rules that come from the compiler and the linker
 

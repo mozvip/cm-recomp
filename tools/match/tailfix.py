@@ -146,6 +146,44 @@ def goto_variants(lines, start, end, first_only=False):
                     yield ('goto line %d -> %d (%s)' % (src + 1, dst + 1, s[:30]), '\n'.join(with_goto(lines, s, src, dst, label)))
 
 
+def pair_variants(lines, start, end, lo, hi):
+    """every single and paired local edit within lines lo..hi (1-based): a `0;` after a
+    statement, the removal of a `0;`, a copy of a repeated statement turned into a goto to
+    its first copy"""
+    moves = []
+    gs = groups(lines, start, end)
+    for i in range(max(start + 1, lo - 1), min(end, hi)):
+        l = lines[i]
+        if not l.startswith(' '):
+            continue
+        if l.strip() == '0;':
+            moves.append(('del 0; line %d' % (i + 1), i, 'del', None))
+        elif l.rstrip().endswith(';'):
+            moves.append(('0; after %d' % (i + 1), i, 'add', None))
+        for k, (s, v) in enumerate(gs):
+            if i in v[1:] and 'goto' not in l:
+                moves.append(('goto %d -> %d (%s)' % (i + 1, v[0] + 1, s[:20]), i, 'goto', (s, v[0], 'T%d' % k)))
+
+    def apply(ms):
+        t = list(lines)
+        for lab, i, kind, extra in sorted(ms, key=lambda m: -m[1]):     # bottom up keeps indexes valid
+            if kind == 'del':
+                del t[i]
+            elif kind == 'add':
+                ind = ' ' * (len(t[i]) - len(t[i].lstrip()))
+                t.insert(i + 1, ind + '0;')
+            else:
+                s, dst, label = extra
+                t = with_goto(t, s, i, dst, label)
+        return '\n'.join(t)
+
+    import itertools
+    for n in (1, 2):
+        for ms in itertools.combinations(moves, n):
+            if len({m[1] for m in ms}) == n:
+                yield (' + '.join(m[0] for m in ms), apply(ms))
+
+
 def run(tgt, variants, workdir, jobs, quiet=False):
     res = []
     with concurrent.futures.ThreadPoolExecutor(jobs) as ex:
@@ -201,8 +239,9 @@ def main():
     ap.add_argument('exe')
     ap.add_argument('func', help='SSSS:OOOO-END')
     ap.add_argument('src')
-    ap.add_argument('mode', nargs='?', default='score', choices=['score', 'diff', 'groups', 'zero', 'goto', 'greedy'])
+    ap.add_argument('mode', nargs='?', default='score', choices=['score', 'diff', 'groups', 'zero', 'goto', 'pairs', 'greedy'])
     ap.add_argument('rounds', nargs='?', type=int, default=8)
+    ap.add_argument('--range', help='pairs: the source lines LO-HI to edit within')
     ap.add_argument('--cc', default='bc31')
     ap.add_argument('--flags')
     ap.add_argument('--out')
@@ -226,8 +265,12 @@ def main():
             print('T%d: %-50s lines %s' % (k, s[:50], ' '.join(str(i + 1) for i in v)))
         return
     out = a.out or re.sub(r'\.[cC]$', '', a.src) + '.tailfix.c'
-    if a.mode in ('zero', 'goto'):
-        vs = list(zero_variants(lines, start, last, a.flags) if a.mode == 'zero' else goto_variants(lines, start, last))
+    if a.mode in ('zero', 'goto', 'pairs'):
+        if a.mode == 'pairs':
+            lo, hi = (int(x) for x in a.range.split('-')) if a.range else (start + 1, last + 1)
+            vs = list(pair_variants(lines, start, last, lo, hi))
+        else:
+            vs = list(zero_variants(lines, start, last, a.flags) if a.mode == 'zero' else goto_variants(lines, start, last))
         print('%d variants' % len(vs))
         res = run(tgt, vs, workdir, a.jobs)
         print('--- best')
