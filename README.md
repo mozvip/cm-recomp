@@ -179,9 +179,19 @@ Environment variables read by the recompiled games:
 
 ## Legal
 
-This project contains no code or data from the original games. The translated C is
-generated on your machine from your own copy of the game and is not part of the
-repository. Championship Manager is a trademark of its respective owners; this project
-is not affiliated with or endorsed by them.
+The repository contains none of the games' files: no executables, data files, graphics,
+music or drivers. You need your own copy of each game.
 
-The code in this repository is released under the [MIT License](LICENSE).
+- **Recompilation.** The translated C is generated on your machine from your own copy of
+  the game and is not part of the repository.
+- **Decompilation.** The sources in `games/*/decomp/src/` are a reconstruction of the
+  games' program code, written to compile back into the original executables. They
+  therefore reproduce that code, including the strings and data tables it contains, and
+  the rights in it belong to the games' owners. They are published for preservation,
+  study and interoperability; building them needs your copy of the original executable.
+
+Championship Manager is a trademark of its respective owners; this project is not
+affiliated with or endorsed by them.
+
+The tools, the runtime and the other code written for this project are released under
+the [MIT License](LICENSE). The license does not cover the decompiled game code.
