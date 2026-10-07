@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Progress of the matching decompilation.
 
-  progress.py GAME.EXE DECOMP_DIR [--funcs gen/funcs.h] [--list SSSS] [--todo N]
+  progress.py GAME.EXE DECOMP_DIR [--funcs recomp/funcs.h] [--list SSSS] [--todo N]
 
-Functions come from tools/recomp.py's gen/funcs.h (the ones it found from the entry points);
+Functions come from tools/recomp.py's recomp/funcs.h (the ones it found from the entry points);
 a function's size runs to the next function start or the end of its segment / overlay.
 A function counts as done when it lies inside a C file that matched in the last build, or
 inside the library modules linked instead of the original bytes (DECOMP_DIR/build/status.txt,
@@ -27,7 +27,7 @@ def main():
     ap.add_argument('--list')
     ap.add_argument('--todo', type=int)
     a = ap.parse_args()
-    funcs_h = a.funcs or os.path.join(os.path.dirname(os.path.abspath(a.exe)), 'gen', 'funcs.h')
+    funcs_h = a.funcs or os.path.join(os.path.dirname(os.path.abspath(a.exe)), 'recomp', 'funcs.h')
     if not os.path.exists(funcs_h):
         raise SystemExit('%s not found: build the recompiled game first (make -C games/<game>)' % funcs_h)
     m = mkblobs.Model(a.exe)

@@ -62,10 +62,10 @@ environment variable if set.
 ## How it works
 
 ```
-EUROPE.EXE ─ unfbov.py ─▶ flat MZ image ─ recomp.py ─▶ gen/seg_XXXX.c ─┐
-(overlaid MZ)           (in memory)                   gen/image.c       ├─ gcc ─▶ cm1_rc
-ADLIB.DRV ──────────────────────────── recomp.py ─▶  gen/drv_adlib.c ──┤
-                                         runtime/*.c (DOS, BIOS, VGA, OPL2) ┘
+EUROPE.EXE ─ unfbov.py ─▶ flat MZ image ─ recomp.py ─▶ recomp/seg_XXXX.c ─┐
+(overlaid MZ)           (in memory)                   recomp/image.c       ├─ gcc ─▶ cm1_rc
+ADLIB.DRV ──────────────────────────── recomp.py ─▶  recomp/drv_adlib.c ──┤
+                                            runtime/*.c (DOS, BIOS, VGA, OPL2) ┘
 ```
 
 1. **Flatten the overlays** ([docs/overlays.md](docs/overlays.md)): the Borland

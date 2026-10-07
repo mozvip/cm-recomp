@@ -18,7 +18,7 @@ functions later.
 |---|---|
 | [`tools/unfbov.py`](../tools/unfbov.py) | Flattens the Borland VROOMM overlays into one image with fixed segments ([overlays.md](overlays.md)). |
 | [`tools/x86.py`](../tools/x86.py) | 8086/80186 + x87 decoder. The Borland emulator sequences `INT 34h..3Bh`, `INT 3Ch xx` (segment override) and `INT 3Dh` (`FWAIT`) decode as the FPU instructions they stand for. `INT 3Eh FA` (the emulator's fast `exp`) is a pseudo-op. |
-| [`tools/recomp.py`](../tools/recomp.py) | Loads the image at segment `1000` **with relocations applied**, so every immediate is its runtime value. It discovers functions, bounds jump tables and writes `gen/seg_XXXX.c`, `gen/funcs.h`, a dispatch table sorted by linear address (`gen/dispatch.c`), and the relocated image to embed (`gen/image.c`). |
+| [`tools/recomp.py`](../tools/recomp.py) | Loads the image at segment `1000` **with relocations applied**, so every immediate is its runtime value. It discovers functions, bounds jump tables and writes `recomp/seg_XXXX.c`, `recomp/funcs.h`, a dispatch table sorted by linear address (`recomp/dispatch.c`), and the relocated image to embed (`recomp/image.c`). |
 | [`runtime/cpu.h`](../runtime/cpu.h) | Register file, flag-exact ALU/shift helpers, memory access, conditions, and the shadow return stack. |
 | [`runtime/rt.c`](../runtime/rt.c) | Dispatch, interrupt delivery through the emulated IVT, driver dispatch, VGA DAC / PIT / OPL ports, mul/div/BCD/string ops. |
 | [`runtime/fpu.c`](../runtime/fpu.c) | x87 on the host's 80-bit `long double`: control-word rounding, compare flags via `fstsw`/`sahf`, transcendental ops, `fnsave`/`frstor`. |

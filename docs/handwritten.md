@@ -9,7 +9,7 @@ game keeps working at every step.
 | File | Content |
 |---|---|
 | `games/<game>/overrides.txt` | One `SEG:OFS name` per line: the functions that are hand-written |
-| `games/<game>/src/*.c` | The hand-written functions (compiled with warnings, unlike `gen/`) |
+| `games/<game>/src/*.c` | The hand-written functions (compiled with warnings, unlike `recomp/`) |
 | `games/<game>/names.txt` | Optional `SEG:OFS name` lines: names for translated functions (see [Naming functions](#naming-functions)) |
 | [`runtime/hand.h`](../runtime/hand.h) | `RC_REPLACE`, argument and return helpers |
 | [`runtime/verify.c`](../runtime/verify.c) | The `RC_VERIFY` differential check |
@@ -33,7 +33,7 @@ calls reach the hand-written version, and the translation is `fn_<name>_orig` (a
 `f_SSSS_OOOO_orig`).
 
 Names are only a change of spelling: the compiled code is the same with or without them.
-They show in `gen/`, in gdb and profilers, and in the runtime's messages, which give an
+They show in `recomp/`, in gdb and profilers, and in the runtime's messages, which give an
 address as `name+0xN` (the function starting nearest below it; functions are not always
 contiguous, so it is a guess). A name must be a C identifier and unique, and the two files
 must not give one function different names. A name for an address where no function
@@ -73,7 +73,7 @@ declarations.
    runtime library (string, memory and conversion functions, the long-arithmetic helpers).
    They are small, easy to recognise and called from everywhere, so they get tested hard.
    Then move on to the game's own utilities, and work up the call graph.
-2. **Read it** in `gen/seg_SSSS.c`, where every statement is preceded by the instruction as
+2. **Read it** in `recomp/seg_SSSS.c`, where every statement is preceded by the instruction as
    a comment, or with `tools/emudis.py` or Ghidra.
 3. **Add it** to `overrides.txt` and write the replacement in `src/`. At first, keep the
    original's data layout: read and write the game's variables in emulated memory.
@@ -89,7 +89,7 @@ declarations.
    functions. `RC_VERIFY_KEEP_GOING=1` continues with the translation's result.
    Use the scripted runs in the game READMEs to reach the code being replaced.
 5. **Commit** `overrides.txt` and `src/`. Write the replacement from your understanding of the
-   function; do not copy generated code into `src/`, because `gen/` is derived from the game
+   function; do not copy generated code into `src/`, because `recomp/` is derived from the game
    and is never committed.
 
 ## What RC_VERIFY does and does not check

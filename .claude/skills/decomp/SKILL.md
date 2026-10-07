@@ -10,7 +10,7 @@ Full background: `docs/matching.md`. Tools: `tools/match/`. Sources: `games/cm1/
 ## Loop
 
 1. Pick a function (runtime `SEG:OFS`, the same numbering as `tools/recomp.py`, `entries.txt`
-   and `gen/funcs.h`). `make -C games/cm1/decomp progress LIST=1680` lists a segment's
+   and `recomp/funcs.h`). `make -C games/cm1/decomp progress LIST=1680` lists a segment's
    functions with their sizes and which are done. `TODO=5` suggests the smallest ones left.
 2. `python3 tools/match/disasm.py games/cm1/EUROPE.EXE SSSS:OOOO`: disassembly with the
    names to use:
@@ -20,7 +20,7 @@ Full background: `docs/matching.md`. Tools: `tools/match/`. Sources: `games/cm1/
    - same-segment call notes;
    - 8087 mnemonics for the emulator's `INT 34h-3Dh`.
 
-   The function ends at the next start listed in `games/cm1/gen/funcs.h` (built by
+   The function ends at the next start listed in `games/cm1/recomp/funcs.h` (built by
    `make -C games/cm1`), or pass `--len`.
 3. Grow the module's C file in address order. `src/1680.C` holds segment `1680` from its
    first function onwards: a C file's code is placed contiguously at `@at`, and callees
@@ -156,7 +156,7 @@ is complete and linked whole.
   parameter.
 - A port's `unmapped_` and shifted `f_` names: an empty function or a one-line setter
   CM94 added shifts the pairing of all its neighbours; rename by the addresses in
-  `games/cmese/gen/funcs.h` (not every start is listed there: 2162:0c48 was missing).
+  `games/cmese/recomp/funcs.h` (not every start is listed there: 2162:0c48 was missing).
 
 ## The runtime
 

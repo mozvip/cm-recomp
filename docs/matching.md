@@ -6,7 +6,7 @@ into object modules made of its own bytes ("blobs"), and decompiled C replaces t
 one function at a time. After every step, the relinked executable is compared with the
 original.
 
-This is separate from the static recompiler (`tools/recomp.py`, `games/*/gen`). The
+This is separate from the static recompiler (`tools/recomp.py`, `games/*/recomp`). The
 recompiler produces a native Linux program. The matching decompilation produces the DOS
 program again, from C.
 
