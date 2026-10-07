@@ -41,7 +41,7 @@ The toolchain was identified from the executable:
 | What | Evidence | Tool used |
 |---|---|---|
 | Compiler | Code only reproduces with the global optimiser (a variable kept in `DX`, `ES` loads not repeated). Turbo C++ 3.0 lacks it. | Borland C++ 3.1 `BCC`, `tools/BCC31` |
-| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. CM1 adds `-y` (line numbers in the objects): it changes which copy of identical branch endings BCC keeps, which 8352:46de needs (see merged tails below). | per file: `@flags` |
+| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. CM1 and CM93 add `-y` (line numbers in the objects): it changes which copy of identical branch endings BCC keeps, which 8352:46de and 8aa1:5253 need (see merged tails below). | per file: `@flags` |
 | Linker | Header signature `FB 50 "jr"`, VROOMM overlays | TLINK **5.0** (Turbo C++ 3.0, `tools/TC`). BCC 3.1 ships 5.1. |
 | Link date | `__EXEDATE__` in the overlay table = `1A 08 C8 07` | DOS date set to 26 Aug 1992 |
 | Runtime, emulator, overlay manager | Byte for byte the stock modules: CM1 Borland C++ 3.1's, CM93 3.0's, CM94 4.02's | linked from the libraries (see below) |

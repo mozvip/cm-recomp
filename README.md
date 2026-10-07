@@ -105,7 +105,7 @@ make -C games/cm1/decomp progress    # how much is done
 | Game | Functions | Bytes | Not matched yet |
 |---|---|---|---|
 | Championship Manager (1992) | 723 / 723 | 300,349 / 300,349 (100%) | — |
-| Championship Manager 93 | 815 / 816 | 365,131 / 368,424 (99.1%) | `8aa1:5253` (3,293 bytes) |
+| Championship Manager 93 | 816 / 816 | 368,424 / 368,424 (100%) | — |
 | Championship Manager Italia | 816 / 817 | 371,331 / 374,470 (99.2%) | `8539:5313` (3,139 bytes) |
 | Championship Manager 94 (End of Season) | 855 / 855 | 371,750 / 371,750 (100%) | — |
 
