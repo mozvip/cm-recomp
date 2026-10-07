@@ -287,11 +287,11 @@ Not a far call within the segment: TLINK only makes `90 0E E8` (reserving a relo
 of a ptr32 fixup. Write those calls in C between the `__emit__`s, with the register the
 original pushes (`f_7eeb_1d0d(_SI, 0x4c, 0x4d)`). `_SI = team; _DI = b;` at the start make
 BCC save SI and DI and load the parameters as the original does, and the epilogue follows
-the last `__emit__`; jumps are written as their original bytes. CM1's `f_7eeb_1afc` is done
-this way: written in C, BCC merges seven identical call tails into the first copy, where
-the original has them in the last one (BCC keeps the last copy only when an earlier jump to
-the same place has nothing in common with the code before it; no source form tried gives
-that here).
+the last `__emit__`; jumps are written as their original bytes. CM1's `f_7eeb_1afc` was done
+this way until `-y` was found (below): written in C, BCC merged seven identical call tails
+into the first copy, where the original has them in the last one (BCC keeps the last copy
+only when an earlier jump to the same place has nothing in common with the code before
+it; no source form gave that without `-y`).
 
 Small test functions (an `if`/`else if` chain whose branches end in identical calls, like
 1afc's) show what decides it: the groups of identical endings are not independent. With a
