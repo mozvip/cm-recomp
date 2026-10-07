@@ -12,7 +12,7 @@ prepare writes GAME's decomp/wip/ssss/:
     bounds.txt      the chunks' start offsets and the end
     stub_order.txt  an overlay's stub entries in the stub table's order
     strings.txt     `ADDR 'text'` for the strings of the module's data: from --data (or the
-                    lowest literal the code loads with push ds / mov ax, ADDR) to past the
+                    lowest literal the code loads with push ds / mov ax (or push), ADDR) to past the
                     highest one
     BRIEF.md        the instructions for the agent of one chunk, filled in for the game
                     (compiler, fcheck's --cc, the matching sources to copy, the entries, the
@@ -33,7 +33,8 @@ the order of their first declaration and TLINK makes an overlay's stub entries f
 in reverse); the parts' declarations, one per name (a name the parts declare differently
 takes the declaration most of the parts whose functions use it have; on a tie the first is
 kept and they are listed); the module's initialised tables from
-tables.c; and the functions in address order with the comment before each. tables.c
+tables.c; and the functions in address order with the comment before each (and the #pragma
+lines of a part, but the first's ahead of its first function, kept before its next function). tables.c
 holds sections that start with a line `/* @top */` (before the first function) or
 `/* @before f_SSSS_OOOO */`. A module function's prototype is the parts' declaration of it
 without parameters if one has it (`void f();`: its callers were compiled with no prototype in
@@ -111,12 +112,13 @@ def cut(starts, end, size=None, chunks=None):
 
 
 def literals(g, rows):
-    """DGROUP addresses the code loads as far pointers (push ds / mov ax, ADDR): the densest
-    run of them, the literal pool (the others point at variables)."""
+    """DGROUP addresses the code loads as far pointers (push ds / mov ax, ADDR, or BCC 4's
+    push ds / push ADDR): the densest run of them, the literal pool (the others point at
+    variables)."""
     found = set()
     for a, b in zip(rows, rows[1:]):
         if a[2] == 'push [ds]':
-            mo = re.match(r'mov \[(?:ax|dx|bx|cx), 0x([0-9a-f]+)\]$', b[2])
+            mo = re.match(r'(?:mov \[(?:ax|dx|bx|cx), |push \[)0x([0-9a-f]+)\]$', b[2])
             if mo:
                 found.add(int(mo.group(1), 16))
     runs = []
@@ -162,7 +164,7 @@ Read first:
   `python3 tools/match/disasm.py {exe} {seg}:OOOO` prints one function. Whole {kind}: ov.txt.
   The chunks: {chunks}.
 - {wip}/strings.txt: `ADDR 'text'` for the strings of the module's data (`push ds / mov ax,
-  ADDR` is the literal at ADDR). Write them as C string literals, in the order the code
+  ADDR`, or `push ds / push ADDR`, is the literal at ADDR). Write them as C string literals, in the order the code
   uses them.
 - {entries}
 - This module's initialised data starts at DGROUP {data}. Report every initialised table
@@ -195,7 +197,7 @@ Iterate until each of your functions says ok.
 - The only initialised data you write is string literals and float constants: declare
   every variable `extern`, including the module's initialised tables (report them).
 - try.py compiles a file and compares from one address, quick for testing forms of the
-  FIRST function in a file: `python3 tools/match/try.py --show {exe} {seg}:OOOO FILE.c`.
+  FIRST function in a file: `python3 tools/match/try.py --show{cc} {exe} {seg}:OOOO FILE.c`.
 - If a function resists after real effort (6+ different source forms), leave the closest
   version and say exactly what differs.
 {notes}
@@ -412,11 +414,15 @@ def merge(a):
             raise SystemExit('%s: no part%d.c (%04x-%04x)' % (rel(wip), k, bounds[k], bounds[k + 1]))
         parts.append(open(p, encoding='latin1').read())
     funcs, pps, decls, conflicts = {}, [], collections.OrderedDict(), collections.defaultdict(list)
+    pragmas, waiting = {}, []           # a #pragma in a part after the first: kept before its next own function
     for k, src in enumerate(parts):
+        owned = False
         for it in port.split_top(src):
             com, code = lead_split(it.text)
             if it.kind == 'pp':
-                if code.strip() not in pps:
+                if (owned or k > 0) and code.strip().startswith('#pragma'):
+                    waiting.append(code.strip())
+                elif code.strip() not in pps:
                     pps.append(code.strip())
             elif it.kind == 'func':
                 off = func_off(it.name, seg)
@@ -424,6 +430,9 @@ def merge(a):
                     if it.name in funcs:
                         raise SystemExit('%s is defined twice in part%d.c' % (it.name, k))
                     funcs[it.name] = (code.rstrip(), com)
+                    owned = True
+                    if waiting:
+                        pragmas[it.name], waiting = waiting, []
             else:
                 for d in split_decl(code):
                     bare = ' '.join(re.sub(r'/\*.*?\*/|//[^\n]*', ' ', d, flags=re.S).split())
@@ -461,16 +470,22 @@ def merge(a):
     header = open(hp, encoding='latin1').read().strip('\n') if os.path.exists(hp) else \
         '/* %s %04x. */' % ('Overlay' if kind == 'overlay' else 'Segment', seg)
     public = set(entries) if kind == 'overlay' else set(starts)
-    static = lambda n: '' if func_off(n, seg) in public else 'static '
+    # a function the parts already define static gets no second static
+    own_static = {n for n, (body, _) in funcs.items() if body and body.lstrip().startswith('static ')}
+    static = lambda n: '' if func_off(n, seg) in public or n in own_static else 'static '
     data = cfg.get('data')
     out = ['/* @at %04x:%04x */\n%s/* @module */\n\n%s' % (
         seg, starts[0], '/* @data %s */\n' % data if data else '', header)]
     out += pps
     if kind == 'overlay':
-        out.append("\n/* the functions, in the order of the overlay's stub entries: BCC writes the public "
+        # BCC 3.x lists the publics so that the stub table comes out in their first declaration
+        # order; BCC 4.02 the other way round, so its prototypes go in the reverse order
+        rev = cfg.get('cc') == 'bc4'
+        out.append("\n/* the functions, in the %sorder of the overlay's stub entries: BCC writes the public "
                    "definitions (TLINK makes\n * the overlay's stub entries from them) in the order of "
-                   "the first declarations */")
-        names = ['f_%04x_%04x' % (seg, e) for e in entries] + \
+                   "the first declarations */" % ('reverse ' if rev else ''))
+        stubs = entries[::-1] if rev else entries
+        names = ['f_%04x_%04x' % (seg, e) for e in stubs] + \
                 [n for n in order if func_off(n, seg) not in public]
     else:
         out.append('\n/* the functions of the segment */')
@@ -517,6 +532,7 @@ def merge(a):
         if n in tables:
             out.append(tables[n])
         body, com = funcs[n]
+        out.extend(pragmas.get(n, []))
         if body is None:
             out.append('/* %s: not written yet */\n' % n)
             continue

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Disassemble an original function for decompiling, with symbolic references.
 
-  disasm.py GAME.EXE SSSS:OOOO [--len N] [--funcs gen/funcs.h]
+  disasm.py GAME.EXE SSSS:OOOO [--len N] [--funcs recomp/funcs.h]
 
 SSSS:OOOO is the runtime address (tools/recomp.py numbering). The function ends at the
-next known function start (from --funcs, default games/<game>/gen/funcs.h next to the
+next known function start (from --funcs, default games/<game>/recomp/funcs.h next to the
 exe) or after N bytes. References are shown as the names a C file uses:
     f_SSSS_OOOO   far calls (root, overlay entries, and same-segment calls TLINK made near)
     d_SSSS_OOOO   DS-relative data (DGROUP)
@@ -79,7 +79,7 @@ def main():
     a = ap.parse_args()
     s, o = (int(x, 16) for x in a.addr.split(':'))
     m = mkblobs.Model(a.exe)
-    funcs = a.funcs or os.path.join(os.path.dirname(os.path.abspath(a.exe)), 'gen', 'funcs.h')
+    funcs = a.funcs or os.path.join(os.path.dirname(os.path.abspath(a.exe)), 'recomp', 'funcs.h')
     hi, rows = listing(m, s, o, a.len, func_starts(funcs))
     print('%04x:%04x  %d bytes%s' % (s, o, hi - o, '' if hi is not None else ' (end unknown, give --len)'))
     for ip, raw, txt, note, _ in rows:

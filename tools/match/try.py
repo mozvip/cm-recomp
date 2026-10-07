@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Compile one C file several ways and compare each result with the original bytes.
 
-  try.py [--show] GAME.EXE SSSS:OOOO FILE.C ["BCC options" ...]  (default: "-ml -O1 -k -Ol")
+  try.py [--show] [--cc bc31|bc30|bc4] GAME.EXE SSSS:OOOO FILE.C ["BCC options" ...]
+  (default: fcheck.py's options for the compiler)
 
---show prints original | compiled disassembly around the first difference.
+--show prints original | compiled disassembly around the first difference. --cc picks the
+compiler (tcdos.sh -T), as for fcheck.py.
 
 Quicker than a full build when searching for the source form or the options that give
 the original code: no link. Fixup locations are not compared, and a far call the compiler
@@ -23,10 +25,16 @@ SIZE = {'ptr32': 4, 'off16': 2, 'seg16': 2, 'off8': 1, 'hi8': 1}
 def main():
     argv = [a for a in sys.argv[1:] if a != '--show']
     show = len(argv) != len(sys.argv) - 1
+    cc = 'bc31'
+    if '--cc' in argv:
+        k = argv.index('--cc')
+        cc = argv[k + 1]
+        del argv[k:k + 2]
     if len(argv) < 3:
         raise SystemExit(__doc__)
     exe, at, src = argv[:3]
-    flags = argv[3:] or ['-ml -O1 -k -Ol']
+    import fcheck
+    flags = argv[3:] or [fcheck.default_flags(cc)]
     m = mkblobs.Model(exe)
     s, o = (int(x, 16) for x in at.split(':'))
     w = m.where(s, o)
@@ -40,7 +48,7 @@ def main():
             if args:
                 args.append(';;')
             args += ['BCC', '-c'] + fl.split() + ['-oT%d.OBJ' % k, 'T.C']
-        r = subprocess.run([TCDOS, '-C', work, '--'] + args, capture_output=True, text=True)
+        r = subprocess.run([TCDOS, '-T', cc, '-C', work, '--'] + args, capture_output=True, text=True)
         errs = [l for l in r.stdout.splitlines() if l.startswith(('Error', 'Fatal', 'Warning'))]
         if errs:
             print('\n'.join(errs))

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Static recompiler: 16-bit real-mode Borland C executable -> C.
 
-  recomp.py --exe GAME.EXE --out gen --entries entries.txt
-  recomp.py --exe GAME.EXE --drivers FILE:NAME[,FILE:NAME] --out gen --entries entries.txt
+  recomp.py --exe GAME.EXE --out recomp --entries entries.txt
+  recomp.py --exe GAME.EXE --drivers FILE:NAME[,FILE:NAME] --out recomp --entries entries.txt
 
 A Borland VROOMM (FBOV) overlaid exe is flattened in memory first (unfbov.py).
 The relocated load image is written to OUT/image.c and embedded in the binary.
@@ -689,7 +689,7 @@ def segofs(lin, segs):
 
 
 def main():
-    outdir = arg('--out', os.path.join('recomp', 'gen'))
+    outdir = arg('--out', 'recomp')
     if '--drivers' in sys.argv:
         return drivers_main(arg('--drivers', ''), outdir, arg('--entries', os.path.join('recomp', 'entries.txt')))
     ef = arg('--entries', os.path.join('recomp', 'entries.txt'))

@@ -1,15 +1,12 @@
 /* @at 8352:0000 */
 /* @data 5d9c:5a80 */
+/* @module */
 
 /* Overlay 5: transfers and contracts: the cup group tables, picking and approaching
  * players, bids, fees, asking prices and tribunals, contract and wage talks, the offer
- * and factfile screens, completing transfers and the shortlist.
- *
- * Not a whole module yet: the overlay's last function, f_8352_46de (46de-50a2, the menu
- * of things to do with one of your own players), is still the original bytes. Written in
- * C it gives every instruction, but BCC merges its branches' identical endings into the
- * first copy where the original kept a later one (as in f_7eeb_1afc), 59 bytes shorter.
- * Its string literals follow this file's data in the original. */
+ * and factfile screens, completing transfers and the shortlist, and the menu of things
+ * to do with one of your own players (f_8352_46de, whose branches' identical endings BCC
+ * merges as the original only with -y: see the Makefile). */
 #include <stdio.h>
 #include <string.h>
 #include <mem.h>
@@ -53,7 +50,7 @@ void f_8352_3e9b(int player, int to, int from, long fee);
 void f_8352_4324(int player, int from, int to);
 void f_8352_4556(int player, int a);
 char f_8352_462d(int player);
-void f_8352_46de(int player);         /* not decompiled yet: see above */
+void f_8352_46de(int player);
 
 void f_14d2_148f(void far *a, void far *b, int n);
 void far *f_14d2_16bc(int handle, int page);
@@ -278,6 +275,29 @@ extern char d_5d9c_9b51;
 
 /* the steps of the digits a value is set with (+/- on the offer screen) */
 static int d_5d9c_5a80[] = { 1, 10, 100, 1000, 10000 };
+
+void f_88c9_0f13(int player);
+void f_88c9_1b98(int player);
+void f_88c9_1edc(int player, char flag);
+long f_88c9_2177(int player);
+char f_88c9_25cc(void);
+unsigned f_14d2_09ce(char far *s, char far *set);
+extern char d_5d9c_9b50;
+extern char d_5d9c_9b96;
+extern char d_5d9c_9b8a;
+extern char d_5d9c_9b4f;
+extern int d_5d9c_9d3f;
+extern int d_5d9c_9eef;
+extern int d_5d9c_9dd7;
+extern int d_5d9c_9d3d;
+extern int d_5d9c_a332;
+extern int d_5d9c_a334;
+extern long d_5d9c_9a20;
+extern char (far *d_5d9c_9fb6)[151];
+extern char (far *d_5d9c_9fba)[151];
+extern char far d_1f3e_57c4[];
+extern char far d_1f3e_4262[];
+extern char far d_1f3e_bfa2[];
 
 void f_8352_0000(void)
 {
@@ -1536,4 +1556,216 @@ char f_8352_462d(int player)
              && d_2f3c_8033[d_483b_0000[18][player]] < 0x28a)
         d_5d9c_9b51 = -1;
     return d_5d9c_9b51;
+}
+
+void f_8352_46de(int player)
+{
+    char buf[320];
+
+    do {
+        d_5d9c_9b56 = 0;
+        d_5d9c_9b50 = f_88c9_04fb(player);
+        f_a1c3_27e4("Transfer Status");
+        f_1680_33a0(1.0, 4.0, d_483b_0000[18][player]);
+        f_88c9_243e(7, f_a1c3_213c(player));
+        if (d_1f3e_9118[player] != 0) {
+            d_5d9c_a058 = f_14d2_16bc(d_5d9c_a360, 0);
+            if (d_5d9c_a058[player] > 0)
+                sprintf(buf, "For sale at %ld", d_5d9c_a058[player]);
+            else
+                strcpy(buf, "Available for free transfer");
+            f_88c9_243e(9, buf);
+            strcpy(d_1f3e_57c4, "Revalue Him|Remove From List|");
+            d_5d9c_9b96 = 0;
+        } else if (d_1f3e_97be[player] != 0) {
+            f_88c9_243e(9, "Not for sale at any price");
+            strcpy(d_1f3e_57c4, "Allow Approaches|");
+            d_5d9c_9b96 = 1;
+        } else {
+            f_88c9_243e(9, "Currently open to approach");
+            strcpy(d_1f3e_57c4, "List Him|Not For Sale|");
+            d_5d9c_9b96 = 2;
+        }
+        strcat(d_1f3e_57c4, "Fine Him|");
+        if (d_1f3e_e0e0[player] == 0)
+            strcat(d_1f3e_57c4, "Insure Him|");
+        else
+            strcat(d_1f3e_57c4, "Uninsure Him|");
+        if (d_2f3c_a08f[player] == 0 && d_1f3e_9118[player] == 0)
+            strcat(d_1f3e_57c4, "Renew Contract|");
+        else if (d_2f3c_a08f[player] > 0 && d_1f3e_9118[player] == 0)
+            strcat(d_1f3e_57c4, "Increase Wages|");
+        sprintf(buf, "*Exit|%s", d_1f3e_57c4);
+        f_1680_150c(12, "", buf);
+        do {
+            d_5d9c_9b8a = -1;
+            f_1680_18b2(4 - (d_5d9c_9b96 == 1 ? 1 : 0) + (d_1f3e_9118[player] == 0));
+            d_5d9c_9d3f = d_5d9c_9faf;
+            if (d_5d9c_9d3f == 1 && d_5d9c_9b96 == 0) {
+                f_88c9_0f13(player);
+                d_5d9c_9b56 = -1;
+            } else if (d_5d9c_9d3f == 1 && d_5d9c_9b96 == 1) {
+                if (f_88c9_25cc()) {
+                    sprintf(buf, "%s now approachable", f_a1c3_2243(player));
+                    f_88c9_249e(buf);
+                    d_1f3e_97be[player] = 0;
+                    d_5d9c_9b56 = -1;
+                } else
+                    { 0; T46: d_5d9c_9b8a = 0; }   /* no code: this 0;, the one at the next
+                                                     * branch and the two gotos to T46 make BCC
+                                                     * keep the copies of the identical endings
+                                                     * the original keeps (with -y) */
+            } else if (d_5d9c_9d3f == 1 && d_5d9c_9b96 == 2) {
+                if (f_88c9_25cc()) {
+                    sprintf(buf, "%s now transfer listed", f_a1c3_2243(player));
+                    f_88c9_249e(buf);
+                    f_88c9_0e2d(player, 0);
+                    d_5d9c_9b56 = -1;
+                } else
+                    { 0; goto T46; }
+            } else if (d_5d9c_9d3f == 2 && d_5d9c_9b96 == 0) {
+                if (f_88c9_25cc()) {
+                    if (d_1f3e_9e64[player] != 0) {
+                        if (d_5d9c_9b50 != 0 && d_2f3c_a08f[player] == 0) {
+                            sprintf(buf, "%s refuses", f_a1c3_2243(player));
+                            f_88c9_249e(buf);
+                            sprintf(buf, "He %s", d_1f3e_4262);
+                            f_88c9_249e(buf);
+                            d_5d9c_9b8a = 0;
+                        } else if (d_5d9c_9b50 != 0 && d_2f3c_a08f[player] > 0) {
+                            sprintf(buf, "%s told to stay", f_a1c3_2243(player));
+                            f_88c9_249e(buf);
+                            f_88c9_249e("But he's still unhappy");
+                            f_88c9_0ec3(player);
+                            d_5d9c_9b56 = -1;
+                        } else {
+                            sprintf(buf, "%s agrees to stay", f_a1c3_2243(player));
+                            f_88c9_249e(buf);
+                            f_88c9_0ec3(player);
+                            d_5d9c_9b56 = -1;
+                        }
+                    } else {
+                        sprintf(buf, "%s removed from list", f_a1c3_2243(player));
+                        f_88c9_249e(buf);
+                        f_88c9_0ec3(player);
+                        d_5d9c_9b56 = -1;
+                    }
+                } else
+                    d_5d9c_9b8a = 0;
+            } else if (d_5d9c_9d3f == 2 && d_5d9c_9b96 == 2) {
+                if (d_2f3c_a08f[player] == 0) {
+                    sprintf(buf, "%s must sign a new contract", f_a1c3_2243(player));
+                    f_88c9_249e(buf);
+                    d_5d9c_9b8a = 0;
+                } else if (f_88c9_25cc()) {
+                    sprintf(buf, "%s now unapproachable", f_a1c3_2243(player));
+                    f_88c9_249e(buf);
+                    d_1f3e_97be[player] = -1;
+                    d_5d9c_9b56 = -1;
+                } else
+                    d_5d9c_9b8a = 0;
+            } else if (d_5d9c_9d3f == 3 && d_5d9c_9b96 != 1 || d_5d9c_9d3f == 2 && d_5d9c_9b96 == 1) {
+                if (f_88c9_25cc()) {
+                    d_5d9c_9eef = d_2f3c_7f93[d_483b_0000[18][player]] - 646;
+                    sprintf(buf, "%04d", player);
+                    d_5d9c_9fb6 = f_14d2_16bc(d_5d9c_a332, 0);
+                    d_5d9c_9b4f = f_14d2_09ce(d_5d9c_9fb6[d_5d9c_9eef], buf) > 0;
+                    if (d_5d9c_9b4f != 0)
+                        f_88c9_249e("Maximum one fine per week");
+                    else {
+                        sprintf(buf, "%s fined a weeks wages", f_a1c3_2243(player));
+                        f_88c9_249e(buf);
+                        f_88c9_1edc(player, d_1f3e_bfa2[player]);
+                        sprintf(buf, "%04d", player);
+                        d_5d9c_9fb6 = f_14d2_16bc(d_5d9c_a332, 1);
+                        strcat(d_5d9c_9fb6[d_5d9c_9eef], buf);
+                        if (d_5d9c_9d3d == 3 || d_1f3e_bfa2[player] == 0) {
+                            switch (d_5d9c_9dd7 = f_14d2_0c2a(3)) {
+                            case 0:
+                                strcpy(buf, "He cannot believe it");
+                                break;
+                            case 1:
+                                strcpy(buf, "He is astonished");
+                                break;
+                            case 2:
+                                strcpy(buf, "He feels it is unfair");
+                                break;
+                            }
+                            f_88c9_249e(buf);
+                        } else if (d_5d9c_9d3d != 2) {
+                            d_5d9c_9b8a = 0;
+                            continue;
+                        } else {
+                            switch (d_5d9c_9dd7 = f_14d2_0c2a(3)) {
+                            case 0:
+                                strcpy(buf, "He is not happy");
+                                break;
+                            case 1:
+                                strcpy(buf, "He is disappointed");
+                                break;
+                            case 2:
+                                strcpy(buf, "He is upset");
+                                break;
+                            }
+                            0;
+                            f_88c9_249e(buf);
+                        }
+                    }
+                    0;
+                    d_5d9c_9b8a = 0;
+                } else
+                    d_5d9c_9b8a = 0;
+            } else if (d_5d9c_9d3f == 4 && d_5d9c_9b96 != 1 || d_5d9c_9d3f == 3 && d_5d9c_9b96 == 1) {
+                if (d_1f3e_e0e0[player] == 0) {
+                    if (d_483b_0000[20][player] > 0 && d_483b_0000[19][player] < 20) {
+                        f_88c9_249e("Insurance refused - player injured");
+                        d_5d9c_9b8a = 0;
+                    } else {
+                        d_5d9c_9a20 = f_88c9_2177(player);
+                        sprintf(buf, "Insurance would cost %ld p/w", d_5d9c_9a20);
+                        f_88c9_249e(buf);
+                        if (f_88c9_25cc()) {
+                            sprintf(buf, "%s now insured", f_a1c3_2243(player));
+                            f_88c9_249e(buf);
+                            d_1f3e_e0e0[player] = -1;
+                            d_5d9c_9b56 = -1;
+                        } else
+                            d_5d9c_9b8a = 0;
+                    }
+                } else if (f_88c9_25cc()) {
+                    sprintf(buf, "%s now uninsured", f_a1c3_2243(player));
+                    f_88c9_249e(buf);
+                    d_1f3e_e0e0[player] = 0;
+                    d_5d9c_9b56 = -1;
+                } else
+                    d_5d9c_9b8a = 0;
+            } else if (d_5d9c_9d3f == 5 && d_5d9c_9b96 != 1 || d_5d9c_9d3f == 4 && d_5d9c_9b96 == 1) {
+                if (d_2f3c_a08f[player] == 0) {
+                    d_5d9c_9eef = d_2f3c_7f93[d_483b_0000[18][player]] - 646;
+                    sprintf(buf, "%04d", player);
+                    d_5d9c_9fba = f_14d2_16bc(d_5d9c_a334, 0);
+                    d_5d9c_9b4f = strstr(d_5d9c_9fba[d_5d9c_9eef], buf) ? 1 : 0;
+                    if (d_5d9c_9b4f != 0 || d_5d9c_9b50 != 0) {
+                        sprintf(buf, "%s refuses to negotiate", f_a1c3_2243(player));
+                        f_88c9_249e(buf);
+                        if (d_5d9c_9b50 != 0)
+                            sprintf(buf, "He %s", d_1f3e_4262);
+                        else
+                            strcpy(buf, "He may resume talks next week");
+                        f_88c9_249e(buf);
+                        goto T46;
+                        0;
+                    } else {
+                        sprintf(buf, "%s agrees to negotiate", f_a1c3_2243(player));
+                        f_88c9_249e(buf);
+                        f_88c9_0000(player, d_483b_0000[18][player], d_5d9c_9eef);
+                        d_5d9c_9b56 = -1;
+                    }
+                } else {
+                    f_88c9_1b98(player);
+                    d_5d9c_9b56 = -1;
+                }
+            }
+        } while (!d_5d9c_9b8a);
+    } while (d_5d9c_9b56 != 0);
 }

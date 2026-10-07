@@ -1,24 +1,33 @@
 # cm-recomp
 
-Static recompilation of **Championship Manager (1992)** and **Championship Manager 93**
-(Domark / Intelek, MS-DOS) into native C, running on Linux with SDL2.
+Five **Championship Manager** games (Domark / Intelek, MS-DOS, 1992-1995), worked on in
+two independent ways:
 
-The original 16-bit x86 machine code is translated instruction by instruction into C
-at build time. The resulting program runs natively: there is no emulator loop, the
-game logic is the original code, and DOS, the BIOS, the VGA card, the mouse, the timer
-and the AdLib card are provided by a small runtime.
+- **Static recompilation.** The original 16-bit x86 machine code is translated
+  instruction by instruction into C at build time, and runs natively on Linux with SDL2.
+  There is no emulator loop: the game logic is the original code, and DOS, the BIOS, the
+  VGA card, the mouse, the timer and the AdLib card are provided by a small runtime. See
+  [How it works](#how-it-works).
+- **Complete matching decompilation.** Every function of all five games has been
+  rewritten as C (and a few assembly modules) that the original Borland compilers turn
+  back into the original code: compiled and linked, the sources give a DOS executable
+  **byte-identical** to the one shipped. See [Matching decompilation](#matching-decompilation).
 
-**No game files are included.** You need your own copy of the game: the build reads
-its executable and sound driver, and the game reads its data files at run time.
+**No game files are included.** You need your own copy of the game: the recompiler reads
+its executable and sound driver, the game reads its data files at run time, and the
+decompilation's build compares its output with the original executable.
 
-| Game | Executable | Status |
-|---|---|---|
-| Championship Manager (1992) | `EUROPE.EXE` | Plays through title, protection screen, menus, new game, season, results and cup fixtures; AdLib music |
-| Championship Manager 93 | `CMEXE.EXE` | Same flow; AdLib title music |
+| Game | Executable | Recompiled build | Decompilation |
+|---|---|---|---|
+| Championship Manager (1992) | `EUROPE.EXE` | Plays through title, protection screen, menus, new game, season, results and cup fixtures; AdLib music | Complete, byte-identical |
+| Championship Manager 93 | `CMEXE.EXE` | Same flow; AdLib title music | Complete, byte-identical |
+| Championship Manager Italia | `CM.EXE` | Reaches the Italian Cup first round fixtures (no sound driver in this release) | Complete, byte-identical |
+| Championship Manager 94 (End of Season) | `CMEXE.EXE` | Builds and runs, AdLib music: see [its README](games/cmese/README.md) | Complete, byte-identical |
+| Championship Manager Italia 95 | `CM.EXE` | Reaches the Italian Cup second round (no sound driver in this release) | Complete, byte-identical |
 
-Tested headless with scripted input, and by building and running on Linux. Real play
-sessions, and a listening comparison of the music against DOSBox, have not been done
-yet: see [Status](#status).
+The recompiled games are tested headless with scripted input, and by building and running
+on Linux. Real play sessions, and a listening comparison of the music against DOSBox, have
+not been done yet: see [Status](#status).
 
 ## Building
 
@@ -36,8 +45,11 @@ make -C games/cm93 -j$(nproc) GAME_DIR=/path/to/cm93           # contains CMEXE.
 make -C games/cm93 run GAME_DIR=/path/to/cm93
 ```
 
-The first build takes under a minute. The binaries are `games/cm1/cm1_rc` and
-`games/cm93/cm93_rc`. They must be started **from the game directory**, because the
+The other games build the same way from `games/cmitalia`, `games/cmese` and
+`games/cmita95`; each game's README lists the files it needs.
+
+The first build takes under a minute. The binaries are `games/<game>/<game>_rc`
+(`games/cm1/cm1_rc`, `games/cm93/cm93_rc`, ...). They must be started **from the game directory**, because the
 game opens its data files and writes its saves (`SAVEGAME`/`SVGAME`, `VM.$$$`) there.
 `make run` does that for you. Work on a copy of the game directory if you want to keep
 the original untouched.
@@ -62,10 +74,10 @@ environment variable if set.
 ## How it works
 
 ```
-EUROPE.EXE ─ unfbov.py ─▶ flat MZ image ─ recomp.py ─▶ gen/seg_XXXX.c ─┐
-(overlaid MZ)           (in memory)                   gen/image.c       ├─ gcc ─▶ cm1_rc
-ADLIB.DRV ──────────────────────────── recomp.py ─▶  gen/drv_adlib.c ──┤
-                                         runtime/*.c (DOS, BIOS, VGA, OPL2) ┘
+EUROPE.EXE ─ unfbov.py ─▶ flat MZ image ─ recomp.py ─▶ recomp/seg_XXXX.c ─┐
+(overlaid MZ)           (in memory)                   recomp/image.c       ├─ gcc ─▶ cm1_rc
+ADLIB.DRV ──────────────────────────── recomp.py ─▶  recomp/drv_adlib.c ──┤
+                                            runtime/*.c (DOS, BIOS, VGA, OPL2) ┘
 ```
 
 1. **Flatten the overlays** ([docs/overlays.md](docs/overlays.md)): the Borland
@@ -92,10 +104,12 @@ runtime `strlen`, `strcpy` and `strcmp` ([games/cm1/src/string.c](games/cm1/src/
 
 ## Matching decompilation
 
-Separately from the recompiler, `games/<game>/decomp/` holds C sources that Borland C++
-compiles and TLINK links back into a DOS executable **byte-identical** to the original.
-Functions not decompiled yet are linked from the original bytes, so the relinked
-executable always matches. See [docs/matching.md](docs/matching.md).
+Separately from the recompiler, `games/<game>/decomp/src/` holds the games' source code,
+recovered function by function: C that Borland C++ (3.0, 3.1 or 4.02, as each game was
+built) compiles, and TLINK links with the stock Borland runtime and overlay manager, back
+into a DOS executable **byte-identical** to the original. The build runs the DOS tools
+headless in DOSBox-X and compares the result with your copy of the executable. See
+[docs/matching.md](docs/matching.md).
 
 ```bash
 make -C games/cm1/decomp             # compile, relink, compare with the original
@@ -104,15 +118,20 @@ make -C games/cm1/decomp progress    # how much is done
 
 | Game | Functions | Bytes | Not matched yet |
 |---|---|---|---|
-| Championship Manager (1992) | 722 / 723 | 297,849 / 300,349 (99.2%) | `8352:46de` (2,500 bytes) |
-| Championship Manager 93 | 815 / 816 | 365,131 / 368,424 (99.1%) | `8aa1:5253` (3,293 bytes) |
-| Championship Manager Italia | 816 / 817 | 371,331 / 374,470 (99.2%) | `8539:5313` (3,139 bytes) |
+| Championship Manager (1992) | 723 / 723 | 300,349 / 300,349 (100%) | — |
+| Championship Manager 93 | 816 / 816 | 368,424 / 368,424 (100%) | — |
+| Championship Manager Italia | 817 / 817 | 374,470 / 374,470 (100%) | — |
+| Championship Manager 94 (End of Season) | 855 / 855 | 371,750 / 371,750 (100%) | — |
+| Championship Manager Italia 95 | 857 / 857 | 366,493 / 366,493 (100%) | — |
 
-Every other segment, root and overlay, is fully decompiled. The function left in each
-game is the same one, ported from game to game: the menu of actions on one of your own
-players. CM1's closest attempt has every instruction right, but several of its branches
-end with identical code, and BCC merges them into a different copy from the one the
-original keeps (see [docs/matching.md](docs/matching.md) on merged tails).
+All five games are fully decompiled: every module is linked from its C (or assembly) source
+and the executables are byte-identical. The last function in each of the first three was
+the same one, ported from game to game: the menu of actions on one of your own players.
+Several of its branches end with identical code, and BCC merges them into a different copy
+from the one the original keeps, until the game is compiled with `-y` (line numbers in the
+objects, which change that choice without leaving anything in the executable). CM94, built
+with Borland C++ 4.02, matches it with code-free statements naming a variable
+(`9007:511f`). See [docs/matching.md](docs/matching.md) on merged tails.
 
 ## Repository layout
 
@@ -124,7 +143,9 @@ original keeps (see [docs/matching.md](docs/matching.md) on merged tails).
 | `tools/emudis.py` | Disassembler for the relocated image, with emulator FPU ops decoded |
 | `runtime/` | CPU helpers, FPU, DOS/BIOS/mouse/VGA services, OPL2 emulation, SDL output, mod registry (`mod.h`), ImGui overlay (`ui.cpp`), shared makefile |
 | `third_party/imgui` | Dear ImGui (submodule) |
-| `games/cm1/`, `games/cm93/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points, hand-written replacements (`overrides.txt`, `src/`) |
+| `games/<game>/` | Per-game makefile, configuration and hooks (`hooks.c`), known entry points, hand-written replacements (`overrides.txt`, `src/`) |
+| `games/<game>/decomp/` | The matching decompilation: `src/` (the C and assembly sources), makefile, symbols |
+| `tools/match/` | The decompilation's tools: relink, per-function compare, diff, porting between games |
 | `docs/` | Technical documentation |
 
 ## Debug and test options
@@ -148,7 +169,7 @@ Environment variables read by the recompiled games:
 
 ## Status
 
-- Both games run through a new game and several weeks of a season under scripted input.
+- CM1 and CM93 run through a new game and several weeks of a season under scripted input.
 - AdLib music plays. The OPL2 emulation has been checked by measurement only (levels,
   spectrum, register traffic), not yet compared by ear against a reference emulator.
 - Not supported: MT-32 music, the EGA display path (a VGA card is reported), printing.
@@ -158,9 +179,19 @@ Environment variables read by the recompiled games:
 
 ## Legal
 
-This project contains no code or data from the original games. The translated C is
-generated on your machine from your own copy of the game and is not part of the
-repository. Championship Manager is a trademark of its respective owners; this project
-is not affiliated with or endorsed by them.
+The repository contains none of the games' files: no executables, data files, graphics,
+music or drivers. You need your own copy of each game.
 
-The code in this repository is released under the [MIT License](LICENSE).
+- **Recompilation.** The translated C is generated on your machine from your own copy of
+  the game and is not part of the repository.
+- **Decompilation.** The sources in `games/*/decomp/src/` are a reconstruction of the
+  games' program code, written to compile back into the original executables. They
+  therefore reproduce that code, including the strings and data tables it contains, and
+  the rights in it belong to the games' owners. They are published for preservation,
+  study and interoperability; building them needs your copy of the original executable.
+
+Championship Manager is a trademark of its respective owners; this project is not
+affiliated with or endorsed by them.
+
+The tools, the runtime and the other code written for this project are released under
+the [MIT License](LICENSE). The license does not cover the decompiled game code.

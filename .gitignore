@@ -1,5 +1,5 @@
 # generated from the user's game files - never commit
-games/*/gen/
+games/*/recomp/
 games/*/build/
 games/*/decomp/build/
 games/*/*_rc
@@ -107,6 +107,7 @@ games/cmese/SVGAMEG4
 games/cmese/SYSLEVEL.IBM
 games/cmese/TEAM.DAT
 games/cmitalia/CM.EX_
+games/cmita95/CM.EX_
 games/cmitalia/Championship*
 games/cmitalia/CLRECS
 games/cmitalia/file_id.diz

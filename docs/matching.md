@@ -6,7 +6,7 @@ into object modules made of its own bytes ("blobs"), and decompiled C replaces t
 one function at a time. After every step, the relinked executable is compared with the
 original.
 
-This is separate from the static recompiler (`tools/recomp.py`, `games/*/gen`). The
+This is separate from the static recompiler (`tools/recomp.py`, `games/*/recomp`). The
 recompiler produces a native Linux program. The matching decompilation produces the DOS
 program again, from C.
 
@@ -41,7 +41,7 @@ The toolchain was identified from the executable:
 | What | Evidence | Tool used |
 |---|---|---|
 | Compiler | Code only reproduces with the global optimiser (a variable kept in `DX`, `ES` loads not repeated). Turbo C++ 3.0 lacks it. | Borland C++ 3.1 `BCC`, `tools/BCC31` |
-| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. | per file: `@flags` |
+| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. CM1, CM93 and CM Italia add `-y` (line numbers in the objects): it changes which copy of identical branch endings BCC keeps, which the player-actions menu of each (8352:46de, 8aa1:5253, 8539:5313) needs (see merged tails below). | per file: `@flags` |
 | Linker | Header signature `FB 50 "jr"`, VROOMM overlays | TLINK **5.0** (Turbo C++ 3.0, `tools/TC`). BCC 3.1 ships 5.1. |
 | Link date | `__EXEDATE__` in the overlay table = `1A 08 C8 07` | DOS date set to 26 Aug 1992 |
 | Runtime, emulator, overlay manager | Byte for byte the stock modules: CM1 Borland C++ 3.1's, CM93 3.0's, CM94 4.02's | linked from the libraries (see below) |
@@ -287,11 +287,11 @@ Not a far call within the segment: TLINK only makes `90 0E E8` (reserving a relo
 of a ptr32 fixup. Write those calls in C between the `__emit__`s, with the register the
 original pushes (`f_7eeb_1d0d(_SI, 0x4c, 0x4d)`). `_SI = team; _DI = b;` at the start make
 BCC save SI and DI and load the parameters as the original does, and the epilogue follows
-the last `__emit__`; jumps are written as their original bytes. CM1's `f_7eeb_1afc` is done
-this way: written in C, BCC merges seven identical call tails into the first copy, where
-the original has them in the last one (BCC keeps the last copy only when an earlier jump to
-the same place has nothing in common with the code before it; no source form tried gives
-that here).
+the last `__emit__`; jumps are written as their original bytes. CM1's `f_7eeb_1afc` was done
+this way until `-y` was found (below): written in C, BCC merged seven identical call tails
+into the first copy, where the original has them in the last one (BCC keeps the last copy
+only when an earlier jump to the same place has nothing in common with the code before
+it; no source form gave that without `-y`).
 
 Small test functions (an `if`/`else if` chain whose branches end in identical calls, like
 1afc's) show what decides it: the groups of identical endings are not independent. With a
@@ -301,10 +301,21 @@ the chain moves it to the last cup but then sends the `strcpy` group to its firs
 (531 bytes against 529); a first branch ending in an unrelated call keeps both last, as no
 other change does. None of 528 placements of one or two code-free statements (`0;`,
 `return;`, `goto` to a label after the chain) keeps both groups last, the original's
-layout. 8352:46de is the same kind of case, but mixed: the original keeps the first copy
+layout. 8352:46de was the same kind of case, but mixed: the original keeps the first copy
 of its `d_5d9c_9b8a = 0` endings and a later one of a message call; no single `0;` among
-its 129 statements gives its 2500 bytes. So it stays the original bytes, linked without
-`@module`.
+its 129 statements gives its 2500 bytes, nor any `#pragma option`, nor any single `goto`
+between copies. What does is **`-y`**: with line numbers in the object (nothing of them
+reaches the executable) BCC's cross-jumping makes other choices, and two `goto`s to the
+first `= 0` copy plus two `0;`s then give the original's 2500 bytes. `-y` is in CM1's
+`BCCFLAGS` for the whole game: no other function changes with it. The same did CM93's
+8aa1:5253 and CM Italia's 8539:5313 (and `f_7eeb_1afc` above), each with its own few
+gotos and `0;`s. Other code-free barriers that change the choice: a label on a statement,
+even one nothing jumps to (Italia's `T2:`), and an empty `asm ;` (which CM93's earlier
+attempts used; `0;` and `-y` do without it). `tools/match/tailfix.py` scores a standalone
+file against the original function, shows what differs with the source lines, and searches
+over `0;` insertions and gotos between the copies of a repeated statement (`greedy`,
+`pairs`): the three menus took one to three rounds each from an attempt that was right to
+the instruction.
 
 ### Rules that come from the compiler and the linker
 
@@ -334,15 +345,124 @@ so CM1's C compiles to CM93's code wherever the game did not change.
 
 CM94 was built with **Borland C++ 4.02** (`tools/BC4`, from the Borland C++ 4.0 CD,
 volume `BORLANDC_402`): its header signature is `FB 61` (TLINK 6.1; CM1 and CM93 have
-`FB 50`, TLINK 5.0), its startup code says "Copyright 1993", and every function saves `si`
-and `di`, which BCC 4.02 does and BCC 3.1 never does. The options are
-`-ml -1 -O2 -k -O-i -O-v -O-g`: 186 instructions, speed forms, no intrinsics (`strcpy` stays
-a call), no induction variables; `-O-m` instead of `-O-g` gives the same code here. Of the
-ported `2162.C`'s 56 functions, 25 match with them (none with any BCC 3.1 option); the rest
-are names the port paired wrongly (only 53% of the code aligned) and functions the game
-changed. `games/cmese/decomp/Makefile` sets `CC_TC := bc4` and `LD_TC := bc4`; the identity
-relink with TLINK 6.10 is identical, and `238C.ASM` (CM1's keyboard driver) links as a
-whole module.
+`FB 50`, TLINK 5.0), and its startup code says "Copyright 1993". The options are
+**`-ml -1 -O1 -Y`**: 186 instructions, smallest code (`-O1`), overlay-compatible code (`-Y`,
+the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc4` and
+`LD_TC := bc4`; the identity relink with TLINK 6.10 is identical. The whole game is
+decompiled: each module was ported from its CM93 file (one `port.py` run of all of them;
+7732, 9E77 and A694 named by hand) and finished in parts with `wip.py`, and every C and
+assembly module is linked whole. Some modules turn jump optimisation off part-way
+(`#pragma option -O-`, see below), which `wip.py merge` keeps in place.
+
+BCC 4.02 codegen facts (CM94):
+
+- **`-O1`, not `-O2`.** `-O2` (`-Ot`) matches many small functions but not the
+  register choices: it keeps a `char` local in `CL` and caches a parameter in `CX`, where
+  `-O1` (`-Os`) keeps them in their stack slots (2162:13fc's `char c` at `[bp-1]`, 0c66's
+  `int c = fgetc()` stored to `[bp-2]` and compared from `AX`) while an `int` loop counter
+  still goes to `DX`. `-Os` also pops a 2-byte argument with `pop cx` (`-Ot`: `add sp,2`).
+  `-O-i -O-v -O-g` make no difference under `-O1`.
+- **`-Y` suppresses `enter`.** Plain `-1 -O1` makes every frame with locals `enter N,0`;
+  the original has `push bp / mov bp,sp / sub sp,N` but still ends with `leave`, which is
+  what `-Y` (`-Yo` too) gives. `-Y` also forces the standard frame (`-k`/`-k-` change
+  nothing).
+- **`push si / push di` in every function** comes from `-Oe` (global register allocation,
+  in `-O1`): `-O-e` saves only the registers used, and matches nothing. `-O-l` (5
+  functions), `-O-c` (1) and `-Z-` (20) lose matches too.
+- **Locals:** scalars are placed in declaration order from `[bp-2]` down (the first
+  declared is the highest), as with BCC 3.1; arrays go below all the scalars whatever
+  their place in the declarations (2162:065d's `pal[48]`). A swapped pair of stack slots
+  is the declaration order (`unsigned k; unsigned t;`).
+- A loop over a separate stack variable (`for (y = y1; y <= y2; y++)`, a slot of its
+  own) rather than over the parameter (2162:08b5).
+
+BCC 4.02 source forms found while finishing CM94 and CM Italia 95 (the same compiler and
+options), each read off the original code:
+
+- **Locals and slots.**
+  - Under `-O1` named locals stay in stack slots, except short-lived ones (`DX`/`CX`): where
+    CM93 reused one variable for several jobs, CM94 has separate locals.
+  - A short-lived local assigned in an `if`/`else` before a call stays in `DX` if declared
+    after the other locals; declared earlier it takes a slot.
+  - A local below the compiler's temporaries, or a CSE temporary above a named local, was
+    declared in an inner block. Sibling blocks' locals share slots: two locals in
+    overlapping slots (a float and an int) were declared in sibling blocks. This replaces
+    CM93's `volatile`/`register` workarounds.
+  - A `char` local kept in `CL` when declared once goes to a stack slot when declared again
+    inside each inner block that uses it.
+  - Small arrays usually go below the scalars, but not always (aac9:07c3's `int who[3]` sits
+    above `j`): keep the ported declaration order first.
+  - A loop counter at `[bp+6]` with no slot of its own: the source reused the parameter.
+  - `-O1` drops a local written but never read: `volatile` keeps the store.
+- **Temporaries.**
+  - A `[bp-N]` temporary holding a value read twice: write the expression twice (a common
+    subexpression), not a local.
+  - Two statements with the same value (`t[i] = g - 1; v = g - 1;`) give a CSE temporary; a
+    chained assignment does not. A temporary holding a value stored to a table, then to a
+    variable, is a local (`t[..] = n = expr; v = n;`); `v = t[..] = expr` gives no slot.
+  - A `[bp-2]` temporary `mov bx,OFF / add bx,idx` used for reads and a store through
+    `es:[bx+OFF]`: a struct member array (`s.g[0][b] += 16`). Plain far arrays give none.
+- **Index folding.**
+  - BCC 4.02 folds neither `t[i - k]` nor `&t[row][x - k]` as a rule: a displacement `base-k`
+    in the original means an extern `k` bytes before the table (`d_4512_5d97` for a table
+    at `5d98` read from entry 1). `mov ax,base / add ax,-k / add ax,[x]` is `t[row] - k + x`.
+  - Whether it folds depends on the access, not only on the declaration: `t[e - 1] != 0`
+    folds the -1 into `[bx-1]`, `while (t[e - 1])` keeps the run-time `dec`. Casts
+    (`(unsigned char)`, `(int)`), `(char far *)&t[..]`, and an initialiser `T p = ...;` in
+    place of an assignment change it too. A 2-D far table's run-time form is
+    `&(t[0] - 1)[row * N + x]`; a local array read with the -1 in `[ss:bx-1]` is
+    `(week - 1)[i]`.
+  - Rows of a big 2-D table (`d_28da_2a78[][1860]`) computed at run time
+    (`mov bx,2a78 / add bx,82c8`): as a call argument or an assignment source, the flat
+    `t[0][18 * 1860 + p]`; as an array index or in a compare, `t[18][p]` (the flat form folds
+    there); `*(t[18] + p)` and `[0][p + 18 * 1860]` are the other forms to try. A folded row
+    (`es:[bx+ad40]`) is an extern at the row's address. A table at offset 0
+    (`mov bx,0 / add bx,ROW`): `*(t[19] + i)`.
+  - Reading and storing one table through two extern names loses the `ES` reuse (an extra
+    `mov ax,SEG`): use one symbol for both. An extern in the wrong far segment can drop a
+    `mov es` reload too: fix the names before working on code generation.
+- **Evaluation order.**
+  - `a + b` with 0/1 conditionals evaluates the `?:` operand first: write the left one as
+    `x ? 1 : 0` to get left to right. `(c ? 1 : 0) + n + 1` computes the condition first;
+    `a % 20 != b % 20` divides the left first.
+  - A store whose address is computed before its value (`push ax / push dx … pop es / pop
+    bx`): an index written `[cond ? 1 : 0]` rather than `[cond]`.
+  - Long multiply operand order: `x = 155 * x` and `x *= 155` load `CX:BX` / `DX:AX`
+    differently. `a % 3 > 0` written before `a / 3` when the remainder is loaded first.
+  - A `char` argument pushed straight from memory (`push word [var]`): the assignment was a
+    statement of its own before the call. `push 0xff` for a `char` argument: an `unsigned
+    char` parameter.
+  - `switch (v = f())` gives `mov [v],ax / mov bx,ax`; `v = f(); switch (v)` reloads `v`. A
+    switch whose value goes through `AX` (`mov ax,[g] / sub ax,BASE / mov bx,ax`) only comes
+    from `switch (g ? g : g)`.
+  - `if (c) v = A; else v = B; f(v);` pushes `[v]`; `v = c ? A : B; f(v);` pushes `AX`.
+  - A local array read `[n * 2]` / `[n * 2 + 1]` gives `add ax,ax / shl 2`.
+  - Bitfields on `unsigned` are 16-bit units: a nibble in the high byte uses word operations
+    (`and w[..],0xf0ff`), in the low byte byte operations.
+  - Floats passed by value are pushed as immediates (no pool constant).
+- **Merged tails.** BCC 4.02 keeps the *last* copy of identical branch endings, and CM93's
+  `__emit__` workarounds are not needed: try plain C first. A code-free statement naming a
+  variable (`d_69da_d9ae;`) at the end of the branch whose copy the original keeps steers
+  the choice; `0;` after the later copy keeps both copies (stops the merge), and after a
+  sibling `else if` chain it leaves a jump to a jump. `if (c) A; else { B; break; } B;` in
+  a switch keeps each case's store and shares only the tail. The player-actions menu
+  (9007:511f), unmatched with BCC 3.x without `-y`, matched with four `0;`s, one per copy the
+  original keeps; c06b:0000 needed three.
+- **Pops.** Under `-O1` the argument pops of consecutive calls merge into one `add sp,N`.
+  An original that pops after each call was compiled under `#pragma option -O-` (also: an
+  unused label before a call flushes the pending pops; `if`/`else` arms that end in the same
+  call pop right after it, and duplicating the next call into both arms keeps one combined
+  `add sp`). A pop too large for one call means a call the port dropped.
+- **`#pragma option -O-`.** Several modules switch to it part-way (CM94 7827, 9c01, b8da;
+  CM Italia 95 87dc from 49e4, ab30 from 34cb, b26d from 32b9) and aac9 / a214 are compiled
+  with it throughout. The place is per module and per game: a port's pragma is often too
+  early or too late, so check where the pops stop merging. Under `-O-` a `char` loop counter
+  in a slot needs `j = j + 1` (`j++` gives `inc byte`), and a `mov bx,cx` reload after a
+  do-while was `for (;;) { r = f(); if (t[r] == c) break; }`.
+- **Data.** Function-local initialised aggregates (auto arrays copied with `F_SCOPY`) have
+  their initialisers at the head of the module's `_DATA`, in source order, before the
+  literals. Long `fread`/`fwrite` sequences (load and save game) are best regenerated from
+  the disassembly's push groups.
 
 ```bash
 python3 tools/match/port.py games/cm1/EUROPE.EXE games/cm93/CMEXE.EXE \
@@ -445,6 +565,31 @@ in scope), an old-style definition's parameters with their types, or the definit
 Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their files in
 `src/` byte for byte.
 
+The folders are scratch (`games/*/decomp/wip/` is ignored by git): once a module is merged
+and linked, its folder can go. Facts that hold for every part of a game (data names the port
+pairs wrongly, the game's changed counts and record sizes) go in a notes file the brief
+points to, so each agent need not find them again. What was learnt checking parts:
+
+- **Ported seeds.** `port.py` names are often wrong where the game moved its data between far
+  segments: trust `fixcheck`, not the port. The port can drop a whole function (only an
+  `unmapped_` prototype is left), or pair a callee one byte off: check that every stub
+  address of the chunk has a definition and every callee against the game's `funcs.h`. When
+  a game descends from two others (CM Italia 95: CM94's compiler and code, the first CM
+  Italia's game logic), the closer model for the logic can be the other one: translate its
+  function with this game's names, then fix the compiler's forms.
+- **Stubs.** A near `0E E8` call to an earlier chunk's function needs a stub *definition*
+  above it (a prototype gives a `9A` call). Parts must not define the module's initialised
+  tables (keep them extern; `tables.c`).
+- **Shared literal pools.** A part whose floats or strings are in an earlier part's pool:
+  in a scratch copy declare each shared constant `extern float d_SSSS_OOOO` at its address,
+  or prepend a static function that uses the earlier constants in pool order
+  (`vf = vf * 3.0f;`, with `--data` at the pool start; `x * 1.0f` is folded away). A part
+  holding a function-local initialiser checks with `--data` at its start. `fixcheck` takes
+  one `--data`: with initialisers ahead of the literals, check each with its own base.
+- **Scratch copies.** `fixcheck` on a file outside the decomp tree needs `--symbols
+  games/GAME/decomp/symbols.txt`, and `fdiff.py` needs `--as` the file's place in the tree.
+  Changed strings are only caught by `fixcheck`'s `_DATA` check: always run it.
+
 ## Files
 
 | Path | What |
@@ -475,5 +620,5 @@ Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their 
   C yet, so a module's globals stay `extern`.
 - **What is not library or C yet.** The game's own modules (most of the code), and the game's
   assembly modules after 1680 in CM1 (1a51-1b05: graphics and EMS support).
-- **CM94.** See "Porting to another game": the remaining differences in `2162.C` are
-  port pairing errors and game changes, not options.
+- **CM94.** Complete: every module is matching C or assembly linked whole (see "Porting to
+  another game"). The BCC 4.02 source forms the parts' agents found are listed there.

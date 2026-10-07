@@ -6,7 +6,7 @@ and redrawn as you type.
 
 The compiling and aligning is `tools/match/fdiff.py`, which also works without the extension:
 
-    python3 tools/match/fdiff.py games/cm1/decomp/wip/8352/t8.c [--func f_8352_46de]
+    python3 tools/match/fdiff.py games/cm1/decomp/src/8352.C [--func f_8352_46de]
 
 It takes the game, compiler and options from the `decomp/Makefile` above the file and the
 file's `@flags`, as the build does. A function is found by its `f_SSSS_OOOO` name or by its

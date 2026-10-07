@@ -1,16 +1,13 @@
 /* @at 8aa1:0000 */
 /* @data 60ae:30cc */
+/* @module */
 
 /* Overlay 5: transfers and contracts: the cup group tables, picking and approaching
  * players, bids, fees, asking prices and tribunals, contract and wage talks, the offer
- * and factfile screens, completing transfers and the shortlist. CM93's version of CM1's
- * 8352.C.
- *
- * Not a whole module yet: the overlay's last function, f_8aa1_5253 (5253-5f30, CM1's
- * f_8352_46de, the menu of things to do with one of your own players), is still the
- * original bytes, as in CM1. Written in C it gives the right size, but BCC shares the
- * identical endings of its branches (calls to strcpy and sprintf, a stack adjustment) in
- * other copies than the original does. Its string literals follow this file's data. */
+ * and factfile screens, completing transfers and the shortlist, and the menu of things
+ * to do with one of your own players (f_8aa1_5253, whose branches' identical endings BCC
+ * merges as the original only with -y: see the Makefile). CM93's version of CM1's
+ * 8352.C. */
 #include <stdio.h>
 #include <string.h>
 #include <mem.h>
@@ -55,6 +52,7 @@ void f_8aa1_44ad(int player, int to, int from, long fee, unsigned char kind);
 void f_8aa1_4c5d(int player, int from, int to, char kind);
 void f_8aa1_4f06(int player, int a);
 char f_8aa1_50f4(int player, char flag);
+void f_8aa1_5253(int player);
 
 struct pbits { unsigned b0 : 1; /* ddbf bit 0 */ unsigned b1 : 1; unsigned b2 : 1; unsigned : 1; unsigned b4 : 1; unsigned : 11; unsigned c0 : 1; /* ddc1 bit 0 */ unsigned : 5; unsigned c6 : 1; unsigned : 9; };
 extern struct pbits d_60ae_ddbf[];
@@ -287,7 +285,7 @@ int f_14bc_1eb7(int player);
 void f_14bc_16af(int p);
 void f_14bc_1365(int player);
 void f_14bc_1993(int player);
-extern char far *d_60ae_ddae;
+extern char (far *d_60ae_ddae)[151];
 extern float d_60ae_d8db;
 extern char far d_2289_4fcc[];
 extern int d_60ae_dba0;
@@ -348,6 +346,8 @@ extern char far d_2289_3af4[];
 
 /* the steps of the digits a value is set with (+/- on the offer screen) */
 static int d_60ae_30cc[] = { 1, 10, 100, 1000, 10000 };
+
+
 
 void f_8aa1_0000(void)
 {
@@ -1876,3 +1876,281 @@ char f_8aa1_50f4(int player, char flag)
     return d_60ae_d93a;
 }
 
+/* f_8aa1_5253: the `0;`s and the gotos to a label on the first copy of a statement are
+ * code-free: they make BCC keep the copies of the branches' identical endings that the
+ * original keeps (docs/matching.md, merged tails; the module is compiled with -y). */
+void f_8aa1_5253(int player)
+{
+    unsigned char n;
+    unsigned char club;
+    unsigned char c;
+    char buf[320];
+    char item[30];
+
+    do {
+        n = 0;
+        d_60ae_d93f = 0;
+        d_60ae_d939 = f_14bc_6b4a(player, 0);
+        f_14bc_4bd3("Transfer Status");
+        club = d_3c35_0000[7][player] < 255 ? d_3c35_0000[7][player] : d_471b_0000[18][player];
+        f_14bc_4587(1.0, 4.0, club);
+        f_14bc_0ac0(7, f_14bc_4703(player));
+        if (d_3c35_0000[7][player] < 255) {
+            sprintf(buf, "On loan to %s", (char far *)d_60ae_b572[d_471b_0000[18][player]]);
+            f_14bc_0ac0(9, buf);
+            if (d_3c35_0000[8][player] < 3) {
+                strcpy(d_2289_5308, "Terminate Loan|Extend Loan|");
+                n += 2;
+            } else {
+                strcpy(d_2289_5308, "Terminate Loan|");
+                n++;
+            }
+        } else {
+            if (d_60ae_ddbe[player].w.f8 && !d_60ae_ddbe[player].w.f24) {
+                d_60ae_faf2 = f_1bd3_1617(d_60ae_fdec, 0);
+                if (d_60ae_faf2[player] > 0)
+                    sprintf(buf, "For sale at %ld", d_60ae_faf2[player]);
+                else
+                    strcpy(buf, "Available for free transfer");
+                f_14bc_0ac0(9, buf);
+                strcpy(d_2289_5308, "Revalue Him|Remove From List|");
+                n += 2;
+            } else if (d_60ae_ddbe[player].w.f8 && d_60ae_ddbe[player].w.f24) {
+                strcpy(buf, "Available for loan");
+                f_14bc_0ac0(9, buf);
+                strcpy(d_2289_5308, "Remove From List|");
+                n++;
+            } else if (d_60ae_ddbe[player].w.f9 || d_60ae_ddbe[player].w.f30) {
+                f_14bc_0ac0(9, "Not for sale at any price");
+                strcpy(d_2289_5308, "Allow Approaches|");
+                n++;
+            } else {
+                f_14bc_0ac0(9, "Currently open to approach");
+                strcpy(d_2289_5308, "List/Loan Him|Not For Sale|");
+                n += 2;
+            }
+            strcat(d_2289_5308, "Fine Him|");
+            n++;
+            if (!d_60ae_ddbe[player].w.f20)
+                strcat(d_2289_5308, "Insure Him|");
+            else
+                strcat(d_2289_5308, "Uninsure Him|");
+            n++;
+            if (d_323f_824a[player] == 0 || d_323f_824a[player] / 100 == d_60ae_dd98) {
+                strcat(d_2289_5308, "Renew Contract|");
+                n++;
+            }
+            if (d_323f_824a[player] > 0 && !d_60ae_ddbe[player].w.f8) {
+                strcat(d_2289_5308, "Increase Wages|");
+                n++;
+            }
+            if (d_471b_0000[20][player] > 0 && d_471b_0000[19][player] < 26) {
+                strcat(d_2289_5308, "Rehabilitate|");
+                n++;
+            }
+        }
+        sprintf(buf, "*Exit|%s", d_2289_5308);
+        n++;
+        f_14bc_2f90(12, "", buf);
+        do {
+            d_60ae_d977 = -1;
+            f_14bc_3334(n - 1);
+            strcpy(item, d_2289_0848[d_60ae_dda0]);
+            if (strstr(item, "Terminate")) {
+                if (f_14bc_0c5e()) {
+                    sprintf(buf, "%s returns from loan", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    f_8aa1_44ad(player, d_3c35_0000[7][player], d_471b_0000[18][player], 0L, 2);
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "Extend")) {
+                if (f_14bc_0c5e()) {
+                    c = d_3c35_0000[7][player];
+                    if (f_b628_62f4(player)) {
+                        d_3c35_0000[8][player] += 4;
+                        d_3c35_0000[9][player]++;
+                        sprintf(buf, "%s accept your request", (char far *)d_60ae_b572[c]);
+                        f_14bc_0b30(buf);
+                        f_14bc_0b30("The loan is extended by a month");
+                    } else {
+                        sprintf(buf, "%s refuse your request", (char far *)d_60ae_b572[c]);
+                        f_14bc_0b30(buf);
+                    }
+                    if (f_14bc_2cc0(c))
+                        T2: d_60ae_d93f = -1;
+                    else
+                        d_60ae_d977 = 0;
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "Revalue")) {
+                f_9107_0af9(player);
+                d_60ae_d93f = -1;
+            } else if (strstr(item, "Allow")) {
+                if (f_14bc_0c5e()) {
+                    sprintf(buf, "%s now approachable", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    d_60ae_ddbe[player].w.f9 = 0;
+                    d_60ae_d93f = -1;
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "List/Loan")) {
+                f_14bc_2f90(0, "List/Loan Him", "*Exit|List Him|Loan Him|");
+                if (d_60ae_dda0 == 1) {
+                    sprintf(buf, "%s now transfer listed", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    f_9107_09dc(player, 0, 0);
+                } else if (d_60ae_dda0 == 2) {
+                    sprintf(buf, "%s now available for loan", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    f_9107_09dc(player, 0, -1);
+                }
+                d_60ae_d93f = -1;
+            } else if (strstr(item, "Remove")) {
+                if (f_14bc_0c5e()) {
+                    if (d_60ae_ddbe[player].w.f10) {
+                        if (d_60ae_d939 && d_323f_824a[player] == 0) {
+                            sprintf(buf, "%s refuses", f_14bc_48b4(player));
+                            f_14bc_0b30(buf);
+                            sprintf(buf, "He %s", d_2289_3af4);
+                            f_14bc_0b30(buf);
+                            d_60ae_d977 = 0;
+                        } else if (d_60ae_d939 && d_323f_824a[player] > 0) {
+                            sprintf(buf, "%s told to stay", f_14bc_48b4(player));
+                            f_14bc_0b30(buf);
+                            f_14bc_0b30("But he's still unhappy");
+                            goto agreed;
+                        } else {
+                            sprintf(buf, "%s agrees to stay", f_14bc_48b4(player));
+                            f_14bc_0b30(buf);
+                        agreed:
+                            f_9107_0aad(player);
+                            d_60ae_d93f = -1;
+                        }
+                    } else {
+                        sprintf(buf, "%s removed from list", f_14bc_48b4(player));
+                        f_14bc_0b30(buf);
+                        f_9107_0aad(player);
+                        d_60ae_d93f = -1;
+                    }
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "Not For")) {
+                if (d_323f_824a[player] == 0) {
+                    sprintf(buf, "%s must sign a new contract", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    d_60ae_d977 = 0;
+                } else if (f_14bc_0c5e()) {
+                    sprintf(buf, "%s now unapproachable", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    d_60ae_ddbe[player].w.f9 = 1;
+                notfor_done:
+                    goto T2;
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "Fine")) {
+                if (f_14bc_0c5e()) {
+                    d_60ae_dce4 = d_323f_47b4[d_471b_0000[18][player]] - 646;
+                    sprintf(buf, "%04d", player);
+                    d_60ae_ddaa = f_1bd3_1617(d_60ae_fdd0, 0);
+                    d_60ae_d938 = f_1bd3_0b1b(d_60ae_ddaa[d_60ae_dce4], buf) > 0;
+                    if (d_60ae_d938)
+                        f_14bc_0b30("Maximum one fine per week");
+                    else {
+                        sprintf(buf, "%s fined a weeks wages", f_14bc_48b4(player));
+                        f_14bc_0b30(buf);
+                        f_9107_117d(player, d_60ae_ddbe[player].w.f15);
+                        sprintf(buf, "%04d", player);
+                        d_60ae_ddaa = f_1bd3_1617(d_60ae_fdd0, 1);
+                        strcat(d_60ae_ddaa[d_60ae_dce4], buf);
+                        if (d_60ae_db2e == 3 || !d_60ae_ddbe[player].w.f15) {
+                            switch (d_60ae_dbc8 = f_1bd3_0d69(3)) {
+                            case 0:
+                                strcpy(buf, "He cannot believe it");
+                                break;
+                            case 1:
+                                strcpy(buf, "He is astonished");
+                                break;
+                            case 2:
+                                strcpy(buf, "He feels it is unfair");
+                                break;
+                            }
+                            f_14bc_0b30(buf);
+                        } else if (d_60ae_db2e != 2) {
+                            d_60ae_d977 = 0;
+                            continue;
+                        } else {
+                            switch (d_60ae_dbc8 = f_1bd3_0d69(3)) {
+                            case 0:
+                                strcpy(buf, "He is not happy");
+                                break;
+                            case 1:
+                                strcpy(buf, "He is disappointed");
+                                break;
+                            case 2:
+                                strcpy(buf, "He is upset");
+                                break;
+                            }
+                            0;
+                            f_14bc_0b30(buf);
+                        }
+                    }
+                    0;
+                    d_60ae_d977 = 0;
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "Insure")) {
+                if (d_471b_0000[20][player] > 0 && d_471b_0000[19][player] < 26) {
+                    f_14bc_0b30("Insurance refused - player injured");
+                    d_60ae_d977 = 0;
+                } else {
+                    d_60ae_d803 = f_9107_1391(player);
+                    sprintf(buf, "Insurance would cost %ld p/w", d_60ae_d803);
+                    f_14bc_0b30(buf);
+                    if (f_14bc_0c5e()) {
+                        sprintf(buf, "%s now insured", f_14bc_48b4(player));
+                        f_14bc_0b30(buf);
+                        d_60ae_ddbe[player].w.f20 = 1;
+                        goto notfor_done;
+                    } else
+                        d_60ae_d977 = 0;
+                }
+            } else if (strstr(item, "Uninsure")) {
+                if (f_14bc_0c5e()) {
+                    sprintf(buf, "%s now uninsured", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    d_60ae_ddbe[player].w.f20 = 0;
+                    d_60ae_d93f = -1;
+                } else
+                    d_60ae_d977 = 0;
+            } else if (strstr(item, "Renew")) {
+                d_60ae_dce4 = d_323f_47b4[d_471b_0000[18][player]] - 646;
+                sprintf(buf, "%04d", player);
+                d_60ae_ddae = f_1bd3_1617(d_60ae_fdd2, 0);
+                d_60ae_d938 = strstr(d_60ae_ddae[d_60ae_dce4], buf) ? 1 : 0;
+                if (d_60ae_d938 || d_60ae_d939 || f_b628_4f4c(player)) {
+                    sprintf(buf, "%s refuses to negotiate", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    if (d_60ae_d939)
+                        sprintf(buf, "He %s", d_2289_3af4);
+                    else if (f_b628_4f4c(player))
+                        strcpy(buf, "He is expected to move abroad");
+                    else
+                        strcpy(buf, "He may resume talks next week");
+                    f_14bc_0b30(buf);
+                    d_60ae_d977 = 0;
+                } else {
+                    sprintf(buf, "%s agrees to negotiate", f_14bc_48b4(player));
+                    f_14bc_0b30(buf);
+                    f_9107_0000(player, d_471b_0000[18][player], d_60ae_dce4);
+                    d_60ae_d93f = -1;
+                }
+            } else if (strstr(item, "Increase")) {
+                f_9107_0e89(player);
+                d_60ae_d93f = -1;
+            } else if (strstr(item, "Rehab")) {
+                f_b628_09ef(player);
+                d_60ae_d93f = -1;
+            }
+        } while (!d_60ae_d977);
+    } while (d_60ae_d93f != 0);
+}

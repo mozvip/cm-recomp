@@ -10,7 +10,7 @@ Full background: `docs/matching.md`. Tools: `tools/match/`. Sources: `games/cm1/
 ## Loop
 
 1. Pick a function (runtime `SEG:OFS`, the same numbering as `tools/recomp.py`, `entries.txt`
-   and `gen/funcs.h`). `make -C games/cm1/decomp progress LIST=1680` lists a segment's
+   and `recomp/funcs.h`). `make -C games/cm1/decomp progress LIST=1680` lists a segment's
    functions with their sizes and which are done. `TODO=5` suggests the smallest ones left.
 2. `python3 tools/match/disasm.py games/cm1/EUROPE.EXE SSSS:OOOO`: disassembly with the
    names to use:
@@ -20,7 +20,7 @@ Full background: `docs/matching.md`. Tools: `tools/match/`. Sources: `games/cm1/
    - same-segment call notes;
    - 8087 mnemonics for the emulator's `INT 34h-3Dh`.
 
-   The function ends at the next start listed in `games/cm1/gen/funcs.h` (built by
+   The function ends at the next start listed in `games/cm1/recomp/funcs.h` (built by
    `make -C games/cm1`), or pass `--len`.
 3. Grow the module's C file in address order. `src/1680.C` holds segment `1680` from its
    first function onwards: a C file's code is placed contiguously at `@at`, and callees
@@ -65,9 +65,7 @@ instead of merging it into the blobs (see docs/matching.md). An identical execut
 also proves the relocation order, that is the function order and layout of the original
 source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C`, `src/1A51.ASM`, `src/1AB2.ASM`,
 `src/1AB9.ASM`, `src/1B05.ASM`
-and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C`, `src/7EEB.C`, `src/88C9.C`, `src/9100.C`, `src/992A.C` and `src/A1C3.C`
-(`src/8352.C` is placed without `@module`: its last function, 46de, is still the original
-bytes)
+and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C`, `src/7EEB.C`, `src/8352.C`, `src/88C9.C`, `src/9100.C`, `src/992A.C` and `src/A1C3.C`
 are linked this way.
 
 - An overlay can be `@module` too (all its code, `@at` its first function). Only the
@@ -128,6 +126,37 @@ the declarations they use; check it with `fcheck.py --cc bc30`.
 
 `games/cm93/decomp` works like CM1's (`make`, `make identity`, `make progress`); its game
 code was compiled with Borland C++ 3.0 (`CC_TC := bc30`). Every root module but 14bc is complete (`src/1446.C`, `main`, was rewritten for CM93 and written from its code, not ported).
+
+`games/cmese/decomp` (CM94, CMEXE.EXE) is the same, with Borland C++ 4.02 (`CC_TC := bc4`,
+`fcheck.py --cc bc4`, whose default flags are the game's). `src/2162.C` (CM93's 1BD3.C)
+is complete and linked whole.
+
+**BCC 4.02 codegen facts (CM94, `-ml -1 -O1 -Y`):**
+- The options are `-ml -1 -O1 -Y`, not `-O2`. `-O2` (`-Ot`) matches many small functions
+  but keeps `char` locals in `CL` and caches parameters in `CX`; `-O1` (`-Os`) keeps them in
+  their stack slots (`mov [bp-1],al` … `mov al,[bp-1]`; a stored-and-compared `int c =
+  fgetc()` at `[bp-2]`) while `int` loop counters still go to `DX`, and pops a 2-byte
+  argument with `pop cx` (`-Ot`: `add sp,2`). Prefer fixing the C over the options: these
+  options matched all 71 functions of 2162 and are the project's.
+- `-Y` (overlay code) is what avoids `enter`: frames are `push bp / mov bp,sp / sub sp,N`
+  and still end with `leave`. Without it `-O1` uses `enter N,0`.
+- `push si / push di` in every function, used or not, is `-Oe` (in `-O1`).
+- Locals: scalars in declaration order from `[bp-2]` down (first declared highest);
+  arrays always below the scalars. Two swapped slots mean two swapped declarations.
+- A `switch` keeps its value in a stack slot (for the table search); a local declared in
+  an inner block goes below it (18f9 `main`: switch at `[bp-4]`, block `char x` at `[bp-5]`).
+  `-O1` does not fold a test of a local just set to a constant (`x = 0; if (x == 0)`).
+- **Tail merges:** BCC 4.02 keeps the LAST copy of identical branch tails. A code-free
+  statement that names a variable (`d_69da_d9ae;`) at the end of the branch whose copy the
+  original keeps makes BCC keep that one (a83a:14e6), and after an if-chain it stops a merge
+  the original doesn't have (829f:0ad4); `0;` works too but can leave a jump-to-jump.
+- `#pragma option -O-` from one function on: BCC 4.02 -O1 merges the argument pops of
+  consecutive calls; an original that pops after each call had jump optimisation off (9c01).
+- A loop variable in a slot of its own is a separate local (`for (y = y1; …)`), not the
+  parameter.
+- A port's `unmapped_` and shifted `f_` names: an empty function or a one-line setter
+  CM94 added shifts the pairing of all its neighbours; rename by the addresses in
+  `games/cmese/recomp/funcs.h` (not every start is listed there: 2162:0c48 was missing).
 
 ## The runtime
 
@@ -254,7 +283,18 @@ segment that do not fit.
   matching function (7a28:360e).
 - **Tail merging:** when BCC merges identical call tails into the *first* copy where the
   original kept the *last*, a code-free statement (`0;`) after a `for` loop that ends its
-  block changes the choice (67ee:4060).
+  block changes the choice (67ee:4060). In BCC 3.1 `0;` and a statement naming a
+  variable (`x;`) act the same: a barrier that keeps the copy before it whole (BCC 4.02
+  differs: there `x;` picks which copy is kept). 8352:46de (the player-actions menu, matched
+  in CM94 as 9007:511f) needed more: **`-y`** (line numbers in the object, now in CM1's
+  `BCCFLAGS`; nothing of it reaches the executable) changes BCC's cross-jumping choices,
+  and with it two `goto`s to the first copy of its `= 0` ending plus two `0;`s match
+  (src/8352.C). When a function is right to the instruction but merges its tails into
+  other copies, try the file with `-y` before anything else, then
+  `python3 tools/match/tailfix.py GAME.EXE SSSS:OOOO-END FILE.C diff|greedy|pairs --cc ... --flags "... -y"`
+  (score = differing instructions + jumps to the wrong place; `greedy` tries `0;`s and
+  gotos to the first copy of a repeated statement). A label nothing jumps to is a barrier
+  too (CM Italia's 8539:5313 needs one). Never `asm`, not even `asm ;`.
 - **`__emit__` with BCC 3.0 (CM93):** an address argument (`(char near *)"..."`, a far
   function) gets a broken fixup (omf.py fails with `KeyError ('F', 0)`). Load addresses
   with `_AX = (unsigned)d_60ae_XXXX;` (an `extern char near` at the address) or

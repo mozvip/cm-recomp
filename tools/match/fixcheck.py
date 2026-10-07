@@ -30,7 +30,7 @@ too; check the merged file, or read the report with that in mind.
 
 --symbols and --names default to the symbols.txt and names.txt found above FILE.
 """
-import argparse, os, re, struct, sys
+import collections, argparse, os, re, struct, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
@@ -63,7 +63,9 @@ class Checker:
         w = self.m.where(rt_seg, rt_off)
         if w[0] == 'ovl':
             return None
-        s = w[2]
+        # the segment the name gives, not the one its linear address falls in: d_28da_e886 is
+        # inside segment 3668 but is linked (and addressed) as a 28da symbol
+        s = self.m.frame_seg.get(rt_seg - RT, w[2])
         return s.index * 8 if in_ovl else s.frame
 
     def stub_entry(self, rt_seg, rt_off):
@@ -85,7 +87,7 @@ def main():
     ap.add_argument('--symbols')
     ap.add_argument('--names')
     ap.add_argument('--cc', default='bc31')
-    ap.add_argument('--flags', default='-ml -O1 -k -Ol')
+    ap.add_argument('--flags', help='BCC options (default: fcheck.py\'s for --cc)')
     ap.add_argument('--only', nargs='*', default=[], help='check only these functions')
     ap.add_argument('-v', action='store_true', help='list every fixup, not only the bad ones')
     a = ap.parse_args()
@@ -103,14 +105,26 @@ def main():
 
     m = mkblobs.Model(a.exe)
     ck = Checker(m, symtab)
-    mod = fcheck.compile_file(a.src, a.cc, a.flags)
+    mod = fcheck.compile_file(a.src, a.cc, a.flags or fcheck.default_flags(a.cc))
     si = next(i for i, s in enumerate(mod.segs, 1) if s[1] == 'CODE' and s[2] > 0)
     di = next((i for i, s in enumerate(mod.segs, 1) if s[0] in DGROUP_NAMES), None)
     code = bytes(mod.data[si])
     data = bytes(mod.data[di]) if di and di in mod.data else b''
     funcs = sorted((off, n) for n, (s, off) in mod.publics.items() if s == si and fcheck.NAME.match(n))
     if funcs:
-        off0, n0 = funcs[0]
+        # the placement most functions agree on (address - offset in the object): a part's
+        # stubs of other chunks' functions (placed first, called 0E E8) don't decide it; on a
+        # tie, the placement of the most code
+        votes = collections.defaultdict(lambda: [0, 0])
+        ends = [o for o, _ in funcs[1:]] + [len(code)]
+        for (off, n), end in zip(funcs, ends):
+            mo = fcheck.NAME.match(n)
+            key = (int(mo.group(1), 16), int(mo.group(2), 16) - off)
+            votes[key][0] += 1
+            votes[key][1] += end - off
+        key = max(votes, key=lambda k: tuple(votes[k]))
+        off0, n0 = next((o, n) for o, n in funcs if (int(fcheck.NAME.match(n).group(1), 16),
+                        int(fcheck.NAME.match(n).group(2), 16) - o) == key)
         mo = fcheck.NAME.match(n0)
         fseg, foff = int(mo.group(1), 16), int(mo.group(2), 16)
     else:                                               # main...: the whole code at @at
@@ -251,13 +265,21 @@ def main():
 
     # the 8087 operations: INT 34h-3Bh xx in the original, 9B D8-DF xx in the object
     nfp = 0
+    in_fixup = set()                                   # operand bytes the linker fills in
+    for f in mod.fixups:
+        if f[0] == si:
+            in_fixup.update(range(f[1], f[1] + fcheck.SIZE.get(f[2], 2)))
     for k, (fo, n) in enumerate(funcs):
         if a.only and n.lstrip('_') not in a.only and n not in a.only:
             continue
         end = funcs[k + 1][0] if k + 1 < len(funcs) else len(code)
         for i in range(fo, end - 1):
             b0, b1 = img[base0 + i], img[base0 + i + 1]
-            if b0 == 0xcd and 0x34 <= b1 <= 0x3b:
+            # the same bytes in the object: an operand that happens to read CD 3x, not an INT
+            # (a 9B in the object is the 8087 operation itself, whose bytes the emulator's
+            # fixups also cover; anything else inside a fixup is an operand that changed)
+            if b0 == 0xcd and 0x34 <= b1 <= 0x3b and (code[i], code[i + 1]) != (b0, b1) and \
+                    (code[i] == 0x9b or (i not in in_fixup and i + 1 not in in_fixup)):
                 nfp += 1
                 if not (code[i] == 0x9b and code[i + 1] == 0xd8 + b1 - 0x34):
                     report(False, 'fpu', i, 'int %02xh' % b1, '9b %02x' % (0xd8 + b1 - 0x34),
@@ -277,7 +299,8 @@ def main():
             bad.append('BAD   _DATA  first difference at +%04x (%04x:%04x): mine %s orig %s' % (
                 i, data_at[0], data_at[1] + i, data[i:i + 12].hex(' '), orig[i:i + 12].hex(' ')))
             print(bad[-1])
-        data_note = ', _DATA %d bytes %s' % (len(data), 'differ' if diff else 'identical')
+        data_note = (', _DATA %d of %d bytes differ' % (len(diff), len(data)) if diff else
+                     ', _DATA %d bytes identical' % len(data))
     print('%d fixups checked (%s), %d 8087 operations%s: %d bad' % (
         sum(counts.values()), ', '.join('%s %d' % kv for kv in sorted(counts.items())), nfp,
         data_note, len(bad)))

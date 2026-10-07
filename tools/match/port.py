@@ -62,7 +62,7 @@ class Game:
         self.exe = exe
         self.m = mkblobs.Model(exe)
         self.dg = self.m.e.dgroup.frame + RT
-        funcs = os.path.join(os.path.dirname(os.path.abspath(exe)), 'gen', 'funcs.h')
+        funcs = os.path.join(os.path.dirname(os.path.abspath(exe)), 'recomp', 'funcs.h')
         self.starts = disasm.func_starts(funcs)
         self._regions = None
 

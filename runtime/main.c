@@ -11,7 +11,7 @@ extern const uint8_t rc_image[];
 extern const uint32_t rc_image_size;
 extern const uint16_t rc_image_entry[4];      /* cs ip ss sp, already relocated */
 
-/* the relocated load image is embedded at build time (gen/image.c) */
+/* the relocated load image is embedded at build time (recomp/image.c) */
 static void load_image(uint16_t *cs, uint16_t *ip, uint16_t *ss, uint16_t *sp)
 {
     memcpy(&rc_ram[0x10000], rc_image, rc_image_size);

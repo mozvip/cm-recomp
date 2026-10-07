@@ -704,221 +704,54 @@ void f_7eeb_16d5(int team, int unused, int a, int b, int gf, int ga)
 }
 
 /* f_7eeb_1afc: the name of the competition the match of week b is in (d_1f3e_4806), and
- * for a cup the round. In C it is
- *
- *     if (f_992a_700a(team)) {
- *         if (c >= 60) strcpy(d_1f3e_4806, "Division Four");
- *         else if (c >= 40) ... "Division Three", >= 20 "Division Two", else "Division One"
- *     } else if (f_992a_70a8(team)) {
- *         strcpy(d_1f3e_4806, "FA Cup");
- *         f_7eeb_1d0d(team, 0x4c, 0x4d);          (" Semi-Final")
- *         f_7eeb_1d68(team, 0x58, 0x59);          (" Final")
- *     } else if (f_992a_74c1(team, b)) "Rumbelows Cup", 1d0d 3d 41, 1d68 52 53
- *     else if (f_992a_752d(team, b))   "Zenith Cup", 1d0d 29 -1, 1d68 35 -1
- *     else if (f_992a_75bc(team, b))   "Domark Trophy" (with sprintf), 1d0d 49 -1, 1d68 57 -1
- *     else if (f_992a_72e8(team, b))   "UEFA Cup", 1d0d 4b 4f, 1d68 57 5b
- *     else if (f_992a_7399(team, b))   "C/Winners Cup", 1d0d 4b 4f, 1d68 5b -1
- *     else if (f_992a_7430(team, b))   "European Cup", 1d68 5b -1
- *     else if (f_992a_78ca(team)) "Playoff"; else if (team == 5) "Charity Shield";
- *     else if (team < 5) "Friendly";
- *
- * which BCC compiles to these instructions, except that it merges the cups' identical
- * tails (the pushes and the call of f_7eeb_1d68) into the FA Cup branch, where the
- * original has them in the European Cup one, 6 bytes shorter. No way of writing it has
- * made BCC do that yet, so the code is given here byte for byte; the compiler still makes
- * the prologue and epilogue (team in SI, b in DI), the string literals (in their place in
- * the module's data) and the fixups of the calls and addresses. The jumps to 1d09 go to
- * the epilogue. The calls of f_7eeb_1d0d and 1d68 are written in C (the jumps to 1cc0 and
- * 1cc7 go into the last one): TLINK makes those far calls 90 0E E8, reserving a relocation
- * for each, as it did in the original. */
+ * for a cup the round. BCC merges the cups' identical tails (the pushes and the call of
+ * f_7eeb_1d68) into the FA Cup branch, where the original has them in the European Cup
+ * one, unless the file is compiled with -y (see the Makefile); it was given here byte for
+ * byte with __emit__ before that was found. */
 void f_7eeb_1afc(int team, int b, int c)
 {
-    _SI = team;
-    _DI = b;
-    /* 1b07 */ __emit__(0x56);                                    /* push [si] */
-    /* 1b08 */ __emit__((char)0x9a, f_992a_700a);
-    /* 1b0d */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1b0e */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1b10 */ __emit__(0x74, 0x2e);                              /* je 1b40 */
-    /* 1b12 */ __emit__((char)0x83, 0x7e, 0x0a, 0x3c);            /* cmp [w[bp+0xa], 0x3c] */
-    /* 1b16 */ __emit__(0x7c, 0x07);                              /* jl 1b1f */
-    /* 1b18 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1b19 */ __emit__((char)0xb8, (char near *)"Division Four");
-    /* 1b1c */ __emit__((char)0xe9, (char)0xd9, 0x01);            /* jmp 1cf8 */
-    /* 1b1f */ __emit__((char)0x83, 0x7e, 0x0a, 0x28);            /* cmp [w[bp+0xa], 0x28] */
-    /* 1b23 */ __emit__(0x7c, 0x07);                              /* jl 1b2c */
-    /* 1b25 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1b26 */ __emit__((char)0xb8, (char near *)"Division Three");
-    /* 1b29 */ __emit__((char)0xe9, (char)0xcc, 0x01);            /* jmp 1cf8 */
-    /* 1b2c */ __emit__((char)0x83, 0x7e, 0x0a, 0x14);            /* cmp [w[bp+0xa], 0x14] */
-    /* 1b30 */ __emit__(0x7c, 0x07);                              /* jl 1b39 */
-    /* 1b32 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1b33 */ __emit__((char)0xb8, (char near *)"Division Two");
-    /* 1b36 */ __emit__((char)0xe9, (char)0xbf, 0x01);            /* jmp 1cf8 */
-    /* 1b39 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1b3a */ __emit__((char)0xb8, (char near *)"Division One");
-    /* 1b3d */ __emit__((char)0xe9, (char)0xb8, 0x01);            /* jmp 1cf8 */
-    /* 1b40 */ __emit__(0x56);                                    /* push [si] */
-    /* 1b41 */ __emit__((char)0x9a, f_992a_70a8);
-    /* 1b46 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1b47 */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1b49 */ __emit__(0x74, 0x30);                              /* je 1b7b */
-    /* 1b4b */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1b4c */ __emit__((char)0xb8, (char near *)"FA Cup");
-    /* 1b4f */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b50 */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1b53 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b54 */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1b57 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b58 */ __emit__((char)0x9a, strcpy);
-    /* 1b5d */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1b60 */ f_7eeb_1d0d(_SI, 0x4c, 0x4d);
-    /* 1b71 */ __emit__((char)0xb8, 0x59, 0x00);                  /* mov [ax, 0x59] */
-    /* 1b74 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b75 */ __emit__((char)0xb8, 0x58, 0x00);                  /* mov [ax, 0x58] */
-    /* 1b78 */ __emit__((char)0xe9, 0x4c, 0x01);                  /* jmp 1cc7 */
-    /* 1b7b */ __emit__(0x57);                                    /* push [di] */
-    /* 1b7c */ __emit__(0x56);                                    /* push [si] */
-    /* 1b7d */ __emit__((char)0x9a, f_992a_74c1);
-    /* 1b82 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1b83 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1b84 */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1b86 */ __emit__(0x74, 0x30);                              /* je 1bb8 */
-    /* 1b88 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1b89 */ __emit__((char)0xb8, (char near *)"Rumbelows Cup");
-    /* 1b8c */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b8d */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1b90 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b91 */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1b94 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1b95 */ __emit__((char)0x9a, strcpy);
-    /* 1b9a */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1b9d */ f_7eeb_1d0d(_SI, 0x3d, 0x41);
-    /* 1bae */ __emit__((char)0xb8, 0x53, 0x00);                  /* mov [ax, 0x53] */
-    /* 1bb1 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1bb2 */ __emit__((char)0xb8, 0x52, 0x00);                  /* mov [ax, 0x52] */
-    /* 1bb5 */ __emit__((char)0xe9, 0x0f, 0x01);                  /* jmp 1cc7 */
-    /* 1bb8 */ __emit__(0x57);                                    /* push [di] */
-    /* 1bb9 */ __emit__(0x56);                                    /* push [si] */
-    /* 1bba */ __emit__((char)0x9a, f_992a_752d);
-    /* 1bbf */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1bc0 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1bc1 */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1bc3 */ __emit__(0x74, 0x30);                              /* je 1bf5 */
-    /* 1bc5 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1bc6 */ __emit__((char)0xb8, (char near *)"Zenith Cup");
-    /* 1bc9 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1bca */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1bcd */ __emit__(0x50);                                    /* push [ax] */
-    /* 1bce */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1bd1 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1bd2 */ __emit__((char)0x9a, strcpy);
-    /* 1bd7 */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1bda */ f_7eeb_1d0d(_SI, 0x29, -1);
-    /* 1beb */ __emit__((char)0xb8, (char)0xff, (char)0xff);      /* mov [ax, 0xffff] */
-    /* 1bee */ __emit__(0x50);                                    /* push [ax] */
-    /* 1bef */ __emit__((char)0xb8, 0x35, 0x00);                  /* mov [ax, 0x35] */
-    /* 1bf2 */ __emit__((char)0xe9, (char)0xd2, 0x00);            /* jmp 1cc7 */
-    /* 1bf5 */ __emit__(0x57);                                    /* push [di] */
-    /* 1bf6 */ __emit__(0x56);                                    /* push [si] */
-    /* 1bf7 */ __emit__((char)0x9a, f_992a_75bc);
-    /* 1bfc */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1bfd */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1bfe */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1c00 */ __emit__(0x74, 0x2b);                              /* je 1c2d */
-    /* 1c02 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1c03 */ __emit__((char)0xb8, (char near *)"Domark Trophy");
-    /* 1c06 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c07 */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1c0a */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c0b */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1c0e */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c0f */ __emit__((char)0x9a, sprintf);
-    /* 1c14 */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1c17 */ f_7eeb_1d0d(_SI, 0x49, -1);
-    /* 1c28 */ __emit__((char)0xb8, (char)0xff, (char)0xff);      /* mov [ax, 0xffff] */
-    /* 1c2b */ __emit__((char)0xeb, 0x36);                        /* jmp 1c63 */
-    /* 1c2d */ __emit__(0x57);                                    /* push [di] */
-    /* 1c2e */ __emit__(0x56);                                    /* push [si] */
-    /* 1c2f */ __emit__((char)0x9a, f_992a_72e8);
-    /* 1c34 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1c35 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1c36 */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1c38 */ __emit__(0x74, 0x2f);                              /* je 1c69 */
-    /* 1c3a */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1c3b */ __emit__((char)0xb8, (char near *)"UEFA Cup");
-    /* 1c3e */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c3f */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1c42 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c43 */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1c46 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c47 */ __emit__((char)0x9a, strcpy);
-    /* 1c4c */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1c4f */ f_7eeb_1d0d(_SI, 0x4b, 0x4f);
-    /* 1c60 */ __emit__((char)0xb8, 0x5b, 0x00);                  /* mov [ax, 0x5b] */
-    /* 1c63 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c64 */ __emit__((char)0xb8, 0x57, 0x00);                  /* mov [ax, 0x57] */
-    /* 1c67 */ __emit__((char)0xeb, 0x5e);                        /* jmp 1cc7 */
-    /* 1c69 */ __emit__(0x57);                                    /* push [di] */
-    /* 1c6a */ __emit__(0x56);                                    /* push [si] */
-    /* 1c6b */ __emit__((char)0x9a, f_992a_7399);
-    /* 1c70 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1c71 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1c72 */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1c74 */ __emit__(0x74, 0x28);                              /* je 1c9e */
-    /* 1c76 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1c77 */ __emit__((char)0xb8, (char near *)"C/Winners Cup");
-    /* 1c7a */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c7b */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1c7e */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c7f */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1c82 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1c83 */ __emit__((char)0x9a, strcpy);
-    /* 1c88 */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1c8b */ f_7eeb_1d0d(_SI, 0x4b, 0x4f);
-    /* 1c9c */ __emit__((char)0xeb, 0x22);                        /* jmp 1cc0 */
-    /* 1c9e */ __emit__(0x57);                                    /* push [di] */
-    /* 1c9f */ __emit__(0x56);                                    /* push [si] */
-    /* 1ca0 */ __emit__((char)0x9a, f_992a_7430);
-    /* 1ca5 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1ca6 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1ca7 */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1ca9 */ __emit__(0x74, 0x28);                              /* je 1cd3 */
-    /* 1cab */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1cac */ __emit__((char)0xb8, (char near *)"European Cup");
-    /* 1caf */ __emit__(0x50);                                    /* push [ax] */
-    /* 1cb0 */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1cb3 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1cb4 */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1cb7 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1cb8 */ __emit__((char)0x9a, strcpy);
-    /* 1cbd */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
-    /* 1cc0 */ f_7eeb_1d68(_SI, 0x5b, -1);
-    /* 1cd1 */ __emit__((char)0xeb, 0x36);                        /* jmp 1d09 */
-    /* 1cd3 */ __emit__(0x56);                                    /* push [si] */
-    /* 1cd4 */ __emit__((char)0x9a, f_992a_78ca);
-    /* 1cd9 */ __emit__(0x59);                                    /* pop [cx] */
-    /* 1cda */ __emit__(0x0a, (char)0xc0);                        /* or [al, al] */
-    /* 1cdc */ __emit__(0x74, 0x06);                              /* je 1ce4 */
-    /* 1cde */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1cdf */ __emit__((char)0xb8, (char near *)"Playoff");
-    /* 1ce2 */ __emit__((char)0xeb, 0x14);                        /* jmp 1cf8 */
-    /* 1ce4 */ __emit__((char)0x83, (char)0xfe, 0x05);            /* cmp [si, 0x5] */
-    /* 1ce7 */ __emit__(0x75, 0x06);                              /* jne 1cef */
-    /* 1ce9 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1cea */ __emit__((char)0xb8, (char near *)"Charity Shield");
-    /* 1ced */ __emit__((char)0xeb, 0x09);                        /* jmp 1cf8 */
-    /* 1cef */ __emit__((char)0x83, (char)0xfe, 0x05);            /* cmp [si, 0x5] */
-    /* 1cf2 */ __emit__(0x7d, 0x15);                              /* jge 1d09 */
-    /* 1cf4 */ __emit__(0x1e);                                    /* push [ds] */
-    /* 1cf5 */ __emit__((char)0xb8, (char near *)"Friendly");
-    /* 1cf8 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1cf9 */ __emit__((char)0xb8, (char _seg *)d_1f3e_4806);
-    /* 1cfc */ __emit__(0x50);                                    /* push [ax] */
-    /* 1cfd */ __emit__((char)0xb8, (char near *)d_1f3e_4806);
-    /* 1d00 */ __emit__(0x50);                                    /* push [ax] */
-    /* 1d01 */ __emit__((char)0x9a, strcpy);
-    /* 1d06 */ __emit__((char)0x83, (char)0xc4, 0x08);            /* add [sp, 0x8] */
+    if (f_992a_700a(team)) {
+        if (c >= 60)
+            strcpy(d_1f3e_4806, "Division Four");
+        else if (c >= 40)
+            strcpy(d_1f3e_4806, "Division Three");
+        else if (c >= 20)
+            strcpy(d_1f3e_4806, "Division Two");
+        else
+            strcpy(d_1f3e_4806, "Division One");
+    } else if (f_992a_70a8(team)) {
+        strcpy(d_1f3e_4806, "FA Cup");
+        f_7eeb_1d0d(team, 0x4c, 0x4d);
+        f_7eeb_1d68(team, 0x58, 0x59);
+    } else if (f_992a_74c1(team, b)) {
+        strcpy(d_1f3e_4806, "Rumbelows Cup");
+        f_7eeb_1d0d(team, 0x3d, 0x41);
+        f_7eeb_1d68(team, 0x52, 0x53);
+    } else if (f_992a_752d(team, b)) {
+        strcpy(d_1f3e_4806, "Zenith Cup");
+        f_7eeb_1d0d(team, 0x29, -1);
+        f_7eeb_1d68(team, 0x35, -1);
+    } else if (f_992a_75bc(team, b)) {
+        sprintf(d_1f3e_4806, "Domark Trophy");
+        f_7eeb_1d0d(team, 0x49, -1);
+        f_7eeb_1d68(team, 0x57, -1);
+    } else if (f_992a_72e8(team, b)) {
+        strcpy(d_1f3e_4806, "UEFA Cup");
+        f_7eeb_1d0d(team, 0x4b, 0x4f);
+        f_7eeb_1d68(team, 0x57, 0x5b);
+    } else if (f_992a_7399(team, b)) {
+        strcpy(d_1f3e_4806, "C/Winners Cup");
+        f_7eeb_1d0d(team, 0x4b, 0x4f);
+        f_7eeb_1d68(team, 0x5b, -1);
+    } else if (f_992a_7430(team, b)) {
+        strcpy(d_1f3e_4806, "European Cup");
+        f_7eeb_1d68(team, 0x5b, -1);
+    } else if (f_992a_78ca(team))
+        strcpy(d_1f3e_4806, "Playoff");
+    else if (team == 5)
+        strcpy(d_1f3e_4806, "Charity Shield");
+    else if (team < 5)
+        strcpy(d_1f3e_4806, "Friendly");
 }
 
 void f_7eeb_1d0d(int t, int a, int b)
