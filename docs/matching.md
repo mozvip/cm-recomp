@@ -41,7 +41,7 @@ The toolchain was identified from the executable:
 | What | Evidence | Tool used |
 |---|---|---|
 | Compiler | Code only reproduces with the global optimiser (a variable kept in `DX`, `ES` loads not repeated). Turbo C++ 3.0 lacks it. | Borland C++ 3.1 `BCC`, `tools/BCC31` |
-| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. | per file: `@flags` |
+| Options | `-ml -O1 -k -Ol`: large model, size optimisation with register allocation (`-Oe`), a standard stack frame, and loop compaction into `rep stosw`. No string merging. `-O2` duplicates epilogues; `-O -Z` lacks `-Oe`. CM1 adds `-y` (line numbers in the objects): it changes which copy of identical branch endings BCC keeps, which 8352:46de needs (see merged tails below). | per file: `@flags` |
 | Linker | Header signature `FB 50 "jr"`, VROOMM overlays | TLINK **5.0** (Turbo C++ 3.0, `tools/TC`). BCC 3.1 ships 5.1. |
 | Link date | `__EXEDATE__` in the overlay table = `1A 08 C8 07` | DOS date set to 26 Aug 1992 |
 | Runtime, emulator, overlay manager | Byte for byte the stock modules: CM1 Borland C++ 3.1's, CM93 3.0's, CM94 4.02's | linked from the libraries (see below) |
@@ -301,10 +301,13 @@ the chain moves it to the last cup but then sends the `strcpy` group to its firs
 (531 bytes against 529); a first branch ending in an unrelated call keeps both last, as no
 other change does. None of 528 placements of one or two code-free statements (`0;`,
 `return;`, `goto` to a label after the chain) keeps both groups last, the original's
-layout. 8352:46de is the same kind of case, but mixed: the original keeps the first copy
+layout. 8352:46de was the same kind of case, but mixed: the original keeps the first copy
 of its `d_5d9c_9b8a = 0` endings and a later one of a message call; no single `0;` among
-its 129 statements gives its 2500 bytes. So it stays the original bytes, linked without
-`@module`.
+its 129 statements gives its 2500 bytes, nor any `#pragma option`, nor any single `goto`
+between copies. What does is **`-y`**: with line numbers in the object (nothing of them
+reaches the executable) BCC's cross-jumping makes other choices, and two `goto`s to the
+first `= 0` copy plus two `0;`s then give the original's 2500 bytes. `-y` is in CM1's
+`BCCFLAGS` for the whole game: no other function changes with it.
 
 ### Rules that come from the compiler and the linker
 

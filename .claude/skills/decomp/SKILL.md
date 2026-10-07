@@ -65,9 +65,7 @@ instead of merging it into the blobs (see docs/matching.md). An identical execut
 also proves the relocation order, that is the function order and layout of the original
 source file. `src/144E.C` (`main`), `src/14B7.ASM`, `src/14D2.C`, `src/1680.C`, `src/1A51.ASM`, `src/1AB2.ASM`,
 `src/1AB9.ASM`, `src/1B05.ASM`
-and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C`, `src/7EEB.C`, `src/88C9.C`, `src/9100.C`, `src/992A.C` and `src/A1C3.C`
-(`src/8352.C` is placed without `@module`: its last function, 46de, is still the original
-bytes)
+and the overlays `src/67EE.C`, `src/6E68.C`, `src/7555.C`, `src/7A28.C`, `src/7EEB.C`, `src/8352.C`, `src/88C9.C`, `src/9100.C`, `src/992A.C` and `src/A1C3.C`
 are linked this way.
 
 - An overlay can be `@module` too (all its code, `@at` its first function). Only the
@@ -288,8 +286,11 @@ segment that do not fit.
   block changes the choice (67ee:4060). In BCC 3.1 `0;` and a statement naming a
   variable (`x;`) act the same: a barrier that keeps the copy before it whole (BCC 4.02
   differs: there `x;` picks which copy is kept). 8352:46de (the player-actions menu, matched
-  in CM94 as 9007:511f) got to one instruction from the original this way, plus
-  restructuring of its Fine branch: games/cm1/decomp/wip/8352/f46de_best.c (local, untracked).
+  in CM94 as 9007:511f) needed more: **`-y`** (line numbers in the object, now in CM1's
+  `BCCFLAGS`; nothing of it reaches the executable) changes BCC's cross-jumping choices,
+  and with it two `goto`s to the first copy of its `= 0` ending plus two `0;`s match
+  (src/8352.C). When a function is right to the instruction but merges its tails into
+  other copies, try the file with `-y` before anything else.
 - **`__emit__` with BCC 3.0 (CM93):** an address argument (`(char near *)"..."`, a far
   function) gets a broken fixup (omf.py fails with `KeyError ('F', 0)`). Load addresses
   with `_AX = (unsigned)d_60ae_XXXX;` (an `extern char near` at the address) or
