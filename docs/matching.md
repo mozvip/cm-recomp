@@ -376,6 +376,94 @@ BCC 4.02 codegen facts (CM94):
 - A loop over a separate stack variable (`for (y = y1; y <= y2; y++)`, a slot of its
   own) rather than over the parameter (2162:08b5).
 
+BCC 4.02 source forms found while finishing CM94 and CM Italia 95 (the same compiler and
+options), each read off the original code:
+
+- **Locals and slots.**
+  - Under `-O1` named locals stay in stack slots, except short-lived ones (`DX`/`CX`): where
+    CM93 reused one variable for several jobs, CM94 has separate locals.
+  - A short-lived local assigned in an `if`/`else` before a call stays in `DX` if declared
+    after the other locals; declared earlier it takes a slot.
+  - A local below the compiler's temporaries, or a CSE temporary above a named local, was
+    declared in an inner block. Sibling blocks' locals share slots: two locals in
+    overlapping slots (a float and an int) were declared in sibling blocks. This replaces
+    CM93's `volatile`/`register` workarounds.
+  - A `char` local kept in `CL` when declared once goes to a stack slot when declared again
+    inside each inner block that uses it.
+  - Small arrays usually go below the scalars, but not always (aac9:07c3's `int who[3]` sits
+    above `j`): keep the ported declaration order first.
+  - A loop counter at `[bp+6]` with no slot of its own: the source reused the parameter.
+  - `-O1` drops a local written but never read: `volatile` keeps the store.
+- **Temporaries.**
+  - A `[bp-N]` temporary holding a value read twice: write the expression twice (a common
+    subexpression), not a local.
+  - Two statements with the same value (`t[i] = g - 1; v = g - 1;`) give a CSE temporary; a
+    chained assignment does not. A temporary holding a value stored to a table, then to a
+    variable, is a local (`t[..] = n = expr; v = n;`); `v = t[..] = expr` gives no slot.
+  - A `[bp-2]` temporary `mov bx,OFF / add bx,idx` used for reads and a store through
+    `es:[bx+OFF]`: a struct member array (`s.g[0][b] += 16`). Plain far arrays give none.
+- **Index folding.**
+  - BCC 4.02 folds neither `t[i - k]` nor `&t[row][x - k]` as a rule: a displacement `base-k`
+    in the original means an extern `k` bytes before the table (`d_4512_5d97` for a table
+    at `5d98` read from entry 1). `mov ax,base / add ax,-k / add ax,[x]` is `t[row] - k + x`.
+  - Whether it folds depends on the access, not only on the declaration: `t[e - 1] != 0`
+    folds the -1 into `[bx-1]`, `while (t[e - 1])` keeps the run-time `dec`. Casts
+    (`(unsigned char)`, `(int)`), `(char far *)&t[..]`, and an initialiser `T p = ...;` in
+    place of an assignment change it too. A 2-D far table's run-time form is
+    `&(t[0] - 1)[row * N + x]`; a local array read with the -1 in `[ss:bx-1]` is
+    `(week - 1)[i]`.
+  - Rows of a big 2-D table (`d_28da_2a78[][1860]`) computed at run time
+    (`mov bx,2a78 / add bx,82c8`): as a call argument or an assignment source, the flat
+    `t[0][18 * 1860 + p]`; as an array index or in a compare, `t[18][p]` (the flat form folds
+    there); `*(t[18] + p)` and `[0][p + 18 * 1860]` are the other forms to try. A folded row
+    (`es:[bx+ad40]`) is an extern at the row's address. A table at offset 0
+    (`mov bx,0 / add bx,ROW`): `*(t[19] + i)`.
+  - Reading and storing one table through two extern names loses the `ES` reuse (an extra
+    `mov ax,SEG`): use one symbol for both. An extern in the wrong far segment can drop a
+    `mov es` reload too: fix the names before working on code generation.
+- **Evaluation order.**
+  - `a + b` with 0/1 conditionals evaluates the `?:` operand first: write the left one as
+    `x ? 1 : 0` to get left to right. `(c ? 1 : 0) + n + 1` computes the condition first;
+    `a % 20 != b % 20` divides the left first.
+  - A store whose address is computed before its value (`push ax / push dx … pop es / pop
+    bx`): an index written `[cond ? 1 : 0]` rather than `[cond]`.
+  - Long multiply operand order: `x = 155 * x` and `x *= 155` load `CX:BX` / `DX:AX`
+    differently. `a % 3 > 0` written before `a / 3` when the remainder is loaded first.
+  - A `char` argument pushed straight from memory (`push word [var]`): the assignment was a
+    statement of its own before the call. `push 0xff` for a `char` argument: an `unsigned
+    char` parameter.
+  - `switch (v = f())` gives `mov [v],ax / mov bx,ax`; `v = f(); switch (v)` reloads `v`. A
+    switch whose value goes through `AX` (`mov ax,[g] / sub ax,BASE / mov bx,ax`) only comes
+    from `switch (g ? g : g)`.
+  - `if (c) v = A; else v = B; f(v);` pushes `[v]`; `v = c ? A : B; f(v);` pushes `AX`.
+  - A local array read `[n * 2]` / `[n * 2 + 1]` gives `add ax,ax / shl 2`.
+  - Bitfields on `unsigned` are 16-bit units: a nibble in the high byte uses word operations
+    (`and w[..],0xf0ff`), in the low byte byte operations.
+  - Floats passed by value are pushed as immediates (no pool constant).
+- **Merged tails.** BCC 4.02 keeps the *last* copy of identical branch endings, and CM93's
+  `__emit__` workarounds are not needed: try plain C first. A code-free statement naming a
+  variable (`d_69da_d9ae;`) at the end of the branch whose copy the original keeps steers
+  the choice; `0;` after the later copy keeps both copies (stops the merge), and after a
+  sibling `else if` chain it leaves a jump to a jump. `if (c) A; else { B; break; } B;` in
+  a switch keeps each case's store and shares only the tail. The player-actions menu
+  (9007:511f), unmatched with BCC 3.x without `-y`, matched with four `0;`s, one per copy the
+  original keeps; c06b:0000 needed three.
+- **Pops.** Under `-O1` the argument pops of consecutive calls merge into one `add sp,N`.
+  An original that pops after each call was compiled under `#pragma option -O-` (also: an
+  unused label before a call flushes the pending pops; `if`/`else` arms that end in the same
+  call pop right after it, and duplicating the next call into both arms keeps one combined
+  `add sp`). A pop too large for one call means a call the port dropped.
+- **`#pragma option -O-`.** Several modules switch to it part-way (CM94 7827, 9c01, b8da;
+  CM Italia 95 87dc from 49e4, ab30 from 34cb, b26d from 32b9) and aac9 / a214 are compiled
+  with it throughout. The place is per module and per game: a port's pragma is often too
+  early or too late, so check where the pops stop merging. Under `-O-` a `char` loop counter
+  in a slot needs `j = j + 1` (`j++` gives `inc byte`), and a `mov bx,cx` reload after a
+  do-while was `for (;;) { r = f(); if (t[r] == c) break; }`.
+- **Data.** Function-local initialised aggregates (auto arrays copied with `F_SCOPY`) have
+  their initialisers at the head of the module's `_DATA`, in source order, before the
+  literals. Long `fread`/`fwrite` sequences (load and save game) are best regenerated from
+  the disassembly's push groups.
+
 ```bash
 python3 tools/match/port.py games/cm1/EUROPE.EXE games/cm93/CMEXE.EXE \
     games/cm1/decomp/src/14D2.C games/cm1/decomp/src/14B7.ASM --symbols games/cm1/decomp/symbols.txt
@@ -477,6 +565,31 @@ in scope), an old-style definition's parameters with their types, or the definit
 Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their files in
 `src/` byte for byte.
 
+The folders are scratch (`games/*/decomp/wip/` is ignored by git): once a module is merged
+and linked, its folder can go. Facts that hold for every part of a game (data names the port
+pairs wrongly, the game's changed counts and record sizes) go in a notes file the brief
+points to, so each agent need not find them again. What was learnt checking parts:
+
+- **Ported seeds.** `port.py` names are often wrong where the game moved its data between far
+  segments: trust `fixcheck`, not the port. The port can drop a whole function (only an
+  `unmapped_` prototype is left), or pair a callee one byte off: check that every stub
+  address of the chunk has a definition and every callee against the game's `funcs.h`. When
+  a game descends from two others (CM Italia 95: CM94's compiler and code, the first CM
+  Italia's game logic), the closer model for the logic can be the other one: translate its
+  function with this game's names, then fix the compiler's forms.
+- **Stubs.** A near `0E E8` call to an earlier chunk's function needs a stub *definition*
+  above it (a prototype gives a `9A` call). Parts must not define the module's initialised
+  tables (keep them extern; `tables.c`).
+- **Shared literal pools.** A part whose floats or strings are in an earlier part's pool:
+  in a scratch copy declare each shared constant `extern float d_SSSS_OOOO` at its address,
+  or prepend a static function that uses the earlier constants in pool order
+  (`vf = vf * 3.0f;`, with `--data` at the pool start; `x * 1.0f` is folded away). A part
+  holding a function-local initialiser checks with `--data` at its start. `fixcheck` takes
+  one `--data`: with initialisers ahead of the literals, check each with its own base.
+- **Scratch copies.** `fixcheck` on a file outside the decomp tree needs `--symbols
+  games/GAME/decomp/symbols.txt`, and `fdiff.py` needs `--as` the file's place in the tree.
+  Changed strings are only caught by `fixcheck`'s `_DATA` check: always run it.
+
 ## Files
 
 | Path | What |
@@ -508,5 +621,4 @@ Merging the parts of CM1's overlays a1c3, 992a, 9100, 88c9 and 7a28 gives their 
 - **What is not library or C yet.** The game's own modules (most of the code), and the game's
   assembly modules after 1680 in CM1 (1a51-1b05: graphics and EMS support).
 - **CM94.** Complete: every module is matching C or assembly linked whole (see "Porting to
-  another game"). Shared facts the parts' agents found (data names the port gets wrong,
-  BCC 4.02 source forms) were kept in a notes file appended to each brief.
+  another game"). The BCC 4.02 source forms the parts' agents found are listed there.
