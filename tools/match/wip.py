@@ -253,7 +253,7 @@ def prepare(a):
     srcs = sorted(os.path.basename(p) for p in glob.glob(os.path.join(ddir, 'src', '*.[cC]'))
                   if re.search(r'@module\b', open(p, encoding='latin1').read()))
     refs = ', '.join('%s/src/%s' % (rel(ddir), s) for s in srcs) or '(none yet)'
-    compiler = {'bc30': 'Borland C++ 3.0', 'bc31': 'Borland C++ 3.1', 'bc4': 'Borland C++ 4.02'}.get(
+    compiler = {'bc30': 'Borland C++ 3.0', 'bc31': 'Borland C++ 3.1', 'bc402': 'Borland C++ 4.02'}.get(
         mv['CC_TC'], mv['CC_TC'])
     if entries:
         ent = ('Every function start in the overlay is a stub entry (all public): %s (end %04x). '
@@ -480,7 +480,7 @@ def merge(a):
     if kind == 'overlay':
         # BCC 3.x lists the publics so that the stub table comes out in their first declaration
         # order; BCC 4.02 the other way round, so its prototypes go in the reverse order
-        rev = cfg.get('cc') == 'bc4'
+        rev = cfg.get('cc') == 'bc402'
         out.append("\n/* the functions, in the %sorder of the overlay's stub entries: BCC writes the public "
                    "definitions (TLINK makes\n * the overlay's stub entries from them) in the order of "
                    "the first declarations */" % ('reverse ' if rev else ''))

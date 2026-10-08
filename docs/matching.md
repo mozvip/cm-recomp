@@ -109,7 +109,7 @@ LIBS := $(addprefix tools/BCC31/LIB/,C0L.OBJ EMU.LIB MATHL.LIB CL.LIB OVERLAY.LI
 |---|---|---|---|
 | CM1 | Borland C++ 3.1 (`tools/BCC31`) | TLINK 5.0 (`tools/TC`) | 124 |
 | CM93 | Borland C++ 3.0 (`tools/BC30`) | TLINK 5.0 | 125 |
-| CM94 | Borland C++ 4.02 (`tools/BC4`) | TLINK 6.10 (`LD_TC := bc4`) | 149 |
+| CM94 | Borland C++ 4.02 (`tools/BC402`) | TLINK 6.10 (`LD_TC := bc402`) | 149 |
 | CM Italia | Borland C++ 3.0 | TLINK 5.0 | 127 |
 
 How the modules are found and put back where they were:
@@ -363,12 +363,12 @@ the instruction.
 CM1, CM93 and CM94 share source modules. CM93 was built with the same compiler and options,
 so CM1's C compiles to CM93's code wherever the game did not change.
 
-CM94 was built with **Borland C++ 4.02** (`tools/BC4`, from the Borland C++ 4.0 CD,
+CM94 was built with **Borland C++ 4.02** (`tools/BC402`, from the Borland C++ 4.0 CD,
 volume `BORLANDC_402`): its header signature is `FB 61` (TLINK 6.1; CM1 and CM93 have
 `FB 50`, TLINK 5.0), and its startup code says "Copyright 1993". The options are
 **`-ml -1 -O1 -Y`**: 186 instructions, smallest code (`-O1`), overlay-compatible code (`-Y`,
-the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc4` and
-`LD_TC := bc4`; the identity relink with TLINK 6.10 is identical. The whole game is
+the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc402` and
+`LD_TC := bc402`; the identity relink with TLINK 6.10 is identical. The whole game is
 decompiled: each module was ported from its CM93 file (one `port.py` run of all of them;
 7732, 9E77 and A694 named by hand) and finished in parts with `wip.py`, and every C and
 assembly module is linked whole. Some modules turn jump optimisation off part-way

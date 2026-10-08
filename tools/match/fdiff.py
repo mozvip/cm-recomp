@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile a C (or assembly) file and line up one function's code with the original's.
 
-  fdiff.py FILE.C [--func NAME] [--json] [--as PATH] [--exe GAME.EXE] [--cc bc31|bc30|bc4] [--flags "..."]
+  fdiff.py FILE.C [--func NAME] [--json] [--as PATH] [--exe GAME.EXE] [--cc bc31|bc30|bc402] [--flags "..."]
 
 The game's executable, compiler and options come from the decomp/Makefile above FILE
 (or above --as PATH, when FILE is a copy of it elsewhere, e.g. an editor's unsaved text)

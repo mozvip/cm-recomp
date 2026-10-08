@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Run Borland C++ 3.1 / Turbo C++ 3.0 tools (or any DOS command) headlessly in DOSBox-X.
 #
-#   tcdos.sh [-T bc30|bc31|bc4|tc|tasm] [-C dir] [-D MM-DD-YYYY] [-t seconds] [-k] -- COMMAND [ARGS...]
+#   tcdos.sh [-T bc30|bc31|bc402|tc|tasm] [-C dir] [-D MM-DD-YYYY] [-t seconds] [-k] -- COMMAND [ARGS...]
 #   tcdos.sh -C src BCC -ml -O2 -c FOO.C
 #
 # Toolchains (-T, default bc31; or TOOLCHAIN=):
-#   bc30  tools/BC30   Borland C++ 3.0 (BCC, TLINK 5.0, TASM, TLIB, MAKE; from the 1991 disks)
-#   bc31  tools/BCC31  Borland C++ 3.1 (BCC, TLINK, TASM, TLIB, MAKE)
-#   bc4   tools/BC4    Borland C++ 4.02 (BCC, TLINK 6.1, TLIB, MAKE; from the CD's BC4 tree)
-#   tc    tools/TC     Turbo C++ 3.0  (TCC, TLINK, TLIB, MAKE)
-#   tasm  tools/TASM   Turbo Assembler 3.0, Nov 1991 (TASM, TASMX); BCC 3.1 has TASM 3.1
+#   bc30   tools/BC30    Borland C++ 3.0 (BCC, TLINK 5.0, TASM, TLIB, MAKE; from the 1991 disks)
+#   bc31   tools/BCC31   Borland C++ 3.1 (BCC, TLINK, TASM, TLIB, MAKE)
+#   bc402  tools/BC402   Borland C++ 4.02 (BCC, TLINK 6.1, TLIB, MAKE; from the CD's BC4 tree)
+#   tc     tools/TC      Turbo C++ 3.0  (TCC, TLINK, TLIB, MAKE)
+#   tasm   tools/TASM    Turbo Assembler 3.0, Nov 1991 (TASM, TASMX); BCC 3.1 has TASM 3.1
 # The install is mounted where its BIN\TURBOC.CFG expects it (e.g. I:\BORLANDC or
 # C:\TC), through a symlink, so the config files work unmodified. Its BIN is on PATH.
 # tasm has no config: it is mounted as C:\TASM, itself on PATH.
@@ -48,7 +48,7 @@ while getopts ":T:C:D:t:k" opt; do
     D) DOSDATE="$OPTARG" ;;
     t) TIMEOUT="$OPTARG" ;;
     k) KEEP=1 ;;
-    *) echo "usage: $0 [-T bc30|bc31|bc4|tc|tasm] [-C dir] [-D MM-DD-YYYY] [-t seconds] [-k] -- COMMAND [ARGS...]" >&2; exit 2 ;;
+    *) echo "usage: $0 [-T bc30|bc31|bc402|tc|tasm] [-C dir] [-D MM-DD-YYYY] [-t seconds] [-k] -- COMMAND [ARGS...]" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -58,10 +58,10 @@ shift $((OPTIND - 1))
 case "$TOOLCHAIN" in
   bc30) TC_DIR="${TC_DIR:-$REPO_ROOT/tools/BC30}" ;;
   bc31) TC_DIR="${TC_DIR:-$REPO_ROOT/tools/BCC31}" ;;
-  bc4)  TC_DIR="${TC_DIR:-$REPO_ROOT/tools/BC4}" ;;
+  bc402) TC_DIR="${TC_DIR:-$REPO_ROOT/tools/BC402}" ;;
   tc)   TC_DIR="${TC_DIR:-$REPO_ROOT/tools/TC}" ;;
   tasm) TC_DIR="${TC_DIR:-$REPO_ROOT/tools/TASM}" ;;
-  *) echo "tcdos.sh: unknown toolchain '$TOOLCHAIN' (bc30|bc31|bc4|tc|tasm)" >&2; exit 2 ;;
+  *) echo "tcdos.sh: unknown toolchain '$TOOLCHAIN' (bc30|bc31|bc402|tc|tasm)" >&2; exit 2 ;;
 esac
 
 [[ -x "$DOSBOX" ]] || { echo "tcdos.sh: DOSBox-X not found/executable: '$DOSBOX' (set DOSBOX=)" >&2; exit 2; }

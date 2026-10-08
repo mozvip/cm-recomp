@@ -10,7 +10,7 @@ description: Compile, link, and run 16-bit DOS C/C++ programs with Borland C++ 3
 | `bc31` (default) | `tools/BCC31` | Borland C++ 3.1: `BCC`, TLINK 5.1, `TASM`, `TLIB`, `MAKE`, `TDUMP` |
 | `tc` | `tools/TC` | Turbo C++ 3.0: `TCC`, TLINK 5.0, `TLIB`, `MAKE`. No TASM, no global optimiser (`-Oe`/`-Og`/`-O2` are rejected). |
 | `bc30` | `tools/BC30` | Borland C++ 3.0 (1991), from the disk images in `tools/images`: `BCC` 3.00, TLINK 5.0, `TASM`, `TLIB`, `MAKE`, the libraries and the startup sources (`STARTUP`). Config points at `C:\BC30`. |
-| `bc4` | `tools/BC4` | Borland C++ 4.02 (1994), DOS 16-bit: `BCC` 4.02, TLINK 6.10, `TLIB`, `MAKE`, `TDUMP`; also its runtime sources (`SOURCE`). Config points at `C:\BC4`. Turn an optimisation off with `-O-x` (not `-Ox-`). |
+| `bc402` | `tools/BC402` | Borland C++ 4.02 (1994), DOS 16-bit: `BCC` 4.02, TLINK 6.10, `TLIB`, `MAKE`, `TDUMP`; also its runtime sources (`SOURCE`). Config points at `C:\BC4`. Turn an optimisation off with `-O-x` (not `-Ox-`). |
 | `tasm` | `tools/TASM` | Turbo Assembler 3.0 (Nov 1991): `TASM`, `TASMX` (protected mode), `TCREF`, `H2ASH`. `-T bc31` has TASM 3.1 (June 1992). |
 
 Emulator: `/mnt/Games/emu/dosbox-x/DOSBox-X-*.AppImage` (the latest one is picked).
@@ -18,7 +18,7 @@ Emulator: `/mnt/Games/emu/dosbox-x/DOSBox-X-*.AppImage` (the latest one is picke
 ## The wrapper
 
 ```bash
-.claude/skills/turbo-cpp/scripts/tcdos.sh [-T bc30|bc31|bc4|tc|tasm] [-C dir] [-D MM-DD-YYYY] [-t seconds] [-k] -- COMMAND [ARGS...]
+.claude/skills/turbo-cpp/scripts/tcdos.sh [-T bc30|bc31|bc402|tc|tasm] [-C dir] [-D MM-DD-YYYY] [-t seconds] [-k] -- COMMAND [ARGS...]
 ```
 
 - Runs headless (SDL dummy driver, `-silent`), about 1 s per call.

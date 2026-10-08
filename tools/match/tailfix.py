@@ -2,7 +2,7 @@
 """Search for the source form that makes BCC keep the copies of identical branch endings
 (tail merging / cross-jumping) that the original kept.
 
-  tailfix.py GAME.EXE SSSS:OOOO-END FILE.C [--cc bc31|bc30|bc4] [--flags "..."]
+  tailfix.py GAME.EXE SSSS:OOOO-END FILE.C [--cc bc31|bc30|bc402] [--flags "..."]
              [score | zero | goto | greedy [N] | groups] [--out OUT.C] [--jobs 6]
 
 FILE.C is a standalone file (compiles on its own) that defines f_SSSS_OOOO, whose original

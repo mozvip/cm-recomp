@@ -127,8 +127,8 @@ the declarations they use; check it with `fcheck.py --cc bc30`.
 `games/cm93/decomp` works like CM1's (`make`, `make identity`, `make progress`); its game
 code was compiled with Borland C++ 3.0 (`CC_TC := bc30`). Every root module but 14bc is complete (`src/1446.C`, `main`, was rewritten for CM93 and written from its code, not ported).
 
-`games/cmese/decomp` (CM94, CMEXE.EXE) is the same, with Borland C++ 4.02 (`CC_TC := bc4`,
-`fcheck.py --cc bc4`, whose default flags are the game's). `src/2162.C` (CM93's 1BD3.C)
+`games/cmese/decomp` (CM94, CMEXE.EXE) is the same, with Borland C++ 4.02 (`CC_TC := bc402`,
+`fcheck.py --cc bc402`, whose default flags are the game's). `src/2162.C` (CM93's 1BD3.C)
 is complete and linked whole.
 
 **BCC 4.02 codegen facts (CM94, `-ml -1 -O1 -Y`):**

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile one C file several ways and compare each result with the original bytes.
 
-  try.py [--show] [--cc bc31|bc30|bc4] GAME.EXE SSSS:OOOO FILE.C ["BCC options" ...]
+  try.py [--show] [--cc bc31|bc30|bc402] GAME.EXE SSSS:OOOO FILE.C ["BCC options" ...]
   (default: fcheck.py's options for the compiler)
 
 --show prints original | compiled disassembly around the first difference. --cc picks the
