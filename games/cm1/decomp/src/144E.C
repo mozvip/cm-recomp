@@ -6,341 +6,341 @@
 
 #include <string.h>
 
-void f_14d2_04d1(char c);
-void f_14d2_0c19(void);
-void f_14d2_1105(void);
-void f_1680_150c(int n, char far *title, char far *items);
-void f_1680_084a(void);
-void f_1680_08c5(void);
-void f_1680_0952(void);
-void f_1680_0a8a(void);
-void f_1680_1484(void);
-void f_1680_341b(void);
-void f_1ab2_004b(void);
-void f_1ab2_0067(void);
+void init_hardware(char c);
+void seed_random_from_clock(void);
+void protection_check(void);
+void show_menu(int top, char far *title, char far *items);
+void start_first_season(void);
+void reset_monthly_stats(void);
+void clear_fortnight_reports(void);
+void clear_weekly_state(void);
+void build_squad_lists(void);
+void update_players_weekly(void);
+void music_on(void);
+void music_off(void);
 
-void f_67ee_0000(void);
-void f_67ee_3212(char);
-void f_6e68_12fd(int, int, int);
-void f_6e68_3366(void);
-void f_7555_0634(void);
-void f_7eeb_12d7(void);
-void f_7eeb_1da6(void);
-void f_7eeb_3198(void);
-void f_7eeb_363e(void);
-void f_7eeb_37b1(void);
-void f_7eeb_3b9a(void);
-void f_7eeb_3d47(void);
-void f_7eeb_3fa2(void);
-void f_8352_0000(void);
-void f_8352_0220(void);
-void f_8352_052a(void);
-void f_8352_0792(void);
-void f_8352_1079(void);
-void f_88c9_24f1(char far *);
-void f_88c9_41a8(void);
-void f_88c9_4855(void);
-void f_88c9_4b98(void);
-void f_88c9_4ee2(void);
-void f_88c9_516f(void);
-void f_88c9_741e(void);
-void f_9100_0000(void);
-void f_9100_0300(void);
-void f_9100_044e(void);
-void f_9100_04ed(void);
-void f_9100_23c7(void);
-void f_9100_2583(void);
-void f_9100_2832(void);
-void f_9100_2f2d(int);
-void f_9100_34d9(void);
-void f_9100_3827(void);
-void f_9100_418b(void);
-void f_9100_43fe(void);
-void f_992a_0e0e(int);
-void f_992a_0e6d(char far *);
-void f_992a_2771(void);
-void f_992a_2e73(void);
-void f_992a_2fe0(void);
-void f_992a_3129(int);
-void f_992a_438f(void);
-void f_992a_4ce3(void);
-void f_992a_51d4(void);
-void f_992a_6ae4(void);
-char f_992a_700a(int);
-char f_992a_7059(int);
-char f_992a_70a8(int);
-char f_992a_70d2(int);
-char f_992a_7129(int);
-char f_992a_7170(int);
-char f_992a_71db(int);
-char f_992a_723a(int);
-char f_992a_728d(int);
-char f_992a_7713(int);
-char f_992a_7831(int);
-void f_992a_7e35(int);
-void f_a1c3_1d3f(char);
-void f_a1c3_26aa(void);
-void f_a1c3_4a04(void);
-void f_a1c3_515d(void);
-void f_a1c3_5826(void);
-void f_a1c3_59ba(void);
-void f_a1c3_5bba(void);
+void season_main_menu(void);
+void awards_screen(char);
+void show_week_fixtures(int, int, int);
+void show_season_start_message(void);
+void play_week_matches(void);
+void settle_promotion_relegation(void);
+void make_weekly_cup_draws(void);
+void pick_european_entrants(void);
+void seed_european_cups(void);
+void pick_cup_entrants(void);
+void set_playoff_fixtures(void);
+void arrange_friendlies(void);
+void sort_league_table(void);
+void sort_euro_cup_groups(void);
+void sort_cup_group_tables(void);
+void weekly_transfer_activity(void);
+void update_transfer_listings(void);
+void add_players_to_shortlists(void);
+void message_box(char far *);
+void generate_all_staff(void);
+void staff_retirements(void);
+void weekly_board_review(void);
+void collect_manager_candidates(void);
+void appoint_new_managers(void);
+void update_board_confidence(void);
+void init_new_game_clubs(void);
+void create_game_files(void);
+void generate_all_players(void);
+void init_other_club_ratings(void);
+void draw_season_end_panel(void);
+void update_hall_of_fame(void);
+void promote_and_qualify(void);
+void replace_with_nonleague_club(int);
+void end_season_player_update(void);
+void process_retirements(void);
+void season_attendance_report(void);
+void update_club_records_file(void);
+void print_newlines(int);
+void show_message_box(char far *);
+void process_match_discipline(void);
+void show_performance_of_week(void);
+void fine_dirty_clubs(void);
+void training_injuries_and_form(int);
+void weekly_club_finances(void);
+void pick_international_squads(void);
+void load_game(void);
+void load_hall_of_fame(void);
+char is_league_week(int);
+char is_fa_cup_round_week(int);
+char is_fa_cup_week(int);
+char is_rumbelows_week(int);
+char is_zenith_week(int);
+char is_domark_week(int);
+char is_uefa_week(int);
+char is_cup_winners_week(int);
+char is_european_cup_week(int);
+char is_second_leg_week(int);
+char is_cup_replay_week(int);
+void enter_manager_name(int);
+void find_best_players(char);
+void show_title_picture(void);
+void new_game_setup(void);
+void reset_season_data(void);
+void init_player_morale(void);
+void build_nationality_pools(void);
+void shuffle_league_order(void);
 
-extern int d_5d9c_984a;
-extern char d_5d9c_1cec;                /* music available */
-extern char d_5d9c_9b38, d_5d9c_9b8d, d_5d9c_9b8f, d_5d9c_9b90, d_5d9c_9b91, d_5d9c_9b92;
-extern int d_5d9c_9faf;                 /* menu choice */
-extern int d_5d9c_9fab;                 /* week of the season, 0..94 */
-extern int d_5d9c_9fa9, d_5d9c_9fa7;    /* season */
-extern int d_5d9c_9ee3;
-extern int d_5d9c_9f85, d_5d9c_9f87, d_5d9c_9f89, d_5d9c_9f8b, d_5d9c_9f8d, d_5d9c_9f8f;
-extern int d_5d9c_9f93, d_5d9c_9f95, d_5d9c_9f97, d_5d9c_9f99, d_5d9c_9f9b, d_5d9c_9f9d;
-extern int d_5d9c_9f9f, d_5d9c_9fa3, d_5d9c_9fa5;
-extern int far d_483b_a174[];
+extern int startup_flags_8000;
+extern char sound_device;                /* music available */
+extern char in_season_end, is_demo_game, printer_on, no_matches_this_week, week_has_matches, in_preseason_setup;
+extern int menu_choice;                 /* menu choice */
+extern int current_week;                 /* week of the season, 0..94 */
+extern int team_voted_out, season;    /* season */
+extern int zenith_qualifier_count;
+extern int league_round, european_cup_next_week, cup_winners_next_week, uefa_cup_next_week, fa_cup_next_week, league_cup_next_week;
+extern int replay_count, replays_pending, euro_cup_through, cwc_through, uefa_cup_through, domark_through;
+extern int zenith_cup_through, league_cup_through, fa_cup_through;
+extern int far week_fixture_counts[];
 
-unsigned char d_5d9c_0094[22] = {
+unsigned char intl_squad_positions[22] = {
     1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 6, 6, 7, 7, 7, 7, 10, 10, 10, 10
 };
-char *d_5d9c_00aa[11] = {
+char *loading_labels[11] = {
     "Season Disk", "Managers/Staff", "Players", "Euro/Nonlge Teams", "Club Records",
     "Managers/Staff", "Players", "Fixture List", "Retirements", "Squads/Pools", "Short Lists"
 };
-unsigned char d_5d9c_00d6[16] = { 1, 1, 9, 6, 12, 4, 6, 1, 1, 6, 12, 7, 5, 1, 8, 4 };
-long d_5d9c_00e6 = 0;
-int d_5d9c_00ea = 12000;
+unsigned char ega_text_colours[16] = { 1, 1, 9, 6, 12, 4, 6, 1, 1, 6, 12, 7, 5, 1, 8, 4 };
+long history_file = 0;
+int unused_12000 = 12000;
 
 void main(int argc, char *argv[])
 {
     char buf[320];
 
-    d_5d9c_984a = 0x8000;
-    f_14d2_04d1(argc > 1 ? argv[1][0] : 0);
-    f_14d2_0c19();
-    f_a1c3_26aa();
-    f_992a_6ae4();
-    f_14d2_1105();
+    startup_flags_8000 = 0x8000;
+    init_hardware(argc > 1 ? argv[1][0] : 0);
+    seed_random_from_clock();
+    show_title_picture();
+    load_hall_of_fame();
+    protection_check();
     strcpy(buf, "*Exit|Printer On|Printer Off|");
-    if (d_5d9c_1cec)
+    if (sound_device)
         strcat(buf, "Music On|Music Off|");
     for (;;) {
-        f_1680_150c(0, "Printer Option", buf);
-        if (d_5d9c_9faf == 0)
+        show_menu(0, "Printer Option", buf);
+        if (menu_choice == 0)
             break;
-        if (d_5d9c_9faf == 1) {
-            f_992a_0e6d("Put printer on line to continue");
-            f_992a_0e0e(1);
-            d_5d9c_9b8f = -1;
-        } else if (d_5d9c_9faf == 2)
-            d_5d9c_9b8f = 0;
-        if (d_5d9c_9faf == 3)
-            f_1ab2_004b();
-        else if (d_5d9c_9faf == 4)
-            f_1ab2_0067();
+        if (menu_choice == 1) {
+            show_message_box("Put printer on line to continue");
+            print_newlines(1);
+            printer_on = -1;
+        } else if (menu_choice == 2)
+            printer_on = 0;
+        if (menu_choice == 3)
+            music_on();
+        else if (menu_choice == 4)
+            music_off();
     }
-    f_1680_150c(0, "Championship Manager", "New Game|Continue Season|Quick Start|");
-    if (d_5d9c_9faf == 1) {
-        f_992a_51d4();
-        if (d_5d9c_9fab < 95)
+    show_menu(0, "Championship Manager", "New Game|Continue Season|Quick Start|");
+    if (menu_choice == 1) {
+        load_game();
+        if (current_week < 95)
             goto week;
         goto season_end;
     }
-    if (d_5d9c_9faf == 2) {
-        f_992a_51d4();
-        f_992a_7e35(0);
+    if (menu_choice == 2) {
+        load_game();
+        enter_manager_name(0);
         goto week;
     }
-    f_a1c3_4a04();
-    f_1680_084a();
-    f_9100_0300();
-    f_9100_0000();
-    f_88c9_41a8();
-    f_9100_044e();
-    f_9100_04ed();
-    f_7eeb_37b1();
-    f_9100_23c7();
+    new_game_setup();
+    start_first_season();
+    create_game_files();
+    init_new_game_clubs();
+    generate_all_staff();
+    generate_all_players();
+    init_other_club_ratings();
+    pick_cup_entrants();
+    draw_season_end_panel();
     for (;;) {
-        d_5d9c_9b92 = -1;
-        f_a1c3_5bba();
-        f_a1c3_515d();
-        f_9100_2f2d(d_5d9c_9fa9);
-        f_9100_3827();
-        if (d_5d9c_9fa7 == 1)
-            f_992a_3129(120);
-        f_1680_1484();
-        f_a1c3_5826();
-        f_a1c3_59ba();
-        f_8352_0792();
-        f_8352_1079();
-        f_7eeb_3198();
-        f_7eeb_363e();
-        f_7eeb_1da6();
-        f_7eeb_3d47();
-        d_5d9c_9b92 = 0;
-        while (d_5d9c_9fab < 95) {
-            if (d_5d9c_9fab % 9 == 4 && d_5d9c_9fab > 4) {
-                f_a1c3_1d3f(0);
-                if (!d_5d9c_9b8d)
-                    f_67ee_3212(0);
-                f_1680_08c5();
+        in_preseason_setup = -1;
+        shuffle_league_order();
+        reset_season_data();
+        replace_with_nonleague_club(team_voted_out);
+        process_retirements();
+        if (season == 1)
+            training_injuries_and_form(120);
+        build_squad_lists();
+        init_player_morale();
+        build_nationality_pools();
+        update_transfer_listings();
+        add_players_to_shortlists();
+        pick_european_entrants();
+        seed_european_cups();
+        make_weekly_cup_draws();
+        arrange_friendlies();
+        in_preseason_setup = 0;
+        while (current_week < 95) {
+            if (current_week % 9 == 4 && current_week > 4) {
+                find_best_players(0);
+                if (!is_demo_game)
+                    awards_screen(0);
+                reset_monthly_stats();
             }
-            if ((d_5d9c_9fab & 1) || d_5d9c_9fab < 7)
-                f_1680_0952();
-            if (d_5d9c_9fab < 5)
-                f_6e68_3366();
-            else if (d_5d9c_9fab == 66)
-                f_88c9_24f1("Transfer deadline is this week");
-            else if (d_5d9c_9fab == 67)
-                f_88c9_24f1("Transfer deadline has now passed");
-            d_5d9c_9b91 = -1;
-            if (f_992a_7831(d_5d9c_9fab)) {
-                if (d_483b_a174[d_5d9c_9fab] == 0)
-                    d_5d9c_9b91 = 0;
-            } else if (d_5d9c_9fab == 7 && d_5d9c_9ee3 == 0)
-                d_5d9c_9b91 = 0;
-            else if (d_5d9c_9fab == 81 || d_5d9c_9fab == 93)
-                d_5d9c_9b91 = 0;
-            if (d_5d9c_9fab % 16 == 0)
-                f_992a_4ce3();
-            f_1680_0a8a();
-            if (d_5d9c_9b91) {
-                if (f_992a_7059(d_5d9c_9fab))
-                    d_5d9c_9fa5 = 0;
-                if (f_992a_70d2(d_5d9c_9fab))
-                    d_5d9c_9fa3 = 0;
-                if (f_992a_7129(d_5d9c_9fab))
-                    d_5d9c_9f9f = 0;
-                if (f_992a_7170(d_5d9c_9fab))
-                    d_5d9c_9f9d = 0;
-                if (f_992a_71db(d_5d9c_9fab))
-                    d_5d9c_9f9b = 0;
-                if (f_992a_723a(d_5d9c_9fab))
-                    d_5d9c_9f99 = 0;
-                if (f_992a_728d(d_5d9c_9fab))
-                    d_5d9c_9f97 = 0;
+            if ((current_week & 1) || current_week < 7)
+                clear_fortnight_reports();
+            if (current_week < 5)
+                show_season_start_message();
+            else if (current_week == 66)
+                message_box("Transfer deadline is this week");
+            else if (current_week == 67)
+                message_box("Transfer deadline has now passed");
+            week_has_matches = -1;
+            if (is_cup_replay_week(current_week)) {
+                if (week_fixture_counts[current_week] == 0)
+                    week_has_matches = 0;
+            } else if (current_week == 7 && zenith_qualifier_count == 0)
+                week_has_matches = 0;
+            else if (current_week == 81 || current_week == 93)
+                week_has_matches = 0;
+            if (current_week % 16 == 0)
+                pick_international_squads();
+            clear_weekly_state();
+            if (week_has_matches) {
+                if (is_fa_cup_round_week(current_week))
+                    fa_cup_through = 0;
+                if (is_rumbelows_week(current_week))
+                    league_cup_through = 0;
+                if (is_zenith_week(current_week))
+                    zenith_cup_through = 0;
+                if (is_domark_week(current_week))
+                    domark_through = 0;
+                if (is_uefa_week(current_week))
+                    uefa_cup_through = 0;
+                if (is_cup_winners_week(current_week))
+                    cwc_through = 0;
+                if (is_european_cup_week(current_week))
+                    euro_cup_through = 0;
 week:
-                f_67ee_0000();
-                f_992a_3129(15);
-                if (d_5d9c_9b90 == 0) {
-                    f_6e68_12fd(d_5d9c_9fab, 0, -1);
-                    f_7555_0634();
-                    if (d_5d9c_9fab == 94)
-                        f_7eeb_12d7();
-                    else if (f_992a_700a(d_5d9c_9fab)) {
-                        f_7eeb_3fa2();
-                        f_88c9_741e();
-                        f_7eeb_12d7();
+                season_main_menu();
+                training_injuries_and_form(15);
+                if (no_matches_this_week == 0) {
+                    show_week_fixtures(current_week, 0, -1);
+                    play_week_matches();
+                    if (current_week == 94)
+                        settle_promotion_relegation();
+                    else if (is_league_week(current_week)) {
+                        sort_league_table();
+                        update_board_confidence();
+                        settle_promotion_relegation();
                     } else {
-                        if (d_5d9c_9fab == 53 || d_5d9c_9fab == 59 || d_5d9c_9fab == 67 ||
-                            d_5d9c_9fab == 71 || d_5d9c_9fab == 75 || d_5d9c_9fab == 79)
-                            f_8352_0000();
-                        if (f_992a_7170(d_5d9c_9fab) && d_5d9c_9fab < 68)
-                            f_8352_0220();
+                        if (current_week == 53 || current_week == 59 || current_week == 67 ||
+                            current_week == 71 || current_week == 75 || current_week == 79)
+                            sort_euro_cup_groups();
+                        if (is_domark_week(current_week) && current_week < 68)
+                            sort_cup_group_tables();
                     }
-                    f_6e68_12fd(d_5d9c_9fab, 1, -1);
-                    if (f_992a_7059(d_5d9c_9fab) || d_5d9c_9fab == 82) {
-                        d_5d9c_9f95 = d_5d9c_9f93;
-                        if (d_5d9c_9f95 > 0) {
-                            if (d_5d9c_9fab == 82) {
-                                d_5d9c_9f8f = 83;
-                                d_483b_a174[d_5d9c_9f8f] = d_5d9c_9f95;
+                    show_week_fixtures(current_week, 1, -1);
+                    if (is_fa_cup_round_week(current_week) || current_week == 82) {
+                        replays_pending = replay_count;
+                        if (replays_pending > 0) {
+                            if (current_week == 82) {
+                                league_cup_next_week = 83;
+                                week_fixture_counts[league_cup_next_week] = replays_pending;
                             } else {
-                                d_5d9c_9f8d = d_5d9c_9fab + 1;
-                                d_483b_a174[d_5d9c_9f8d] = d_5d9c_9f95;
+                                fa_cup_next_week = current_week + 1;
+                                week_fixture_counts[fa_cup_next_week] = replays_pending;
                             }
                         }
-                    } else if (f_992a_7831(d_5d9c_9fab))
-                        d_5d9c_9f95 = 0;
-                    if (d_5d9c_9fab == 31)
-                        f_7eeb_1da6();
-                    else if (f_992a_70a8(d_5d9c_9fab) && d_5d9c_9f95 == 0 && d_5d9c_9fab < 88)
-                        f_7eeb_1da6();
-                    else if (f_992a_70d2(d_5d9c_9fab) && d_5d9c_9fab < 82 && d_5d9c_9fab != 9 &&
-                             d_5d9c_9fab != 61)
-                        f_7eeb_1da6();
-                    else if (f_992a_7713(d_5d9c_9fab) && d_5d9c_9fab < 91 || d_5d9c_9fab == 79)
-                        f_7eeb_1da6();
-                    else if (d_5d9c_9fab == 67 || d_5d9c_9fab == 71 || d_5d9c_9fab == 73)
-                        f_7eeb_1da6();
-                    else if (f_992a_7129(d_5d9c_9fab) && d_5d9c_9fab < 53)
-                        f_7eeb_1da6();
-                    switch (d_5d9c_9fab) {
+                    } else if (is_cup_replay_week(current_week))
+                        replays_pending = 0;
+                    if (current_week == 31)
+                        make_weekly_cup_draws();
+                    else if (is_fa_cup_week(current_week) && replays_pending == 0 && current_week < 88)
+                        make_weekly_cup_draws();
+                    else if (is_rumbelows_week(current_week) && current_week < 82 && current_week != 9 &&
+                             current_week != 61)
+                        make_weekly_cup_draws();
+                    else if (is_second_leg_week(current_week) && current_week < 91 || current_week == 79)
+                        make_weekly_cup_draws();
+                    else if (current_week == 67 || current_week == 71 || current_week == 73)
+                        make_weekly_cup_draws();
+                    else if (is_zenith_week(current_week) && current_week < 53)
+                        make_weekly_cup_draws();
+                    switch (current_week) {
                     case 9:
-                        d_5d9c_9f8f = 13;
+                        league_cup_next_week = 13;
                         break;
                     case 11:
-                        d_5d9c_9f8b = 15;
+                        uefa_cup_next_week = 15;
                         break;
                     case 17:
-                        d_5d9c_9f89 = 21;
-                        d_5d9c_9f87 = 21;
+                        cup_winners_next_week = 21;
+                        european_cup_next_week = 21;
                         break;
                     case 23:
-                        d_5d9c_9f8b = 25;
+                        uefa_cup_next_week = 25;
                         break;
                     case 31:
-                        d_5d9c_9f8b = 35;
-                        d_5d9c_9f89 = 35;
-                        d_5d9c_9f87 = 35;
+                        uefa_cup_next_week = 35;
+                        cup_winners_next_week = 35;
+                        european_cup_next_week = 35;
                         break;
                     case 53:
-                        d_5d9c_9f87 = 59;
+                        european_cup_next_week = 59;
                         break;
                     case 59:
-                        d_5d9c_9f87 = 67;
+                        european_cup_next_week = 67;
                         break;
                     case 61:
-                        d_5d9c_9f8f = 65;
+                        league_cup_next_week = 65;
                         break;
                     case 67:
                     case 71:
                     case 75:
-                        d_5d9c_9f87 = d_5d9c_9fab + 4;
-                        d_5d9c_9f8b = d_5d9c_9fab + 4;
-                        d_5d9c_9f89 = d_5d9c_9fab + 4;
+                        european_cup_next_week = current_week + 4;
+                        uefa_cup_next_week = current_week + 4;
+                        cup_winners_next_week = current_week + 4;
                         break;
                     case 79:
-                        d_5d9c_9f8b = 87;
-                        d_5d9c_9f89 = 91;
-                        d_5d9c_9f87 = 91;
+                        uefa_cup_next_week = 87;
+                        cup_winners_next_week = 91;
+                        european_cup_next_week = 91;
                         break;
                     case 87:
-                        d_5d9c_9f8b = 91;
+                        uefa_cup_next_week = 91;
                         break;
                     }
-                    if (d_5d9c_9fab == 86 || d_5d9c_9fab == 92)
-                        f_7eeb_3b9a();
-                    f_992a_2771();
-                    f_992a_2fe0();
-                    d_5d9c_9f85 -= f_992a_700a(d_5d9c_9fab);
-                    if (d_5d9c_9fab > 20)
-                        f_88c9_4b98();
-                    f_88c9_4ee2();
-                    f_88c9_516f();
+                    if (current_week == 86 || current_week == 92)
+                        set_playoff_fixtures();
+                    process_match_discipline();
+                    fine_dirty_clubs();
+                    league_round -= is_league_week(current_week);
+                    if (current_week > 20)
+                        weekly_board_review();
+                    collect_manager_candidates();
+                    appoint_new_managers();
                 }
             }
-            if ((d_5d9c_9fab & 1) == 0 || d_5d9c_9fab < 7) {
-                if ((d_5d9c_9fab & 1) == 0 && d_5d9c_9fab > 5)
-                    f_992a_2e73();
-                f_1680_341b();
-                f_8352_052a();
-                f_992a_438f();
+            if ((current_week & 1) == 0 || current_week < 7) {
+                if ((current_week & 1) == 0 && current_week > 5)
+                    show_performance_of_week();
+                update_players_weekly();
+                weekly_transfer_activity();
+                weekly_club_finances();
             }
-            d_5d9c_9fab++;
+            current_week++;
         }
 season_end:
-        f_67ee_0000();
-        d_5d9c_9b38 = -1;
-        f_a1c3_1d3f(-1);
-        if (!d_5d9c_9b8d)
-            f_67ee_3212(-1);
-        f_9100_2583();
-        f_9100_418b();
-        f_9100_23c7();
-        f_9100_43fe();
-        f_9100_2832();
-        f_88c9_4855();
-        f_9100_34d9();
-        d_5d9c_9b38 = 0;
-        d_5d9c_9fa7++;
+        season_main_menu();
+        in_season_end = -1;
+        find_best_players(-1);
+        if (!is_demo_game)
+            awards_screen(-1);
+        update_hall_of_fame();
+        season_attendance_report();
+        draw_season_end_panel();
+        update_club_records_file();
+        promote_and_qualify();
+        staff_retirements();
+        end_season_player_update();
+        in_season_end = 0;
+        season++;
     }
 }

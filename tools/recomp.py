@@ -12,7 +12,7 @@ the runtime appends unknown call targets to missing_entries.txt, see discover.sh
   --overrides FILE  functions replaced by hand-written C (one "SEG:OFS name" per line):
                     their translation is emitted as f_SSSS_OOOO_orig, and calls and the
                     dispatch table reach the hand-written f_SSSS_OOOO (see docs/handwritten.md)
-  --names FILE      "SEG:OFS name" per line: a named function is emitted as fn_<name>, with
+  --names FILE      "SEG:OFS name [f|d]" per line (d: data, ignored): a named function is emitted as fn_<name>, with
                     f_SSSS_OOOO kept as an alias of it (names in --overrides count too)
 """
 import os, re, sys, glob, struct, bisect, collections
@@ -284,12 +284,12 @@ def opsize(ins):
 
 
 def read_names(path):
-    """SEG:OFS name lines -> {linear address: name}"""
+    """SEG:OFS name lines -> {linear address: name} (a third column `d` marks data, skipped)"""
     names = {}
     if path and os.path.exists(path):
         for line in open(path):
             w = line.split('#')[0].split()
-            if w:
+            if w and w[2:3] != ['d']:
                 s, o = w[0].split(':')
                 names[(int(s, 16) * 16 + int(o, 16)) & 0xfffff] = w[1] if len(w) > 1 else ''
     return names

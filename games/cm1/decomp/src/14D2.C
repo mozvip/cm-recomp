@@ -14,93 +14,93 @@
 #include <string.h>
 #include <sys/stat.h>
 
-char far *f_14d2_0d40(void);
-int f_14d2_14cb(long size);                 /* allocate a block (EMS/extended memory) */
-void far *f_14d2_16bc(int handle, int page);
-void f_1b05_0002(char far *src, char far *dst);
-void f_1b05_014e(char far *buf, unsigned size);
-void f_992a_6da2(void);
-void f_14d2_1951(void);
-void f_14b7_0004(void);
-void f_1ab2_0016(void);
-void f_14d2_132d(void);
-void f_14d2_05af(int noflip);
-void f_14d2_1963(void);
-void f_a1c3_3505(int a);
-void f_14d2_1a56(void);
-void f_1b05_0308(void);
-void f_1ab9_0322(unsigned x1, unsigned y1, unsigned x2, unsigned y2, char far *buf, unsigned seg);
-void f_1ab9_03ad(unsigned x, unsigned y, char far *buf, unsigned seg);
-void f_14d2_0e27(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
-void f_14d2_0899(int colour, int x, int y, char far *s);
-void f_14d2_08e3(int colour, int x, int y, char c);
-void f_1ab9_0271(char far *glyph, int x, int y, int colour, int fill, int mode, int rows);
-void f_14d2_1aa6(void);
-void f_14d2_0af4(int a);
-long f_14d2_0ca0(void);
-void f_1ab9_0004(unsigned x1, unsigned y1, unsigned x2, unsigned y2, int colour);
-void f_1ab9_00ec(unsigned x1, unsigned y1, unsigned x2, unsigned y2, int colour);
-void f_a1c3_27e4(char far *title);
-void f_1680_2ea0(float x, float y, int bg, int fg, int w, char far *s);
-void f_1680_2d78(float x, float y, int colour, char far *s);
-void f_a1c3_290e(float x, int w, char far *prompt);
-void f_14d2_12ea(void);
-void f_1a51_019c(int handle);
-void f_1ab2_005c(void);
-void f_14b7_003e(void);
-void f_1ab2_0029(char far *music);
-void f_1ab2_000e(void);
-int f_1a51_0002(void);                                  /* EMS present: 0 */
-int f_1a51_015d(long size);                             /* allocate EMS */
-void f_1a51_02d4(long size, char far *buf, int handle, long off);   /* write to EMS */
-void f_1a51_0434(long size, int handle, long off, char far *buf);   /* read from EMS */
+char far *next_text_buffer(void);
+int vm_alloc(long size);                 /* allocate a block (EMS/extended memory) */
+void far *vm_map(int handle, int dirty);
+void unpack_ilbm(char far *src, char far *dst);
+void show_ilbm(char far *buf, unsigned size);
+void set_picture_palette(void);
+void init_mouse(void);
+void install_keyboard_handler(void);
+void install_music_driver(void);
+void load_music(void);
+void present_screen(int noflip);
+void show_pointer(void);
+void wait_for_click(int mode);
+void hide_pointer(void);
+void copy_screen_page(void);
+void save_planar_rect(unsigned left, unsigned top, unsigned right, unsigned bottom, char far *buf, unsigned seg);
+void restore_planar_rect(unsigned x, unsigned y, char far *buf, unsigned seg);
+void draw_line(unsigned from_x, unsigned from_y, unsigned to_x, unsigned to_y);
+void draw_text_in_colour(int colour, int x, int y, char far *s);
+void draw_char(int colour, int x, int y, char c);
+void draw_glyph_planar(char far *glyph, int x, int y, int colour, int fill, int mode, int rows);
+void poll_mouse(void);
+void play_effect_stub(int effect);
+long clock_ticks(void);
+void draw_line_vga256(unsigned from_x, unsigned from_y, unsigned to_x, unsigned to_y, int colour);
+void draw_line_planar(unsigned from_x, unsigned from_y, unsigned to_x, unsigned to_y, int colour);
+void new_screen(char far *title);
+void draw_text_box(float x, float y, int bg, int fg, int w, char far *s);
+void draw_text_font2(float x, float y, int colour, char far *s);
+void prompt_text_input(float x, int w, char far *prompt);
+void restore_system(void);
+void ems_free(int handle);
+void remove_music_driver(void);
+void remove_keyboard_handler(void);
+void start_music(char far *music);
+void mt32_music_setup(void);
+int ems_init(void);                                  /* EMS present: 0 */
+int ems_alloc(long size);                             /* allocate EMS */
+void ems_write(long size, char far *buf, int handle, long off);   /* write to EMS */
+void ems_read(long size, int handle, long off, char far *buf);   /* read from EMS */
 
-extern char far *d_5d9c_a366;           /* screen buffer */
-extern char d_5d9c_a31f;                /* video mode at start-up */
-extern char d_5d9c_a31e;                /* 0 none, 1 EGA, 2 VGA */
-extern int d_5d9c_a364, d_5d9c_a362, d_5d9c_a360, d_5d9c_a35e, d_5d9c_a35a, d_5d9c_a35c;
-extern int d_5d9c_a358, d_5d9c_a342, d_5d9c_a340, d_5d9c_a346, d_5d9c_a33e, d_5d9c_a33c;
-extern int d_5d9c_a356, d_5d9c_a354, d_5d9c_a352, d_5d9c_a350, d_5d9c_a34c, d_5d9c_a33a;
-extern int d_5d9c_a34a, d_5d9c_a348, d_5d9c_a34e, d_5d9c_a338, d_5d9c_a334, d_5d9c_a332;
-extern int d_5d9c_a330, d_5d9c_a344, d_5d9c_a336;
-extern int d_5d9c_9ef5, d_5d9c_9ef7;
-extern char d_5d9c_1e90[], d_5d9c_20d0[], d_5d9c_23d0[];  /* fonts: another module's data */
-extern int d_5d9c_a06c;
-extern char far *d_5d9c_a328;           /* sound driver memory */
-extern char far *d_5d9c_a32c;           /* the driver, paragraph aligned */
-extern char d_5d9c_1cec;                /* sound device letter */
-extern char far *d_5d9c_a2b2;           /* VGA memory */
-extern unsigned char d_5d9c_a078, d_5d9c_a079;     /* drawing and fill colours */
-extern int d_5d9c_9dcd, d_5d9c_a31c;
-extern struct window far *d_5d9c_a2ae;  /* current font */
-extern char d_5d9c_1ceb;                /* 1: text drawn with its background */
-extern unsigned char d_5d9c_9b93;
-extern char far d_1f3e_0000[6][320];    /* text buffers */
-extern char d_5d9c_a2b6[64];            /* 8x8 block under the mouse pointer */
-extern float d_5d9c_9b00;
-extern long d_5d9c_0254[];              /* protection answers */
-extern char far d_1f3e_4fcc[];          /* text typed in */
-extern int d_5d9c_1ced;                 /* virtual memory in EMS/extended memory */
-extern int d_5d9c_a31a;
-extern char far *d_5d9c_a320;           /* music memory */
-extern char far *d_5d9c_a324;           /* the music, paragraph aligned */
-extern char huge *d_5d9c_a2aa;          /* virtual memory work buffer (64124 bytes) */
-extern char d_5d9c_2c17;                /* EMS library error */
-extern char d_5d9c_1cea;                /* mouse initialised */
-extern int d_5d9c_a070, d_5d9c_a06e;    /* where the pointer is drawn */
+extern char far *screen_buffer;           /* screen buffer */
+extern char startup_video_mode;                /* video mode at start-up */
+extern char video_mode;                /* 0 none, 1 EGA, 2 VGA */
+extern int screen_vm_block, search_results_handle, asking_prices_handle, manager_points_handle, matchfax_handle, accounts_ems_handle;
+extern int button_geometry_handle, d_5d9c_a342, d_5d9c_a340, past_winners_handle, season_best_players_handle, button_colours_handle;
+extern int stats_print_handle, transfer_news_dest_handle, transfer_history_handle, button_labels_handle, transfer_news_handle, first_leg_ems_handle;
+extern int club_long_records_handle, best_avg_rating_handle, hall_of_fame_handle, menu_texts_handle, refused_talks_handle, d_5d9c_a332;
+extern int d_5d9c_a330, national_squads_handle, table_marks_handle;
+extern int background_brightness, background_colour;
+extern char small_font_glyphs[], medium_font_glyphs[], large_font_glyphs[];  /* fonts: another module's data */
+extern int mouse_driver_present;
+extern char far *sound_driver_mem;           /* sound driver memory */
+extern char far *sound_driver;           /* the driver, paragraph aligned */
+extern char sound_device;                /* sound device letter */
+extern char far *vga_memory;           /* VGA memory */
+extern unsigned char draw_colour, fill_colour;     /* drawing and fill colours */
+extern int current_font_id, small_font_selected;
+extern struct window far *current_font;  /* current font */
+extern char text_opaque;                /* 1: text drawn with its background */
+extern unsigned char text_buffer_index;
+extern char far text_buffers[6][320];    /* text buffers */
+extern char pointer_background[64];            /* 8x8 block under the mouse pointer */
+extern float text_x;
+extern long protection_answers[];              /* protection answers */
+extern char far input_text[];          /* text typed in */
+extern int vm_in_ems;                 /* virtual memory in EMS/extended memory */
+extern int ems_handle;
+extern char far *music_mem;           /* music memory */
+extern char far *music_data;           /* the music, paragraph aligned */
+extern char huge *vm_work_buffer;          /* virtual memory work buffer (64124 bytes) */
+extern char ems_error;                /* EMS library error */
+extern char mouse_initialised;                /* mouse initialised */
+extern int pointer_drawn_x, pointer_drawn_y;    /* where the pointer is drawn */
 
 struct vmblock {                        /* a virtual memory block */
     long size;
     long off;                           /* in EMS or VM.$$$ */
 };
-extern struct vmblock d_5d9c_a07a[40];
+extern struct vmblock vm_blocks[40];
 
 struct vmslot {                         /* a block in the work buffer */
     signed char block;
     char dirty;
     char far *p;
 };
-extern struct vmslot d_5d9c_a1ba[40];
+extern struct vmslot vm_slots[40];
 
 struct window {                         /* a font */
     char far *buf;
@@ -108,43 +108,43 @@ struct window {                         /* a font */
     int w, h, base;
 };
 
-unsigned char d_5d9c_1d00[15] = { 15, 12, 10, 9, 11, 14, 13, 7, 6, 1, 5, 3, 4, 8, 2 };  /* EGA colours of 17..31 */
-struct window d_5d9c_1d0f = { d_5d9c_1e90, { 0, 0, 0, 0 }, 5, 5, 1 };
-struct window d_5d9c_1d21 = { d_5d9c_20d0, { 0, 0, 0, 0 }, 7, 7, 0 };
-struct window d_5d9c_1d33 = { d_5d9c_23d0, { 0, 0, 0, 0 }, 7, 14, 0 };
+unsigned char ega_colour_map[15] = { 15, 12, 10, 9, 11, 14, 13, 7, 6, 1, 5, 3, 4, 8, 2 };  /* EGA colours of 17..31 */
+struct window small_font = { small_font_glyphs, { 0, 0, 0, 0 }, 5, 5, 1 };
+struct window medium_font = { medium_font_glyphs, { 0, 0, 0, 0 }, 7, 7, 0 };
+struct window large_font = { large_font_glyphs, { 0, 0, 0, 0 }, 7, 14, 0 };
 char d_5d9c_1d45 = 1;
-int d_5d9c_1d46 = 0;                    /* mouse x */
-int d_5d9c_1d48 = 0;                    /* mouse y */
-int d_5d9c_1d4a = 0;
-int d_5d9c_1d4c = 0;                    /* clicks since last asked */
-unsigned long d_5d9c_1d4e = 1;          /* random seed */
-long d_5d9c_1d52 = 0;                   /* ticks added after midnight */
-long d_5d9c_1d56 = 0;                   /* last time returned */
-int d_5d9c_1d5a = 0;                    /* virtual memory blocks allocated */
-unsigned long d_5d9c_1d5c = 0;          /* bytes of the work buffer in use */
+int mouse_x = 0;                    /* mouse x */
+int mouse_y = 0;                    /* mouse y */
+int pointer_visible = 0;
+int mouse_clicks = 0;                    /* clicks since last asked */
+unsigned long random_seed = 1;          /* random seed */
+long midnight_tick_offset = 0;                   /* ticks added after midnight */
+long last_clock_ticks = 0;                   /* last time returned */
+int vm_block_count = 0;                    /* virtual memory blocks allocated */
+unsigned long vm_buffer_used = 0;          /* bytes of the work buffer in use */
 
 /* Take the top bit of each of four plane bytes into one pixel value. */
-char f_14d2_0008(char far *p0, char far *p1, char far *p2, char far *p3)
+char take_plane_pixel(char far *p0, char far *p1, char far *p2, char far *p3)
 {
-    char r = 0;
+    char pixel = 0;
 
     if (*p0 & 0x80)
-        r |= 1;
+        pixel |= 1;
     if (*p1 & 0x80)
-        r |= 2;
+        pixel |= 2;
     if (*p2 & 0x80)
-        r |= 4;
+        pixel |= 4;
     if (*p3 & 0x80)
-        r |= 8;
+        pixel |= 8;
     *p0 <<= 1;
     *p1 <<= 1;
     *p2 <<= 1;
     *p3 <<= 1;
-    return r;
+    return pixel;
 }
 
 /* Planar (4 x 8000 bytes) to one byte per pixel. */
-void f_14d2_0059(char far *src)
+void planar_to_chunky(char far *src)
 {
     char far *s;
     char far *d;
@@ -152,39 +152,39 @@ void f_14d2_0059(char far *src)
     unsigned i, j;
 
     s = src;
-    d = d_5d9c_a366 + 0x7d00;
+    d = screen_buffer + 0x7d00;
     for (i = 0; i < 8000; i++) {
         *d++ = *s++;
         *d++ = s[7999];
         *d++ = s[15999];
         *d++ = s[23999];
     }
-    s = d_5d9c_a366 + 0x7d00;
-    d = d_5d9c_a366;
+    s = screen_buffer + 0x7d00;
+    d = screen_buffer;
     for (i = 0; i < 8000; i++) {
         p0 = *s++;
         p1 = *s++;
         p2 = *s++;
         p3 = *s++;
         for (j = 0; j < 8; j++)
-            *d++ = f_14d2_0008(&p0, &p1, &p2, &p3);
+            *d++ = take_plane_pixel(&p0, &p1, &p2, &p3);
     }
 }
 
-char far *f_14d2_0152(char c)
+char far *char_to_string(char ch)
 {
-    char far *p;
+    char far *buf;
 
-    p = f_14d2_0d40();
-    p[0] = c;
-    p[1] = 0;
-    return p;
+    buf = next_text_buffer();
+    buf[0] = ch;
+    buf[1] = 0;
+    return buf;
 }
 
 /* 0: no EGA, 1: EGA (mode 0Dh set), 2: VGA (mode 13h set). */
-int f_14d2_0178(void)
+int detect_and_set_video_mode(void)
 {
-    volatile int r = 0;     /* kept in memory: the BIOS calls clobber registers */
+    volatile int adapter = 0;     /* kept in memory: the BIOS calls clobber registers */
 
     _AH = 0x12;
     _BL = 0x10;
@@ -192,185 +192,185 @@ int f_14d2_0178(void)
     if (_BL != 0x10) {
         _AH = 0x0f;
         asm int 10h;
-        d_5d9c_a31f = _AL;
-        r = 1;
+        startup_video_mode = _AL;
+        adapter = 1;
         _AX = 0x1a00;
         asm int 10h;
         if (_AL != 0x1a) {
             _AX = 0x0d;
             asm int 10h;
         } else {
-            r = 2;
+            adapter = 2;
             _AX = 0x13;
             asm int 10h;
         }
     }
-    return r;
+    return adapter;
 }
 
-void f_14d2_01bb(void)
+void init_video_and_memory(void)
 {
-    int h;
+    int fd;
 
-    if (!(d_5d9c_a31e = f_14d2_0178())) {
+    if (!(video_mode = detect_and_set_video_mode())) {
         printf("Requires EGA or VGA\n");
         exit(1);
     }
-    d_5d9c_1d0f.buf = d_5d9c_1e90;
-    d_5d9c_1d21.buf = d_5d9c_20d0;
-    d_5d9c_1d33.buf = d_5d9c_23d0;
-    d_5d9c_a364 = f_14d2_14cb(d_5d9c_a31e == 1 ? 32000L : 64000L);
-    d_5d9c_a362 = f_14d2_14cb(3402L);
-    d_5d9c_a360 = f_14d2_14cb(6804L);
-    d_5d9c_a35e = f_14d2_14cb(2600L);
-    d_5d9c_a35a = f_14d2_14cb(6000L);
-    d_5d9c_a35c = f_14d2_14cb(10240L);
-    d_5d9c_a358 = f_14d2_14cb(2800L);
-    d_5d9c_a342 = f_14d2_14cb(1000L);
-    d_5d9c_a340 = f_14d2_14cb(1020L);
-    d_5d9c_a346 = f_14d2_14cb(768L);
-    d_5d9c_a33e = f_14d2_14cb(320L);
-    d_5d9c_a33c = f_14d2_14cb(400L);
-    d_5d9c_a356 = f_14d2_14cb(3200L);
-    d_5d9c_a354 = f_14d2_14cb(24000L);
-    d_5d9c_a352 = f_14d2_14cb(64124L);
-    d_5d9c_a350 = f_14d2_14cb(4000L);
-    d_5d9c_a34c = f_14d2_14cb(1200L);
-    d_5d9c_a33a = f_14d2_14cb(400L);
-    d_5d9c_a34a = f_14d2_14cb(2240L);
-    d_5d9c_a348 = f_14d2_14cb(560L);
-    d_5d9c_a34e = f_14d2_14cb(3200L);
-    d_5d9c_a338 = f_14d2_14cb(1600L);
-    d_5d9c_a334 = f_14d2_14cb(604L);
-    d_5d9c_a332 = f_14d2_14cb(604L);
-    d_5d9c_a330 = f_14d2_14cb(604L);
-    d_5d9c_a344 = f_14d2_14cb(440L);
-    d_5d9c_a336 = f_14d2_14cb(40L);
-    d_5d9c_a366 = f_14d2_16bc(d_5d9c_a364, 1);
-    if (d_5d9c_a31e == 2) {
-        h = open("title.lbm", O_RDONLY);
-        read(h, d_5d9c_a366 + 0x7d00, 32000);
-        close(h);
-        f_1b05_0002(d_5d9c_a366 + 0x7d00, d_5d9c_a366);
-        f_14d2_0059(d_5d9c_a366);
-        d_5d9c_9ef5 = 4;
-        d_5d9c_9ef7 = 5;
-        f_992a_6da2();
+    small_font.buf = small_font_glyphs;
+    medium_font.buf = medium_font_glyphs;
+    large_font.buf = large_font_glyphs;
+    screen_vm_block = vm_alloc(video_mode == 1 ? 32000L : 64000L);
+    search_results_handle = vm_alloc(3402L);
+    asking_prices_handle = vm_alloc(6804L);
+    manager_points_handle = vm_alloc(2600L);
+    matchfax_handle = vm_alloc(6000L);
+    accounts_ems_handle = vm_alloc(10240L);
+    button_geometry_handle = vm_alloc(2800L);
+    d_5d9c_a342 = vm_alloc(1000L);
+    d_5d9c_a340 = vm_alloc(1020L);
+    past_winners_handle = vm_alloc(768L);
+    season_best_players_handle = vm_alloc(320L);
+    button_colours_handle = vm_alloc(400L);
+    stats_print_handle = vm_alloc(3200L);
+    transfer_news_dest_handle = vm_alloc(24000L);
+    transfer_history_handle = vm_alloc(64124L);
+    button_labels_handle = vm_alloc(4000L);
+    transfer_news_handle = vm_alloc(1200L);
+    first_leg_ems_handle = vm_alloc(400L);
+    club_long_records_handle = vm_alloc(2240L);
+    best_avg_rating_handle = vm_alloc(560L);
+    hall_of_fame_handle = vm_alloc(3200L);
+    menu_texts_handle = vm_alloc(1600L);
+    refused_talks_handle = vm_alloc(604L);
+    d_5d9c_a332 = vm_alloc(604L);
+    d_5d9c_a330 = vm_alloc(604L);
+    national_squads_handle = vm_alloc(440L);
+    table_marks_handle = vm_alloc(40L);
+    screen_buffer = vm_map(screen_vm_block, 1);
+    if (video_mode == 2) {
+        fd = open("title.lbm", O_RDONLY);
+        read(fd, screen_buffer + 0x7d00, 32000);
+        close(fd);
+        unpack_ilbm(screen_buffer + 0x7d00, screen_buffer);
+        planar_to_chunky(screen_buffer);
+        background_brightness = 4;
+        background_colour = 5;
+        set_picture_palette();
     } else {
-        h = open("titleega.lbm", O_RDONLY);
-        read(h, d_5d9c_a366, 32000);
-        close(h);
-        f_1b05_014e(d_5d9c_a366, 0xa400);
+        fd = open("titleega.lbm", O_RDONLY);
+        read(fd, screen_buffer, 32000);
+        close(fd);
+        show_ilbm(screen_buffer, 0xa400);
     }
 }
 
-void f_14d2_04a9(int i, char r, char g, char b)
+void set_palette_entry(int colour, char red, char green, char blue)
 {
-    if (d_5d9c_a31e == 2) {
-        r <<= 2;
-        g <<= 2;
-        b <<= 2;
+    if (video_mode == 2) {
+        red <<= 2;
+        green <<= 2;
+        blue <<= 2;
         _AX = 0x1010;
-        _BX = i;
-        _DH = r;
-        _CH = g;
-        _CL = b;
+        _BX = colour;
+        _DH = red;
+        _CH = green;
+        _CL = blue;
         geninterrupt(0x10);
     }
 }
 
-void f_14d2_04d1(char c)
+void init_hardware(char device)
 {
-    int h;
+    int fd;
 
-    f_14d2_1951();
-    if (d_5d9c_a06c == 0)
-        f_14b7_0004();
-    c = toupper(c);
-    if (c == 'A' || c == 'R') {
-        d_5d9c_a328 = malloc(6000);
-        d_5d9c_a32c = MK_FP(FP_SEG(d_5d9c_a328) + 1, 0);
-        d_5d9c_1cec = c;
-        if (c == 'A')
-            h = open("ADLIB.DRV", O_RDONLY);
+    init_mouse();
+    if (mouse_driver_present == 0)
+        install_keyboard_handler();
+    device = toupper(device);
+    if (device == 'A' || device == 'R') {
+        sound_driver_mem = malloc(6000);
+        sound_driver = MK_FP(FP_SEG(sound_driver_mem) + 1, 0);
+        sound_device = device;
+        if (device == 'A')
+            fd = open("ADLIB.DRV", O_RDONLY);
         else
-            h = open("MT32.DRV", O_RDONLY);
-        read(h, d_5d9c_a32c, 6000);
-        close(h);
-        f_1ab2_0016();
+            fd = open("MT32.DRV", O_RDONLY);
+        read(fd, sound_driver, 6000);
+        close(fd);
+        install_music_driver();
     }
-    f_14d2_132d();
+    load_music();
     _OvrInitEms(0, 0, 0);
-    d_5d9c_a2b2 = MK_FP(0xa000, 0);
+    vga_memory = MK_FP(0xa000, 0);
 }
 
-void f_14d2_0589(void)
+void show_screen_wait_click(void)
 {
-    f_14d2_05af(0);
-    f_14d2_1963();
-    f_a1c3_3505(1);
-    f_14d2_05af(0);
+    present_screen(0);
+    show_pointer();
+    wait_for_click(1);
+    present_screen(0);
 }
 
-void f_14d2_05af(int noflip)
+void present_screen(int noflip)
 {
-    if (d_5d9c_a31e == 2) {
-        d_5d9c_a366 = f_14d2_16bc(d_5d9c_a364, 0);
+    if (video_mode == 2) {
+        screen_buffer = vm_map(screen_vm_block, 0);
         if (noflip == 0) {
-            f_14d2_1a56();
+            hide_pointer();
             asm push ds
             asm push di
             asm push si
-            asm les di, d_5d9c_a2b2
-            asm lds si, d_5d9c_a366
+            asm les di, vga_memory
+            asm lds si, screen_buffer
             asm mov cx, 0fa00h
             asm rep movsw
             asm pop si
             asm pop di
             asm pop ds
-            f_14d2_1963();
+            show_pointer();
         }
     } else if (noflip == 0) {
-        f_14d2_1a56();
-        f_1b05_0308();
-        f_14d2_1963();
+        hide_pointer();
+        copy_screen_page();
+        show_pointer();
     }
 }
 
-void f_14d2_0609(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+void present_screen_rect(unsigned left, unsigned top, unsigned right, unsigned bottom)
 {
-    char far *s;
-    char far *d;
+    char far *src;
+    char far *dst;
     unsigned skip;
     unsigned off;
-    unsigned t;
+    unsigned tmp;
 
-    f_14d2_1a56();
-    if (d_5d9c_a31e == 2) {
-        d_5d9c_a366 = f_14d2_16bc(d_5d9c_a364, 0);
-        s = d_5d9c_a366;
-        d = d_5d9c_a2b2;
-        if (y1 > y2) {
-            t = y1;
-            y1 = y2;
-            y2 = t;
+    hide_pointer();
+    if (video_mode == 2) {
+        screen_buffer = vm_map(screen_vm_block, 0);
+        src = screen_buffer;
+        dst = vga_memory;
+        if (top > bottom) {
+            tmp = top;
+            top = bottom;
+            bottom = tmp;
         }
-        off = y1 * 320 + x1;
-        s += off;
-        d += off;
-        skip = 320 - (x2 - x1 + 1);
+        off = top * 320 + left;
+        src += off;
+        dst += off;
+        skip = 320 - (right - left + 1);
         asm push ds
         asm push es
         asm push si
         asm push di
-        asm mov bx, y2
+        asm mov bx, bottom
         asm inc bx
-        asm sub bx, y1
-        asm mov dx, x2
+        asm sub bx, top
+        asm mov dx, right
         asm inc dx
-        asm sub dx, x1
-        asm les di, d
-        asm lds si, s
+        asm sub dx, left
+        asm les di, dst
+        asm lds si, src
 line:
         asm mov cx, dx
         asm rep movsb
@@ -383,490 +383,490 @@ line:
         asm pop es
         asm pop ds
     } else {
-        if (y1 > y2) {
-            t = y1;
-            y1 = y2;
-            y2 = t;
+        if (top > bottom) {
+            tmp = top;
+            top = bottom;
+            bottom = tmp;
         }
-        d_5d9c_a366 = f_14d2_16bc(d_5d9c_a364, 0);
-        f_1ab9_0322(x1, y1, x2, y2, d_5d9c_a366, 0xa400);
-        f_1ab9_03ad(x1, y1, d_5d9c_a366, 0xa000);
+        screen_buffer = vm_map(screen_vm_block, 0);
+        save_planar_rect(left, top, right, bottom, screen_buffer, 0xa400);
+        restore_planar_rect(left, top, screen_buffer, 0xa000);
     }
-    f_14d2_1963();
+    show_pointer();
 }
 
-void f_14d2_0722(int c)
+void set_fill_colour(int colour)
 {
-    d_5d9c_a079 = d_5d9c_a31e == 2 ? c : d_5d9c_1d00[c - 17];
+    fill_colour = video_mode == 2 ? colour : ega_colour_map[colour - 17];
 }
 
-void f_14d2_073e(int c)
+void set_draw_colour(int colour)
 {
-    d_5d9c_a078 = d_5d9c_a31e == 2 ? c : d_5d9c_1d00[c - 17];
+    draw_colour = video_mode == 2 ? colour : ega_colour_map[colour - 17];
 }
 
-void f_14d2_075a(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+void fill_rect(unsigned left, unsigned top, unsigned right, unsigned bottom)
 {
-    unsigned t;
+    unsigned tmp;
 
-    if (y1 > y2) {
-        t = y1;
-        y1 = y2;
-        y2 = t;
+    if (top > bottom) {
+        tmp = top;
+        top = bottom;
+        bottom = tmp;
     }
-    t = d_5d9c_a078;
-    d_5d9c_a078 = d_5d9c_a079;
-    f_14d2_1a56();
-    for (; y1 <= y2; y1++)
-        f_14d2_0e27(x1, y1, x2, y1);
-    f_14d2_1963();
-    d_5d9c_a078 = t;
+    tmp = draw_colour;
+    draw_colour = fill_colour;
+    hide_pointer();
+    for (; top <= bottom; top++)
+        draw_line(left, top, right, top);
+    show_pointer();
+    draw_colour = tmp;
 }
 
-void f_14d2_07af(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+void draw_rect(unsigned left, unsigned top, unsigned right, unsigned bottom)
 {
-    unsigned t;
+    unsigned tmp;
 
-    if (y1 > y2) {
-        t = y1;
-        y1 = y2;
-        y2 = t;
+    if (top > bottom) {
+        tmp = top;
+        top = bottom;
+        bottom = tmp;
     }
-    f_14d2_1a56();
-    f_14d2_0e27(x1, y1, x2, y1);
-    f_14d2_0e27(x1, y2, x2, y2);
-    f_14d2_0e27(x1, y1, x1, y2);
-    f_14d2_0e27(x2, y1, x2, y2);
-    f_14d2_1963();
+    hide_pointer();
+    draw_line(left, top, right, top);
+    draw_line(left, bottom, right, bottom);
+    draw_line(left, top, left, bottom);
+    draw_line(right, top, right, bottom);
+    show_pointer();
 }
 
-void f_14d2_0819(void)
+void forget_font(void)
 {
-    d_5d9c_9dcd = -1;
+    current_font_id = -1;
 }
 
-void f_14d2_0824(int f)
+void select_font(int font)
 {
-    switch (f) {
+    switch (font) {
     case 0:
-        d_5d9c_a2ae = &d_5d9c_1d0f;
-        d_5d9c_a31c = 1;
+        current_font = &small_font;
+        small_font_selected = 1;
         break;
     case 1:
-        d_5d9c_a2ae = &d_5d9c_1d21;
-        d_5d9c_a31c = 0;
+        current_font = &medium_font;
+        small_font_selected = 0;
         break;
     case 2:
-        d_5d9c_a2ae = &d_5d9c_1d33;
-        d_5d9c_a31c = 0;
+        current_font = &large_font;
+        small_font_selected = 0;
         break;
     }
-    d_5d9c_9dcd = f;
+    current_font_id = font;
 }
 
-void f_14d2_0870(int x, int y, char far *s)
+void draw_text(int x, int y, char far *s)
 {
-    f_14d2_1a56();
-    f_14d2_0899(d_5d9c_a078, x, y, s);
-    f_14d2_1963();
+    hide_pointer();
+    draw_text_in_colour(draw_colour, x, y, s);
+    show_pointer();
 }
 
-void f_14d2_0899(int colour, int x, int y, char far *s)
+void draw_text_in_colour(int colour, int x, int y, char far *s)
 {
-    y -= d_5d9c_a2ae->h + d_5d9c_a2ae->base;
+    y -= current_font->h + current_font->base;
     while (*s) {
-        f_14d2_08e3(colour, x, y, *s++);
-        x += d_5d9c_a2ae->w + 1;
+        draw_char(colour, x, y, *s++);
+        x += current_font->w + 1;
     }
 }
 
-void f_14d2_08e3(int colour, int x, int y, char c)
+void draw_char(int colour, int x, int y, char c)
 {
-    char far *d;
-    char far *g;
+    char far *dst;
+    char far *glyph;
     unsigned skip;
     char bits;
-    unsigned i, j;
+    unsigned row, col;
 
-    g = d_5d9c_a2ae->buf + (c - 32) * (d_5d9c_a2ae->h + 1);
-    if (d_5d9c_a31e == 2) {
-        d = d_5d9c_a2b2 + y * 320 + x;
-        skip = 320 - d_5d9c_a2ae->w - 1;
-        for (i = 0; i <= d_5d9c_a2ae->h; i++) {
-            bits = *g++;
-            for (j = 0; j <= d_5d9c_a2ae->w; j++) {
+    glyph = current_font->buf + (c - 32) * (current_font->h + 1);
+    if (video_mode == 2) {
+        dst = vga_memory + y * 320 + x;
+        skip = 320 - current_font->w - 1;
+        for (row = 0; row <= current_font->h; row++) {
+            bits = *glyph++;
+            for (col = 0; col <= current_font->w; col++) {
                 if (bits & 0x80)
-                    *d = colour;
-                else if (d_5d9c_1ceb == 1)
-                    *d = d_5d9c_a079;
-                d++;
+                    *dst = colour;
+                else if (text_opaque == 1)
+                    *dst = fill_colour;
+                dst++;
                 bits <<= 1;
             }
-            d += skip;
+            dst += skip;
         }
     } else
-        f_1ab9_0271(g, x, y, colour, d_5d9c_a079, d_5d9c_1ceb, d_5d9c_a2ae->h + 1);
+        draw_glyph_planar(glyph, x, y, colour, fill_colour, text_opaque, current_font->h + 1);
 }
 
-void f_14d2_09c3(char mode)
+void set_text_opaque(char mode)
 {
-    d_5d9c_1ceb = mode;
+    text_opaque = mode;
 }
 
 /* 1-based position of set in s, 0 if not found. */
-unsigned f_14d2_09ce(char far *s, char far *set)
+unsigned find_substring(char far *haystack, char far *needle)
 {
-    char far *p;
-    unsigned k;
+    char far *hit;
+    unsigned pos;
 
-    p = strstr(s, set);
-    if (p != NULL) {
-        k = p - s + 1;
-        if (strlen(s) >= k)
-            return k;
+    hit = strstr(haystack, needle);
+    if (hit != NULL) {
+        pos = hit - haystack + 1;
+        if (strlen(haystack) >= pos)
+            return pos;
     }
     return 0;
 }
 
 /* 1-based position of the last occurrence of set in s, 0 if not found. */
-unsigned f_14d2_0a1c(char far *s, char far *set)
+unsigned find_last_substring(char far *haystack, char far *needle)
 {
-    char far *p;
-    char far *q;
-    unsigned t;
-    unsigned k;
+    char far *hit;
+    char far *next;
+    unsigned next_pos;
+    unsigned pos;
 
-    p = strstr(s, set);
-    if (p != NULL) {
+    hit = strstr(haystack, needle);
+    if (hit != NULL) {
         for (;;) {
-            if ((q = strstr(p + 1, set)) == NULL)
+            if ((next = strstr(hit + 1, needle)) == NULL)
                 break;
-            t = q - s + 1;
-            if (strlen(s) < t)
+            next_pos = next - haystack + 1;
+            if (strlen(haystack) < next_pos)
                 break;
-            p = q;
+            hit = next;
         }
-        k = p - s + 1;
-        if (strlen(s) >= k)
-            return k;
+        pos = hit - haystack + 1;
+        if (strlen(haystack) >= pos)
+            return pos;
     }
     return 0;
 }
 
-int f_14d2_0ab9(void)
+int get_mouse_y(void)
 {
-    return d_5d9c_1d48;
+    return mouse_y;
 }
 
-int f_14d2_0ac1(void)
+int get_mouse_x(void)
 {
-    return d_5d9c_1d46;
+    return mouse_x;
 }
 
-int f_14d2_0ac9(void)
+int take_mouse_clicks(void)
 {
-    int n;
+    int clicks;
 
-    f_14d2_1aa6();
-    n = d_5d9c_1d4c;
-    d_5d9c_1d4c = 0;
-    if (n)
-        f_14d2_0af4(3);
-    return n;
+    poll_mouse();
+    clicks = mouse_clicks;
+    mouse_clicks = 0;
+    if (clicks)
+        play_effect_stub(3);
+    return clicks;
 }
 
-void f_14d2_0aef(void)
-{
-}
-
-void f_14d2_0af4(int a)
+void empty_stub(void)
 {
 }
 
-void f_14d2_0af9(void)
+void play_effect_stub(int effect)
+{
+}
+
+void wait_mouse_release(void)
 {
     do
-        f_14d2_1aa6();
-    while (d_5d9c_1d4c != 0);
+        poll_mouse();
+    while (mouse_clicks != 0);
 }
 
 /* Read a "quoted" field, then skip to the end of the line. */
-void f_14d2_0b0a(FILE *fp, char far *dst)
+void read_quoted_field(FILE *fp, char far *dst)
 {
-    int c;
+    int ch;
 
     fgetc(fp);
-    while ((c = fgetc(fp)) != '"')
-        *dst++ = c;
+    while ((ch = fgetc(fp)) != '"')
+        *dst++ = ch;
     *dst = 0;
     while (fgetc(fp) != '\n')
         ;
 }
 
-void f_14d2_0b5d(FILE *fp, char far *buf)
+void read_line(FILE *fp, char far *buf)
 {
     fgets(buf, 160, fp);
     buf[strlen(buf) - 1] = 0;
 }
 
-void f_14d2_0b91(FILE *fp, char far *s)
+void write_line(FILE *fp, char far *line)
 {
-    fprintf(fp, "%s\n", s);
+    fprintf(fp, "%s\n", line);
 }
 
-char far *f_14d2_0baf(void)
+char far *poll_key_string(void)
 {
-    char far *p;
-    int c;
+    char far *buf;
+    int key;
 
-    p = f_14d2_0d40();
-    c = 0;
+    buf = next_text_buffer();
+    key = 0;
     if (kbhit())
-        c = getch();
-    p[0] = c;
-    p[1] = 0;
-    return p;
+        key = getch();
+    buf[0] = key;
+    buf[1] = 0;
+    return buf;
 }
 
-int f_14d2_0bee(void)
+int random_next(void)
 {
-    d_5d9c_1d4e = d_5d9c_1d4e * 1103515245L + 12345;
-    return (d_5d9c_1d4e >> 16) & 0x7fff;
+    random_seed = random_seed * 1103515245L + 12345;
+    return (random_seed >> 16) & 0x7fff;
 }
 
-void f_14d2_0c19(void)
+void seed_random_from_clock(void)
 {
-    d_5d9c_1d4e = f_14d2_0ca0();
+    random_seed = clock_ticks();
 }
 
-int f_14d2_0c2a(int n)
+int random_below(int limit)
 {
-    if (n)
-        return f_14d2_0bee() % n;
+    if (limit)
+        return random_next() % limit;
     return 0;
 }
 
-int f_14d2_0c45(char far *path)
+int file_exists(char far *path)
 {
     if (access(path, 0))
         return 0;
     return -1;
 }
 
-void f_14d2_0c66(int ticks)
+void wait_ticks(int ticks)
 {
-    long t;
+    long start;
 
-    t = f_14d2_0ca0();
-    while (f_14d2_0ca0() < t + ticks * 4)
+    start = clock_ticks();
+    while (clock_ticks() < start + ticks * 4)
         ;
 }
 
 /* Clock ticks, x 11, not going back at midnight. */
-long f_14d2_0ca0(void)
+long clock_ticks(void)
 {
-    long t;
+    long ticks;
 
-    _bios_timeofday(0, &t);
-    if (t + d_5d9c_1d52 < d_5d9c_1d56)
-        d_5d9c_1d52 += 300000L;
-    d_5d9c_1d56 = t + d_5d9c_1d52;
-    return d_5d9c_1d56 * 11;
+    _bios_timeofday(0, &ticks);
+    if (ticks + midnight_tick_offset < last_clock_ticks)
+        midnight_tick_offset += 300000L;
+    last_clock_ticks = ticks + midnight_tick_offset;
+    return last_clock_ticks * 11;
 }
 
-char far *f_14d2_0d08(char far *s)
+char far *upper_case(char far *src)
 {
-    char far *p;
+    char far *buf;
 
-    p = f_14d2_0d40();
-    strcpy(p, s);
-    strupr(p);
-    return p;
+    buf = next_text_buffer();
+    strcpy(buf, src);
+    strupr(buf);
+    return buf;
 }
 
 /* The next of six text buffers. */
-char far *f_14d2_0d40(void)
+char far *next_text_buffer(void)
 {
-    char far *p = d_1f3e_0000[d_5d9c_9b93++];
+    char far *buf = text_buffers[text_buffer_index++];
 
-    if (d_5d9c_9b93 > 5)
-        d_5d9c_9b93 = 0;
-    return p;
+    if (text_buffer_index > 5)
+        text_buffer_index = 0;
+    return buf;
 }
 
 /* The last n characters of s. */
-char far *f_14d2_0d75(char far *s, unsigned n)
+char far *right_chars(char far *src, unsigned count)
 {
-    char far *p;
-    unsigned l;
+    char far *buf;
+    unsigned len;
 
-    p = f_14d2_0d40();
-    l = strlen(s);
-    if (n <= l)
-        strcpy(p, s + (l - n));
+    buf = next_text_buffer();
+    len = strlen(src);
+    if (count <= len)
+        strcpy(buf, src + (len - count));
     else
-        strcpy(p, s);
-    return p;
+        strcpy(buf, src);
+    return buf;
 }
 
 /* n characters of s from position i (1-based). */
-char far *f_14d2_0dc8(char far *s, unsigned i, unsigned n)
+char far *mid_chars(char far *src, unsigned start, unsigned count)
 {
-    unsigned l;
-    char far *p;
+    unsigned len;
+    char far *buf;
 
-    p = f_14d2_0d40();
-    l = strlen(s);
-    if (i > l)
-        *p = 0;
+    buf = next_text_buffer();
+    len = strlen(src);
+    if (start > len)
+        *buf = 0;
     else
-        sprintf(p, "%.*s", n, s + (i - 1));
-    return p;
+        sprintf(buf, "%.*s", count, src + (start - 1));
+    return buf;
 }
 
-void f_14d2_0e27(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+void draw_line(unsigned from_x, unsigned from_y, unsigned to_x, unsigned to_y)
 {
-    f_14d2_1a56();
-    if (d_5d9c_a31e == 2)
-        f_1ab9_0004(x1, y1, x2, y2, d_5d9c_a078);
+    hide_pointer();
+    if (video_mode == 2)
+        draw_line_vga256(from_x, from_y, to_x, to_y, draw_colour);
     else
-        f_1ab9_00ec(x1, y1, x2, y2, d_5d9c_a078);
-    f_14d2_1963();
+        draw_line_planar(from_x, from_y, to_x, to_y, draw_colour);
+    show_pointer();
 }
 
 /* s without leading and trailing spaces. */
-char far *f_14d2_0e72(char far *s)
+char far *trim_spaces(char far *src)
 {
-    char far *p;
+    char far *buf;
     int i;
 
-    p = f_14d2_0d40();
-    for (i = 0; s[i] == ' '; i++)
+    buf = next_text_buffer();
+    for (i = 0; src[i] == ' '; i++)
         ;
-    strcpy(p, s + i);
-    if (strlen(p))
-        for (i = strlen(p) - 1; i >= 0; i--)
-            if (p[i] == ' ')
-                p[i] = 0;
+    strcpy(buf, src + i);
+    if (strlen(buf))
+        for (i = strlen(buf) - 1; i >= 0; i--)
+            if (buf[i] == ' ')
+                buf[i] = 0;
             else
                 break;
-    return p;
+    return buf;
 }
 
-float f_14d2_0eef(void)
+float random_fraction(void)
 {
     return rand() / 32767.0;
 }
 
-void f_14d2_0f0a(int x, int y)
+void save_pointer_background(int x, int y)
 {
-    char far *s;
-    char far *d;
-    unsigned j, i;
+    char far *screen;
+    char far *saved;
+    unsigned col, row;
 
-    s = d_5d9c_a2b2 + y * 320 + x;
-    d = d_5d9c_a2b6;
-    for (i = 0; i < 8; i++) {
-        for (j = 0; j < 8; j++)
-            *d++ = *s++;
-        s += 312;
+    screen = vga_memory + y * 320 + x;
+    saved = pointer_background;
+    for (row = 0; row < 8; row++) {
+        for (col = 0; col < 8; col++)
+            *saved++ = *screen++;
+        screen += 312;
     }
 }
 
-void f_14d2_0f5e(int x, int y)
+void restore_pointer_background(int x, int y)
 {
-    char far *s;
-    char far *d;
-    unsigned j, i;
+    char far *saved;
+    char far *screen;
+    unsigned col, row;
 
-    d = d_5d9c_a2b2 + y * 320 + x;
-    s = d_5d9c_a2b6;
-    for (i = 0; i < 8; i++) {
-        for (j = 0; j < 8; j++)
-            *d++ = *s++;
-        d += 312;
+    screen = vga_memory + y * 320 + x;
+    saved = pointer_background;
+    for (row = 0; row < 8; row++) {
+        for (col = 0; col < 8; col++)
+            *screen++ = *saved++;
+        screen += 312;
     }
 }
 
 /* Move the rectangle up by dy rows and fill the rows it leaves with colour. */
-void f_14d2_0fb2(unsigned x, int y, unsigned x2, unsigned y2, int dy, int colour)
+void scroll_rect_up(unsigned left, int top, unsigned right, unsigned bottom, int lines, int colour)
 {
-    char far *p;
-    char far *q;
-    char far *a;
-    char far *b;
-    char c;
-    unsigned j;
+    char far *src_row;
+    char far *dst_row;
+    char far *src;
+    char far *dst;
+    char saved_colour;
+    unsigned col;
 
-    f_14d2_1a56();
-    if (d_5d9c_a31e == 2) {
-        p = d_5d9c_a2b2 + y * 320 + x;
-        q = p - dy * 320;
-        for (; y <= y2; y++) {
-            a = p;
-            b = q;
-            for (j = x; j <= x2; j++)
-                *b++ = *a++;
-            p += 320;
-            q += 320;
+    hide_pointer();
+    if (video_mode == 2) {
+        src_row = vga_memory + top * 320 + left;
+        dst_row = src_row - lines * 320;
+        for (; top <= bottom; top++) {
+            src = src_row;
+            dst = dst_row;
+            for (col = left; col <= right; col++)
+                *dst++ = *src++;
+            src_row += 320;
+            dst_row += 320;
         }
-        for (y = 0; y < dy; y++) {
-            b = q;
-            for (j = x; j <= x2; j++)
-                *b++ = colour;
-            p += 320;
-            q += 320;
+        for (top = 0; top < lines; top++) {
+            dst = dst_row;
+            for (col = left; col <= right; col++)
+                *dst++ = colour;
+            src_row += 320;
+            dst_row += 320;
         }
     } else {
-        c = d_5d9c_a078;
-        d_5d9c_a366 = f_14d2_16bc(d_5d9c_a364, 0);
-        f_1ab9_0322(x, y, x2, y2, d_5d9c_a366, 0xa000);
-        f_1ab9_03ad(x, y - dy, d_5d9c_a366, 0xa000);
-        d_5d9c_a078 = d_5d9c_1d00[colour - 17];
-        for (y = y2 - dy + 1; y <= y2; y++)
-            f_14d2_0e27(x, y, x2, y);
-        d_5d9c_a078 = c;
+        saved_colour = draw_colour;
+        screen_buffer = vm_map(screen_vm_block, 0);
+        save_planar_rect(left, top, right, bottom, screen_buffer, 0xa000);
+        restore_planar_rect(left, top - lines, screen_buffer, 0xa000);
+        draw_colour = ega_colour_map[colour - 17];
+        for (top = bottom - lines + 1; top <= bottom; top++)
+            draw_line(left, top, right, top);
+        draw_colour = saved_colour;
     }
-    f_14d2_1963();
+    show_pointer();
 }
 
-void f_14d2_1105(void)
+void protection_check(void)
 {
-    long t;
-    unsigned q;
-    unsigned page;
+    long answer;
+    unsigned season_idx;
+    unsigned division;
     char buf[160];
-    register unsigned n;
+    register unsigned question;
 
     _SI = 0;                                /* tries: never counted since the patch */
-    f_a1c3_27e4("PROTECTION SCREEN");
-    n = f_14d2_0c2a(180);
-    q = n % 45;
-    page = n / 45;
-    d_5d9c_9b00 = 11.0;
-    f_14d2_0722(16);
-    f_14d2_075a(d_5d9c_9b00 * 8.0 + 6.0, 40, (d_5d9c_9b00 + 16.0) * 8.0 + 19.0, 54);
-    f_1680_2ea0(d_5d9c_9b00, -5.0, 1, 4, 0, " REFER TO BOX LID ");
+    new_screen("PROTECTION SCREEN");
+    question = random_below(180);
+    season_idx = question % 45;
+    division = question / 45;
+    text_x = 11.0;
+    set_fill_colour(16);
+    fill_rect(text_x * 8.0 + 6.0, 40, (text_x + 16.0) * 8.0 + 19.0, 54);
+    draw_text_box(text_x, -5.0, 1, 4, 0, " REFER TO BOX LID ");
     sprintf(buf, "What was the league attendance in");
-    f_1680_2d78(5.0, 10.0, 6, buf);
-    sprintf(buf, "division %d in %d/%d season.", page + 1, q + 46, q + 47);
-    f_1680_2d78(8.0, 13.0, 6, buf);
-    f_14d2_073e(17);
-    f_14d2_0824(0);
-    f_14d2_0870(273, 199, "V 1.02");
-    f_a1c3_290e(2.0, 10, "Input");
-    t = atol(d_1f3e_4fcc);
-    /* The comparison with the answer, d_5d9c_0254[n], is patched out in this copy of
+    draw_text_font2(5.0, 10.0, 6, buf);
+    sprintf(buf, "division %d in %d/%d season.", division + 1, season_idx + 46, season_idx + 47);
+    draw_text_font2(8.0, 13.0, 6, buf);
+    set_draw_colour(17);
+    select_font(0);
+    draw_text(273, 199, "V 1.02");
+    prompt_text_input(2.0, 10, "Input");
+    answer = atol(input_text);
+    /* The comparison with the answer, protection_answers[question], is patched out in this copy of
        the game (a crack: the jump and what followed are NOPs, and the tries in SI are
        never counted). No C gives these bytes; they are reproduced as they are. */
-    asm db 8Bh, 0DFh                    /* mov bx, di (n): the compiler's encoding */
+    asm db 8Bh, 0DFh                    /* mov bx, di (question): the compiler's encoding */
     asm mov cl, 2
     asm shl bx, cl
-    asm mov ax, word ptr d_5d9c_0254[bx+2]
-    asm mov dx, word ptr d_5d9c_0254[bx]
-    asm cmp ax, word ptr t+2
+    asm mov ax, word ptr protection_answers[bx+2]
+    asm mov dx, word ptr protection_answers[bx]
+    asm cmp ax, word ptr answer+2
     asm jne patched
-    asm cmp dx, word ptr t
+    asm cmp dx, word ptr answer
     asm nop
     asm nop
 patched:
@@ -880,246 +880,246 @@ patched:
     asm nop
     asm nop
     if (_SI == 3) {
-        f_14d2_12ea();
+        restore_system();
         exit(0);
     }
 }
 
-void f_14d2_12ea(void)
+void restore_system(void)
 {
-    if (d_5d9c_1ced)
-        f_1a51_019c(d_5d9c_a31a);
+    if (vm_in_ems)
+        ems_free(ems_handle);
     else
         remove("VM.$$$");
     _AH = 0;
-    _AL = d_5d9c_a31f;
+    _AL = startup_video_mode;
     geninterrupt(0x10);
-    if (d_5d9c_1cec)
-        f_1ab2_005c();
-    if (d_5d9c_a06c == 0)
-        f_14b7_003e();
+    if (sound_device)
+        remove_music_driver();
+    if (mouse_driver_present == 0)
+        remove_keyboard_handler();
 }
 
-void f_14d2_132d(void)
+void load_music(void)
 {
-    int h;
+    int fd;
 
-    if (d_5d9c_1cec) {
-        d_5d9c_a320 = malloc(d_5d9c_1cec == 'A' ? 9100 : 22232);
-        d_5d9c_a324 = MK_FP(FP_SEG(d_5d9c_a320) + 1, 0);
-        if (d_5d9c_1cec == 'A')
-            h = open("CMAN2.ALB", O_RDONLY);
+    if (sound_device) {
+        music_mem = malloc(sound_device == 'A' ? 9100 : 22232);
+        music_data = MK_FP(FP_SEG(music_mem) + 1, 0);
+        if (sound_device == 'A')
+            fd = open("CMAN2.ALB", O_RDONLY);
         else
-            h = open("CMANRLD.RLD", O_RDONLY);
-        read(h, d_5d9c_a324, 25000);
-        close(h);
-        f_1ab2_0029(d_5d9c_a324);
-        if (d_5d9c_1cec == 'R')
-            f_1ab2_000e();
+            fd = open("CMANRLD.RLD", O_RDONLY);
+        read(fd, music_data, 25000);
+        close(fd);
+        start_music(music_data);
+        if (sound_device == 'R')
+            mt32_music_setup();
     }
 }
 
-float f_14d2_13c3(float a, float b)
+float max_float(float lhs, float rhs)
 {
-    return a > b ? a : b;
+    return lhs > rhs ? lhs : rhs;
 }
 
-int f_14d2_13eb(int a, int b)
+int max_int(int lhs, int rhs)
 {
-    return a > b ? a : b;
+    return lhs > rhs ? lhs : rhs;
 }
 
-long f_14d2_1400(long a, long b)
+long max_long(long lhs, long rhs)
 {
-    return a > b ? a : b;
+    return lhs > rhs ? lhs : rhs;
 }
 
-float f_14d2_1425(float a, float b)
+float min_float(float lhs, float rhs)
 {
-    return a < b ? a : b;
+    return lhs < rhs ? lhs : rhs;
 }
 
-int f_14d2_144d(int a, int b)
+int min_int(int lhs, int rhs)
 {
-    return a < b ? a : b;
+    return lhs < rhs ? lhs : rhs;
 }
 
-long f_14d2_1462(long a, long b)
+long min_long(long lhs, long rhs)
 {
-    return a < b ? a : b;
+    return lhs < rhs ? lhs : rhs;
 }
 
-int f_14d2_1487(void)
+int always_true(void)
 {
     return 1;
 }
 
-void f_14d2_148f(char far *a, char far *b, unsigned n)
+void swap_bytes(char far *buf_a, char far *buf_b, unsigned len)
 {
-    char c;
+    char tmp;
     unsigned i;
 
-    for (i = 0; i < n; i++) {
-        c = *a;
-        *a++ = *b;
-        *b++ = c;
+    for (i = 0; i < len; i++) {
+        tmp = *buf_a;
+        *buf_a++ = *buf_b;
+        *buf_b++ = tmp;
     }
 }
 
 /* Allocate a virtual memory block of size bytes; returns its handle. */
-int f_14d2_14cb(long size)
+int vm_alloc(long size)
 {
-    int h;
+    int fd;
 
-    if (d_5d9c_1d5a == 0) {
-        if ((d_5d9c_a2aa = farcalloc(64124L, 1L)) == NULL) {
+    if (vm_block_count == 0) {
+        if ((vm_work_buffer = farcalloc(64124L, 1L)) == NULL) {
             printf("No room for virtual memory\n");
             exit(-1);
         }
-        if (f_1a51_0002() == 0) {
-            d_5d9c_a31a = f_1a51_015d(300000L);
-            if (d_5d9c_2c17 == 0)
-                d_5d9c_1ced = -1;
+        if (ems_init() == 0) {
+            ems_handle = ems_alloc(300000L);
+            if (ems_error == 0)
+                vm_in_ems = -1;
         }
-        if (d_5d9c_1ced == 0) {
-            h = open("VM.$$$", O_CREAT | O_TRUNC | O_WRONLY, S_IREAD | S_IWRITE);
-            write(h, d_5d9c_a2aa, 1);
-            close(h);
+        if (vm_in_ems == 0) {
+            fd = open("VM.$$$", O_CREAT | O_TRUNC | O_WRONLY, S_IREAD | S_IWRITE);
+            write(fd, vm_work_buffer, 1);
+            close(fd);
         }
-        for (h = 0; h < 40; h++) {
-            d_5d9c_a1ba[h].block = -1;
-            d_5d9c_a07a[h].size = 0;
+        for (fd = 0; fd < 40; fd++) {
+            vm_slots[fd].block = -1;
+            vm_blocks[fd].size = 0;
         }
     }
-    d_5d9c_a07a[d_5d9c_1d5a].size = size;
-    if (d_5d9c_1ced) {
-        d_5d9c_a07a[d_5d9c_1d5a].off = d_5d9c_1d5a == 0 ? 0 :
-            d_5d9c_a07a[d_5d9c_1d5a - 1].off + d_5d9c_a07a[d_5d9c_1d5a - 1].size;
-        f_1a51_02d4(d_5d9c_a07a[d_5d9c_1d5a].size, d_5d9c_a2aa, d_5d9c_a31a, d_5d9c_a07a[d_5d9c_1d5a].off);
+    vm_blocks[vm_block_count].size = size;
+    if (vm_in_ems) {
+        vm_blocks[vm_block_count].off = vm_block_count == 0 ? 0 :
+            vm_blocks[vm_block_count - 1].off + vm_blocks[vm_block_count - 1].size;
+        ems_write(vm_blocks[vm_block_count].size, vm_work_buffer, ems_handle, vm_blocks[vm_block_count].off);
     } else {
-        d_5d9c_a07a[d_5d9c_1d5a].off = d_5d9c_1d5a == 0 ? 0 :
-            d_5d9c_a07a[d_5d9c_1d5a - 1].off + d_5d9c_a07a[d_5d9c_1d5a - 1].size;
-        h = open("VM.$$$", O_RDWR);
-        lseek(h, d_5d9c_a07a[d_5d9c_1d5a].off, 0);
-        write(h, d_5d9c_a2aa, size);
-        close(h);
+        vm_blocks[vm_block_count].off = vm_block_count == 0 ? 0 :
+            vm_blocks[vm_block_count - 1].off + vm_blocks[vm_block_count - 1].size;
+        fd = open("VM.$$$", O_RDWR);
+        lseek(fd, vm_blocks[vm_block_count].off, 0);
+        write(fd, vm_work_buffer, size);
+        close(fd);
     }
-    return d_5d9c_1d5a++;
+    return vm_block_count++;
 }
 
 /* Map a virtual memory block into the work buffer (dirty: it will be changed). */
-void far *f_14d2_16bc(int handle, int dirty)
+void far *vm_map(int handle, int dirty)
 {
-    char far *p;
+    char far *mem;
     int i;
     int fd;
 
     for (i = 0; i < 40; i++)
-        if (d_5d9c_a1ba[i].block == handle) {
+        if (vm_slots[i].block == handle) {
             if (dirty == 1)
-                d_5d9c_a1ba[i].dirty = dirty;
-            return d_5d9c_a1ba[i].p;
+                vm_slots[i].dirty = dirty;
+            return vm_slots[i].p;
         }
-    if (d_5d9c_1ced == 0)
+    if (vm_in_ems == 0)
         fd = open("VM.$$$", O_RDWR);
-    if (d_5d9c_1d5c + d_5d9c_a07a[handle].size > 64124L) {
+    if (vm_buffer_used + vm_blocks[handle].size > 64124L) {
         for (i = 0; i < 40; i++)
-            if (d_5d9c_a1ba[i].block >= 0) {
-                if (d_5d9c_a1ba[i].dirty == 1) {
-                    if (d_5d9c_1ced == 0) {
-                        lseek(fd, d_5d9c_a07a[d_5d9c_a1ba[i].block].off, 0);
-                        write(fd, d_5d9c_a1ba[i].p, d_5d9c_a07a[d_5d9c_a1ba[i].block].size);
+            if (vm_slots[i].block >= 0) {
+                if (vm_slots[i].dirty == 1) {
+                    if (vm_in_ems == 0) {
+                        lseek(fd, vm_blocks[vm_slots[i].block].off, 0);
+                        write(fd, vm_slots[i].p, vm_blocks[vm_slots[i].block].size);
                     } else
-                        f_1a51_02d4(d_5d9c_a07a[d_5d9c_a1ba[i].block].size, d_5d9c_a1ba[i].p, d_5d9c_a31a,
-                                    d_5d9c_a07a[d_5d9c_a1ba[i].block].off);
+                        ems_write(vm_blocks[vm_slots[i].block].size, vm_slots[i].p, ems_handle,
+                                    vm_blocks[vm_slots[i].block].off);
                 }
-                d_5d9c_a1ba[i].block = -1;
+                vm_slots[i].block = -1;
             }
-        d_5d9c_1d5c = 0;
+        vm_buffer_used = 0;
     }
     for (i = 0; i < 40; i++)
-        if (d_5d9c_a1ba[i].block == -1)
+        if (vm_slots[i].block == -1)
             break;
-    p = d_5d9c_a2aa + d_5d9c_1d5c;
-    if (d_5d9c_1ced == 0) {
-        lseek(fd, d_5d9c_a07a[handle].off, 0);
-        read(fd, p, d_5d9c_a07a[handle].size);
+    mem = vm_work_buffer + vm_buffer_used;
+    if (vm_in_ems == 0) {
+        lseek(fd, vm_blocks[handle].off, 0);
+        read(fd, mem, vm_blocks[handle].size);
         close(fd);
     } else
-        f_1a51_0434(d_5d9c_a07a[handle].size, d_5d9c_a31a, d_5d9c_a07a[handle].off, p);
-    d_5d9c_a1ba[i].block = handle;
-    d_5d9c_a1ba[i].dirty = dirty;
-    d_5d9c_a1ba[i].p = p;
-    d_5d9c_1d5c = d_5d9c_1d5c + d_5d9c_a07a[handle].size;
-    return p;
+        ems_read(vm_blocks[handle].size, ems_handle, vm_blocks[handle].off, mem);
+    vm_slots[i].block = handle;
+    vm_slots[i].dirty = dirty;
+    vm_slots[i].p = mem;
+    vm_buffer_used = vm_buffer_used + vm_blocks[handle].size;
+    return mem;
 }
 
-void f_14d2_1951(void)
+void init_mouse(void)
 {
     asm mov ax, 0                           /* not xor: the flags are not changed */
     geninterrupt(0x33);
-    d_5d9c_a06c = _AX;
-    d_5d9c_1cea = 1;
+    mouse_driver_present = _AX;
+    mouse_initialised = 1;
 }
 
 /* Show the mouse pointer (drawn by hand without a mouse driver). */
-void f_14d2_1963(void)
+void show_pointer(void)
 {
     int font;
     char colour;
     char mode;
 
-    if (d_5d9c_a06c) {
+    if (mouse_driver_present) {
         _AX = 1;
         geninterrupt(0x33);
-    } else if (d_5d9c_1d4a == 0 && d_5d9c_1cea) {
-        font = d_5d9c_9dcd;
-        colour = d_5d9c_a078;
-        mode = d_5d9c_1ceb;
-        d_5d9c_a070 = d_5d9c_1d46;
-        d_5d9c_a06e = d_5d9c_1d48;
-        if (d_5d9c_a31e == 1)
-            f_1ab9_0322(d_5d9c_a070, d_5d9c_a06e, d_5d9c_a070 + 8, d_5d9c_a06e + 8, d_5d9c_a2b6, 0xa000);
+    } else if (pointer_visible == 0 && mouse_initialised) {
+        font = current_font_id;
+        colour = draw_colour;
+        mode = text_opaque;
+        pointer_drawn_x = mouse_x;
+        pointer_drawn_y = mouse_y;
+        if (video_mode == 1)
+            save_planar_rect(pointer_drawn_x, pointer_drawn_y, pointer_drawn_x + 8, pointer_drawn_y + 8, pointer_background, 0xa000);
         else
-            f_14d2_0f0a(d_5d9c_a070, d_5d9c_a06e);
-        f_14d2_0824(1);
-        d_5d9c_1ceb = 0;
-        f_14d2_073e(17);
-        f_14d2_08e3(d_5d9c_a078, d_5d9c_a070, d_5d9c_a06e, 0x7e);
-        f_14d2_073e(16);
-        f_14d2_08e3(d_5d9c_a078, d_5d9c_a070, d_5d9c_a06e, 0x7f);
-        d_5d9c_1ceb = mode;
-        d_5d9c_a078 = colour;
-        f_14d2_0824(font);
-        d_5d9c_1d4a = 1;
+            save_pointer_background(pointer_drawn_x, pointer_drawn_y);
+        select_font(1);
+        text_opaque = 0;
+        set_draw_colour(17);
+        draw_char(draw_colour, pointer_drawn_x, pointer_drawn_y, 0x7e);
+        set_draw_colour(16);
+        draw_char(draw_colour, pointer_drawn_x, pointer_drawn_y, 0x7f);
+        text_opaque = mode;
+        draw_colour = colour;
+        select_font(font);
+        pointer_visible = 1;
     }
 }
 
-void f_14d2_1a56(void)
+void hide_pointer(void)
 {
-    if (d_5d9c_a06c) {
+    if (mouse_driver_present) {
         _AX = 2;
         geninterrupt(0x33);
-    } else if (d_5d9c_1d4a) {
-        if (d_5d9c_a31e == 1)
-            f_1ab9_03ad(d_5d9c_a070, d_5d9c_a06e, d_5d9c_a2b6, 0xa000);
+    } else if (pointer_visible) {
+        if (video_mode == 1)
+            restore_planar_rect(pointer_drawn_x, pointer_drawn_y, pointer_background, 0xa000);
         else
-            f_14d2_0f5e(d_5d9c_a070, d_5d9c_a06e);
-        d_5d9c_1d4a = 0;
+            restore_pointer_background(pointer_drawn_x, pointer_drawn_y);
+        pointer_visible = 0;
     }
 }
 
-void f_14d2_1aa6(void)
+void poll_mouse(void)
 {
-    if (d_5d9c_a06c) {
+    if (mouse_driver_present) {
         _AX = 3;
         geninterrupt(0x33);
-        d_5d9c_1d4c = _BX;
-        d_5d9c_1d46 = _CX;
-        d_5d9c_1d48 = _DX;
-        d_5d9c_1d46 >>= 1;
-    } else if (d_5d9c_a070 != d_5d9c_1d46 || d_5d9c_a06e != d_5d9c_1d48) {
-        f_14d2_1a56();
-        f_14d2_1963();
+        mouse_clicks = _BX;
+        mouse_x = _CX;
+        mouse_y = _DX;
+        mouse_x >>= 1;
+    } else if (pointer_drawn_x != mouse_x || pointer_drawn_y != mouse_y) {
+        hide_pointer();
+        show_pointer();
     }
 }

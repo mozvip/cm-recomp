@@ -2,8 +2,8 @@
 #   EXE_NAME   the original executable (file name inside GAME_DIR, any case)
 #   LINK_DATE  optional: the link date (MM-DD-YYYY); default: the one TLINK stored in it
 #   BCCFLAGS   default compiler options (a source can add its own with @flags)
-#   CC_TC      optional: compiler (tcdos.sh -T), bc31 (default) or bc4
-#   LD_TC      optional: linker, tc (TLINK 5.0, default) or bc4 (TLINK 6.1)
+#   CC_TC      optional: compiler (tcdos.sh -T), bc31 (default) or bc402
+#   LD_TC      optional: linker, tc (TLINK 5.0, default) or bc402 (TLINK 6.1)
 #   LIBS       optional: the startup object and libraries (paths from the repository root,
 #              in link order) the runtime is linked from instead of blobs
 # GAME_DIR (your copy of the game) defaults to the game's directory, games/<game>.

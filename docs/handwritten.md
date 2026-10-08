@@ -10,7 +10,7 @@ game keeps working at every step.
 |---|---|
 | `games/<game>/overrides.txt` | One `SEG:OFS name` per line: the functions that are hand-written |
 | `games/<game>/src/*.c` | The hand-written functions (compiled with warnings, unlike `recomp/`) |
-| `games/<game>/names.txt` | Optional `SEG:OFS name` lines: names for translated functions (see [Naming functions](#naming-functions)) |
+| `games/<game>/names.txt` | Optional `SEG:OFS name [f\|d]` lines: names for translated functions (see [Naming functions](#naming-functions)); `d` lines name data for the decompiled sources and are skipped here |
 | [`runtime/hand.h`](../runtime/hand.h) | `RC_REPLACE`, argument and return helpers |
 | [`runtime/verify.c`](../runtime/verify.c) | The `RC_VERIFY` differential check |
 

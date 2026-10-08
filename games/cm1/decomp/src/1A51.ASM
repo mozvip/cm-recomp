@@ -20,8 +20,8 @@ physpage dw     -1                      ; the physical page the copies map throu
 frameseg dw     0                       ; its segment
 curhandle dw    -1                      ; the handle and logical page mapped there
 curpage dw      0
-        public  _d_5d9c_2c17
-_d_5d9c_2c17 db 0                       ; EMM status of the last call
+        public  _ems_error
+_ems_error db 0                       ; EMM status of the last call
 version db      0                       ; EMM version (BCD), 0 until asked
         db      'EMS interface library version 2.16', 0
         db      '07/23/91', 0
@@ -29,14 +29,14 @@ version db      0                       ; EMM version (BCD), 0 until asked
         db      'Copyright (c) 1991 James W. Birdsall.All Rights Reserved.', 0
 _DATA   ends
 
-status  equ     _d_5d9c_2c17
+status  equ     _ems_error
 
 CSEG_   segment byte public 'CODE'
         assume  cs:CSEG_, ds:DGROUP
 
-        public  _f_1a51_0002, _f_1a51_015d, _f_1a51_019c, _f_1a51_02d4, _f_1a51_0434
+        public  _ems_init, _ems_alloc, _ems_free, _ems_write, _ems_read
 
-_f_1a51_0002 proc far                   ; init: 0 when an EMM is there
+_ems_init proc far                   ; init: 0 when an EMM is there
         push    bx
         push    cx
         push    dx
@@ -80,7 +80,7 @@ _f_1a51_0002 proc far                   ; init: 0 when an EMM is there
         pop     cx
         pop     bx
         ret
-_f_1a51_0002 endp
+_ems_init endp
 
 getver  proc far                        ; the EMM version
         xor     ax, ax
@@ -190,7 +190,7 @@ allocpages proc far                     ; a handle of n pages
         ret
 allocpages endp
 
-_f_1a51_015d proc far                   ; a handle of (long) bytes
+_ems_alloc proc far                   ; a handle of (long) bytes
         push    bp
         mov     bp, sp
         push    dx
@@ -219,9 +219,9 @@ _f_1a51_015d proc far                   ; a handle of (long) bytes
 @@done: pop     dx
         pop     bp
         ret
-_f_1a51_015d endp
+_ems_alloc endp
 
-_f_1a51_019c proc far                   ; free a handle
+_ems_free proc far                   ; free a handle
         push    bp
         mov     bp, sp
         push    dx
@@ -238,7 +238,7 @@ _f_1a51_019c proc far                   ; free a handle
 @@done: pop     dx
         pop     bp
         ret
-_f_1a51_019c endp
+_ems_free endp
 
 pagemap proc far                        ; the segment and number of each physical page
         push    bp
@@ -361,7 +361,7 @@ mappage proc far                        ; map (physical page, handle, logical pa
         ret
 mappage endp
 
-_f_1a51_02d4 proc far                   ; write (long size, void far *from, handle, long offset)
+_ems_write proc far                   ; write (long size, void far *from, handle, long offset)
         push    bp
         mov     bp, sp
         push    bx
@@ -514,9 +514,9 @@ _f_1a51_02d4 proc far                   ; write (long size, void far *from, hand
         pop     bx
         pop     bp
         ret
-_f_1a51_02d4 endp
+_ems_write endp
 
-_f_1a51_0434 proc far                   ; read (long size, handle, long offset, void far *to)
+_ems_read proc far                   ; read (long size, handle, long offset, void far *to)
         push    bp
         mov     bp, sp
         push    bx
@@ -669,7 +669,7 @@ _f_1a51_0434 proc far                   ; read (long size, handle, long offset, 
         pop     bx
         pop     bp
         ret
-_f_1a51_0434 endp
+_ems_read endp
 
 setname proc far                        ; set a handle's name (4.0)
         push    bp

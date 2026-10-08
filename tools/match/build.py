@@ -451,8 +451,8 @@ def main():
     ap.add_argument('--date', default='')
     ap.add_argument('--cflags', default='-ml -O1 -k -Ol')
     ap.add_argument('--force', action='store_true')
-    ap.add_argument('--cc', default='bc31', help='compiler toolchain (tcdos.sh -T): bc31, bc4')
-    ap.add_argument('--ld', default='tc', help='linker toolchain: tc (TLINK 5.0), bc4 (TLINK 6.1)')
+    ap.add_argument('--cc', default='bc31', help='compiler toolchain (tcdos.sh -T): bc31, bc402')
+    ap.add_argument('--ld', default='tc', help='linker toolchain: tc (TLINK 5.0), bc402 (TLINK 6.1)')
     ap.add_argument('--libs', default='', help='startup object and libraries the runtime is '
                     'linked from instead of blobs (tools/match/libmods.py), in link order')
     a = ap.parse_args()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile a C (or assembly) file and compare each of its functions with the original.
 
-  fcheck.py GAME.EXE FILE.C [--cc bc31|bc30|bc4] [--flags "-ml -O1 -k -Ol"] [--show NAME ...] [-v]
+  fcheck.py GAME.EXE FILE.C [--cc bc31|bc30|bc402] [--flags "-ml -O1 -k -Ol"] [--show NAME ...] [-v]
 
 Every public f_SSSS_OOOO of the object is compared with the original code at SSSS:OOOO
 (a root segment or an overlay), for the length it has in the object. Bytes the linker
@@ -14,15 +14,15 @@ import argparse, os, re, shutil, subprocess, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
-import omf, mkblobs
+import omf, mkblobs, names
 
 TCDOS = os.path.join(os.path.dirname(os.path.dirname(HERE)), '.claude', 'skills', 'turbo-cpp', 'scripts', 'tcdos.sh')
 SIZE = {'ptr32': 4, 'off16': 2, 'seg16': 2, 'off8': 1, 'hi8': 1, 'off16l': 2}
 NAME = re.compile(r'^_f_([0-9a-f]{4})_([0-9a-f]{4})$')
 
 
-# each compiler's options when --flags is not given: the games' (CM94's for bc4)
-DEFAULT_FLAGS = {'bc4': '-ml -1 -O1 -Y'}
+# each compiler's options when --flags is not given: the games' (CM94's for bc402)
+DEFAULT_FLAGS = {'bc402': '-ml -1 -O1 -Y'}
 
 
 def default_flags(cc):
@@ -104,17 +104,18 @@ def main():
     ap.add_argument('exe')
     ap.add_argument('src')
     ap.add_argument('--cc', default='bc31')
-    ap.add_argument('--flags', help='BCC options (default: -ml -O1 -k -Ol; with bc4 CM94\'s)')
+    ap.add_argument('--flags', help='BCC options (default: -ml -O1 -k -Ol; with bc402 CM94\'s)')
     ap.add_argument('--show', nargs='*', default=[])
     ap.add_argument('-v', action='store_true')
     a = ap.parse_args()
     m = mkblobs.Model(a.exe)
     mod = compile_file(a.src, a.cc, a.flags or default_flags(a.cc))
     si, code, fx, funcs = masked_code(mod)
+    nm = names.load(a.src)
     good = bad = 0
     for k, (off, n) in enumerate(funcs):
         end = funcs[k + 1][0] if k + 1 < len(funcs) else len(code)
-        mo = NAME.match(n)
+        mo = NAME.match(nm.addr(n))
         if not mo:
             continue
         w = m.where(int(mo.group(1), 16), int(mo.group(2), 16))

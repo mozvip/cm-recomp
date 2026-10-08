@@ -16,9 +16,9 @@
 CSEG_   segment byte public 'CODE'
         assume  cs:CSEG_
 
-        public  _f_1ab9_0004, _f_1ab9_00ec, _f_1ab9_0271, _f_1ab9_0322, _f_1ab9_03ad
+        public  _draw_line_vga256, _draw_line_planar, _draw_glyph_planar, _save_planar_rect, _restore_planar_rect
 
-_f_1ab9_0004 proc far   ; line (x1, y1, x2, y2, colour), 320x200 256 colours
+_draw_line_vga256 proc far   ; line (x1, y1, x2, y2, colour), 320x200 256 colours
         push    bp
         mov     bp, sp
         sub     sp, 6
@@ -119,7 +119,7 @@ L_00d6: pop     di
         mov     sp, bp
         pop     bp
         ret
-_f_1ab9_0004 endp
+_draw_line_vga256 endp
 
 vgaaddr proc near       ; es:bx = the byte of pixel (bx, ax)
         xchg    ah, al
@@ -132,7 +132,7 @@ vgaaddr proc near       ; es:bx = the byte of pixel (bx, ax)
         ret
 vgaaddr endp
 
-_f_1ab9_00ec proc far   ; line (x1, y1, x2, y2, colour), 16-colour planar
+_draw_line_planar proc far   ; line (x1, y1, x2, y2, colour), 16-colour planar
         push    bp
         mov     bp, sp
         sub     sp, 8
@@ -301,7 +301,7 @@ L_0240: xor     ax, ax
         mov     sp, bp
         pop     bp
         ret
-_f_1ab9_00ec endp
+_draw_line_planar endp
 
 egaaddr proc near       ; es:bx = the byte of pixel (bx, ax), ah = 1, cl = its shift
         mov     cl, bl
@@ -321,7 +321,7 @@ egaaddr proc near       ; es:bx = the byte of pixel (bx, ax), ah = 1, cl = its s
         ret
 egaaddr endp
 
-_f_1ab9_0271 proc far   ; draw a glyph (char far *glyph, x, y, colour, fill, mode, rows)
+_draw_glyph_planar proc far   ; draw a glyph (char far *glyph, x, y, colour, fill, mode, rows)
         push    bp
         mov     bp, sp
         sub     sp, 2
@@ -412,9 +412,9 @@ L_030a: mov     ax, 0FF08h
         mov     sp, bp
         pop     bp
         ret
-_f_1ab9_0271 endp
+_draw_glyph_planar endp
 
-_f_1ab9_0322 proc far   ; save (x1, y1, x2, y2) of the planes into (char far *buf, seg)
+_save_planar_rect proc far   ; save (x1, y1, x2, y2) of the planes into (char far *buf, seg)
         push    bp
         mov     bp, sp
         sub     sp, 4
@@ -489,9 +489,9 @@ L_0386: lodsw
         mov     sp, bp
         pop     bp
         ret
-_f_1ab9_0322 endp
+_save_planar_rect endp
 
-_f_1ab9_03ad proc far   ; restore a saved image at (x, y) from (char far *buf, seg)
+_restore_planar_rect proc far   ; restore a saved image at (x, y) from (char far *buf, seg)
         push    bp
         mov     bp, sp
         sub     sp, 0Ch
@@ -640,7 +640,7 @@ L_04a4: mov     ax, 0F02h
         mov     sp, bp
         pop     bp
         ret
-_f_1ab9_03ad endp
+_restore_planar_rect endp
 
 CSEG_   ends
         end

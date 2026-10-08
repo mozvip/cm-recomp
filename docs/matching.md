@@ -109,7 +109,7 @@ LIBS := $(addprefix tools/BCC31/LIB/,C0L.OBJ EMU.LIB MATHL.LIB CL.LIB OVERLAY.LI
 |---|---|---|---|
 | CM1 | Borland C++ 3.1 (`tools/BCC31`) | TLINK 5.0 (`tools/TC`) | 124 |
 | CM93 | Borland C++ 3.0 (`tools/BC30`) | TLINK 5.0 | 125 |
-| CM94 | Borland C++ 4.02 (`tools/BC4`) | TLINK 6.10 (`LD_TC := bc4`) | 149 |
+| CM94 | Borland C++ 4.02 (`tools/BC402`) | TLINK 6.10 (`LD_TC := bc402`) | 149 |
 | CM Italia | Borland C++ 3.0 | TLINK 5.0 | 127 |
 
 How the modules are found and put back where they were:
@@ -170,7 +170,7 @@ with a tactics table, followed by the literal pool.
 
 Symbols are resolved by address:
 - `f_SSSS_OOOO` and `d_SSSS_OOOO` in runtime numbering;
-- names from `games/cm1/names.txt`, then from `games/cm1/decomp/symbols.txt`, which holds
+- names from `games/cm1/names.txt` (see "Names" below), then from `games/cm1/decomp/symbols.txt`, which holds
   the Borland runtime found by `tools/match/libsyms.py` (so the C calls `strcpy`,
   `memset` or `sprintf` through the standard headers);
 - the functions and data of other C files, by name.
@@ -182,6 +182,26 @@ Runtime numbering is what the recompiler, `entries.txt` and the IDA/Ghidra datab
 load segment `0x1000`, overlays at their flattened segments `67ee`…`a1c3`, DGROUP `5d9c`.
 
 `disasm.py` prints a function with these names already filled in.
+
+### Names
+
+`games/<game>/names.txt` gives the functions and data their names, one `SSSS:OOOO name
+kind` line each (`f` function, `d` data). The sources use these names in place of the
+address names, and the build resolves them through the file. CM1's sources are named
+throughout: every function, and the data whose use is clear (the shared loop counters and
+scratch globals stay `d_…`). The locals and parameters are named in the sources themselves.
+
+`tools/match/rename.py DECOMP_DIR` applies names.txt to the sources: add or change a line,
+then run it (a changed name: `--undo` with the old file first, then the new one). It
+refuses a name already used in the sources for something else, since a local or parameter
+of the same name would hide the global without any error; the executable must stay
+IDENTICAL after `make rebuild`. `--undo` gives the sources back their address names:
+`port.py` reads the sources of the game it ports from that way. fcheck, fixcheck, fdiff,
+tailfix and disasm take the names too (`disasm.py GAME.EXE NAME`).
+
+Lines without a kind (`SSSS:OOOO name`, CM93's and CM94's) name a function only for the
+recompiler, which emits a named function as `fn_<name>` (docs/handwritten.md) and skips
+the data lines, and for build.py.
 
 ### Whole modules
 
@@ -343,12 +363,12 @@ the instruction.
 CM1, CM93 and CM94 share source modules. CM93 was built with the same compiler and options,
 so CM1's C compiles to CM93's code wherever the game did not change.
 
-CM94 was built with **Borland C++ 4.02** (`tools/BC4`, from the Borland C++ 4.0 CD,
+CM94 was built with **Borland C++ 4.02** (`tools/BC402`, from the Borland C++ 4.0 CD,
 volume `BORLANDC_402`): its header signature is `FB 61` (TLINK 6.1; CM1 and CM93 have
 `FB 50`, TLINK 5.0), and its startup code says "Copyright 1993". The options are
 **`-ml -1 -O1 -Y`**: 186 instructions, smallest code (`-O1`), overlay-compatible code (`-Y`,
-the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc4` and
-`LD_TC := bc4`; the identity relink with TLINK 6.10 is identical. The whole game is
+the program is overlaid). `games/cmese/decomp/Makefile` sets them with `CC_TC := bc402` and
+`LD_TC := bc402`; the identity relink with TLINK 6.10 is identical. The whole game is
 decompiled: each module was ported from its CM93 file (one `port.py` run of all of them;
 7732, 9E77 and A694 named by hand) and finished in parts with `wip.py`, and every C and
 assembly module is linked whole. Some modules turn jump optimisation off part-way
@@ -609,6 +629,7 @@ points to, so each agent need not find them again. What was learnt checking part
 | `tools/match/port.py` | Ports decompiled files to another game built from the same sources, or a segment function by function |
 | `tools/match/wip.py` | Work folders for decompiling a segment in parts (chunks, strings, brief), and the merge of the parts |
 | `tools/match/libsyms.py` | Names of the runtime library functions, from byte-identical library modules |
+| `tools/match/rename.py`, `names.py` | Applies a game's names.txt to its sources, or takes the names back (`--undo`) |
 | `tools/match/exediff.py` | Compares two executables part by part |
 | `tools/match/omf.py`, `omfw.py` | OMF object/library reader and writer |
 | `tools/match/decomp.mk` | Make rules shared by `games/*/decomp/Makefile` |

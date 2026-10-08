@@ -2,7 +2,7 @@
 """Check what fcheck leaves out: every fixup of a compiled file against the original.
 
   fixcheck.py GAME.EXE FILE.C [--data SSSS:OOOO] [--symbols F] [--names F]
-              [--cc bc31|bc30|bc4] [--flags "-ml -O1 -k -Ol"] [--only NAME ...] [-v]
+              [--cc bc31|bc30|bc402] [--flags "-ml -O1 -k -Ol"] [--only NAME ...] [-v]
 
 fcheck compares a file's code with the original but skips the bytes the linker fills in.
 So a wrong string or float constant, two float arguments in swapped order, a table read

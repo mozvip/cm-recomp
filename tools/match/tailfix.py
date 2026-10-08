@@ -2,7 +2,7 @@
 """Search for the source form that makes BCC keep the copies of identical branch endings
 (tail merging / cross-jumping) that the original kept.
 
-  tailfix.py GAME.EXE SSSS:OOOO-END FILE.C [--cc bc31|bc30|bc4] [--flags "..."]
+  tailfix.py GAME.EXE SSSS:OOOO-END FILE.C [--cc bc31|bc30|bc402] [--flags "..."]
              [score | zero | goto | greedy [N] | groups] [--out OUT.C] [--jobs 6]
 
 FILE.C is a standalone file (compiles on its own) that defines f_SSSS_OOOO, whose original
@@ -25,7 +25,7 @@ import argparse, concurrent.futures, difflib, io, os, re, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
-import fcheck, mkblobs, build
+import fcheck, mkblobs, build, names
 
 NUM = re.compile(r'0x[0-9a-f]+')
 STMT = re.compile(r'^(\s*)(?:\{\s*0;\s*)?(?:T\d+:\s*)?([^{};]+;)(\s*\})?\s*$')
@@ -252,7 +252,8 @@ def main():
     tgt = Target(a.exe, seg, off, end, a.cc, a.flags or fcheck.default_flags(a.cc))
     text = open(a.src).read()
     lines = text.split('\n')
-    start, last = func_lines(lines, 'f_%04x_%04x' % (seg, off))
+    fname = names.load(a.src).name('f_%04x_%04x' % (seg, off))
+    start, last = func_lines(lines, fname)
     workdir = tempfile.mkdtemp(prefix='tailfix.')
     base, size = tgt.score(text, workdir)
     print('%s: score %s, %s bytes (original %d)' % (os.path.basename(a.src), base, size, len(tgt.orig)))
@@ -291,7 +292,7 @@ def main():
         if s >= cur:
             print('no improvement; best stays', cur); return
         cur, text, lines = s, t, t.split('\n')
-        start, last = func_lines(lines, 'f_%04x_%04x' % (seg, off))
+        start, last = func_lines(lines, fname)
         open(out, 'w').write(text)
         print('  written to', out)
         if s == 0:

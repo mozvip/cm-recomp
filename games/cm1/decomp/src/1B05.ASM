@@ -21,9 +21,9 @@ _DATA   ends
 CSEG_   segment byte public 'CODE'
         assume  cs:CSEG_, ds:DGROUP
 
-        public  _f_1b05_0002, _f_1b05_014e, _f_1b05_0308
+        public  _unpack_ilbm, _show_ilbm, _copy_screen_page
 
-_f_1b05_0002 proc far   ; unpack an ILBM (char far *file, char far *screen), 320x200 planar
+_unpack_ilbm proc far   ; unpack an ILBM (char far *file, char far *screen), 320x200 planar
         push    bp
         mov     bp, sp
         sub     sp, 26h
@@ -198,9 +198,9 @@ L_0110: push    es
         mov     sp, bp
         pop     bp
         ret
-_f_1b05_0002 endp
+_unpack_ilbm endp
 
-_f_1b05_014e proc far   ; show an ILBM (char far *file, unsigned screen segment) through the planes
+_show_ilbm proc far   ; show an ILBM (char far *file, unsigned screen segment) through the planes
         push    bp
         mov     bp, sp
         sub     sp, 26h
@@ -400,7 +400,7 @@ L_0275: mov     dx, 3C4h
         mov     sp, bp
         pop     bp
         ret
-_f_1b05_014e endp
+_show_ilbm endp
 
 unpackrow proc far      ; ds:si: ByteRun1 data, unpacked into [bp+6] (40 bytes, one plane row)
         push    bp
@@ -439,7 +439,7 @@ L_02ff: mov     [bp+6], di
         ret
 unpackrow endp
 
-_f_1b05_0308 proc far   ; copy the second screen page (a400) to the first (a000)
+_copy_screen_page proc far   ; copy the second screen page (a400) to the first (a000)
         push    ds
         push    es
         push    si
@@ -462,7 +462,7 @@ _f_1b05_0308 proc far   ; copy the second screen page (a400) to the first (a000)
         pop     es
         pop     ds
         ret
-_f_1b05_0308 endp
+_copy_screen_page endp
 
 CSEG_   ends
         end
