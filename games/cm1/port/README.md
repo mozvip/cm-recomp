@@ -19,9 +19,16 @@ make -C games/cm1/port run GAME_DIR=/path/to/champman
 games/cm1/port/build/cm1 -g /path/to/champman  # -g: the game's directory (default: the current one, or $CM1_DIR)
 ```
 
+F11 switches between a window and full screen.
+
+The picture is sharp: each VGA pixel is a whole number of screen pixels, the same for
+all, and the rest of the window is black. For 4:3 the pixels are made as close to 1.2
+times as tall as wide as whole numbers allow (4x5 at 1280x1000, 6x7 at 1920x1400); a window
+too small for that shows square pixels.
+
 | Environment | |
 |---|---|
-| `CM_SQUARE_PIXELS=1` | 320x200 as it is (default: stretched to 4:3, as a CRT showed it) |
+| `CM_SQUARE_PIXELS=1` | 320x200 with square pixels (default: close to 4:3, as a CRT showed it) |
 | `CM_TEST_CLICKS`, `CM_TEST_KEYS`, `CM_DUMP_FRAMES` | Scripted clicks and typing, and frame dumps, as for the recompiled build (`../README.md`) |
 
 Printing goes to `PRINTER.TXT` in the game's directory. As in the original, a new game

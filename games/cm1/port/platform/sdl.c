@@ -20,7 +20,9 @@
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_Texture *texture;
-static int logical_h = 240;
+static int square_pixels;              /* CM_SQUARE_PIXELS: 320x200 as it is, not 4:3 */
+static SDL_FRect view;                  /* where the 320x200 picture goes, in pixels */
+static int scale_x = 1, scale_y = 1;
 
 /* A000:0000. The game's far pointer arithmetic can stray outside the 64000 bytes (text
  * drawn above the top line): the 64K segment has room on both sides. */
@@ -95,7 +97,10 @@ void port_mouse_show(int show)
 
 void port_mouse_state(int16_t *buttons, int16_t *x, int16_t *y)
 {
-    *buttons = mouse_buttons | mouse_pressed;   /* a click between two polls is not lost */
+    /* each press is seen by one poll only: the game reads the buttons held, and natively it
+     * loops fast enough to take a single click several times. A press made while another
+     * button is held reports both, as the match screen's "both buttons" expects. */
+    *buttons = mouse_pressed ? (mouse_buttons | mouse_pressed) : 0;
     mouse_pressed = 0;
     *x = mouse_x;
     *y = mouse_y;
@@ -141,10 +146,46 @@ static void dump_frame(void)
     fprintf(stderr, "[FRAME] %s @%ums\n", path, (unsigned)SDL_GetTicks());
 }
 
+/* Whole screen pixels per VGA pixel, so that every pixel is drawn the same and sharp:
+ * the largest picture that fits w x h. For 4:3 (a CRT showed 320x200 with pixels 1.2
+ * times as tall as wide) the scales come as close to 1.2 as whole numbers allow, within
+ * 12% (4x5: 1280x1000), or the picture stays square. */
+static void best_scale(int w, int h, int *sx, int *sy)
+{
+    int x, y, area = 0;
+
+    *sx = *sy = 1;
+    for (y = 1; y * 200 <= h; y++)
+        for (x = 1; x * 320 <= w; x++) {
+            float err = SDL_fabsf((float)y / x - 1.2f) / 1.2f;
+            if (square_pixels ? x != y : err > 0.12f)
+                continue;
+            if (x * y > area) {
+                area = x * y;
+                *sx = x;
+                *sy = y;
+            }
+        }
+    if (area == 0)                      /* too small for 4:3: square */
+        for (x = 1; x * 320 <= w && x * 200 <= h; x++)
+            *sx = *sy = x;
+}
+
+static void place_view(void)
+{
+    int w, h;
+
+    SDL_GetCurrentRenderOutputSize(renderer, &w, &h);
+    best_scale(w, h, &scale_x, &scale_y);
+    view.w = (float)(320 * scale_x);
+    view.h = (float)(200 * scale_y);
+    view.x = (float)((w - 320 * scale_x) / 2);
+    view.y = (float)((h - 200 * scale_y) / 2);
+}
+
 static void present(void)
 {
     uint32_t lut[256];
-    SDL_FRect dst = { 0, 0, 320, (float)logical_h };
     int i, x, y;
 
     for (i = 0; i < 256; i++) {
@@ -165,7 +206,8 @@ static void present(void)
     SDL_UpdateTexture(texture, NULL, frame, 320 * 4);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    SDL_RenderTexture(renderer, texture, NULL, &dst);
+    place_view();
+    SDL_RenderTexture(renderer, texture, NULL, &view);
     SDL_RenderPresent(renderer);
 }
 
@@ -251,8 +293,8 @@ void port_pump(void)
             shutdown_video();
             exit(0);
         case SDL_EVENT_MOUSE_MOTION:
-            mouse_x = (int16_t)SDL_clamp(e.motion.x, 0, 319) * 2;
-            mouse_y = (int16_t)SDL_clamp(e.motion.y * 200 / logical_h, 0, 199);
+            mouse_x = (int16_t)SDL_clamp((e.motion.x - view.x) / scale_x, 0, 319) * 2;
+            mouse_y = (int16_t)SDL_clamp((e.motion.y - view.y) / scale_y, 0, 199);
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
         case SDL_EVENT_MOUSE_BUTTON_UP: {
@@ -265,6 +307,11 @@ void port_pump(void)
             break;
         }
         case SDL_EVENT_KEY_DOWN:
+            if (e.key.key == SDLK_F11) {    /* not a key of the original: full screen */
+                if (!e.key.repeat)
+                    SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
+                break;
+            }
             key_down(&e.key);
             break;
         case SDL_EVENT_TEXT_INPUT: {
@@ -341,17 +388,25 @@ void port_platform_init(void)
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         exit(1);
     }
+    SDL_Rect desk;
+    int sx = 3, sy = 4;
+
     if (sq && *sq && *sq != '0')
-        logical_h = 200;
-    if (!SDL_CreateWindowAndRenderer("Championship Manager", 320 * 3, logical_h * 3, SDL_WINDOW_RESIZABLE,
-                                     &window, &renderer)) {
+        square_pixels = 1;
+    /* the window opens at the largest sharp size the desktop has room for */
+    if (SDL_GetDisplayUsableBounds(SDL_GetPrimaryDisplay(), &desk))
+        best_scale(desk.w * 9 / 10, desk.h * 9 / 10, &sx, &sy);
+    else if (square_pixels)
+        sy = 3;
+    if (!SDL_CreateWindowAndRenderer("Championship Manager", 320 * sx, 200 * sy,
+                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
         fprintf(stderr, "SDL_CreateWindowAndRenderer: %s\n", SDL_GetError());
         exit(1);
     }
-    SDL_SetRenderLogicalPresentation(renderer, 320, logical_h, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    place_view();
     SDL_SetRenderVSync(renderer, 0);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, 320, 200);
-    SDL_SetTextureScaleMode(texture, logical_h == 200 ? SDL_SCALEMODE_NEAREST : SDL_SCALEMODE_LINEAR);
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     SDL_HideCursor();
     SDL_StartTextInput(window);
     dump_dir = getenv("CM_DUMP_FRAMES");
