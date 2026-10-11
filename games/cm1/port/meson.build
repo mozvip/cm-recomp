@@ -20,12 +20,15 @@ platform_srcs = files(
   'platform/1ab9_gfx.c', 'platform/1b05_ilbm.c')
 
 # the game's data symbols at their addresses in the original data (see platform/port.h)
+# and the files it is loaded from (segments.txt, extracted by tools/port/extract.py)
 names = files('../names.txt')
+segments = files('segments.txt')
 data_symbols = custom_target('data_symbols',
-  input: [names, game_srcs],
-  output: ['data_symbols.S', 'data_native.c'],
+  input: [names, segments, game_srcs],
+  output: ['data_symbols.S', 'data_native.c', 'data_segments.c'],
   command: [python, files('../../../tools/port/mkdata.py'), '--names', names,
-            '--start', '0x0f330', '--end', '0x57dc0', '@OUTPUT0@', '@OUTPUT1@', game_srcs])
+            '--segments', segments, '--start', '0x0f330', '--end', '0x57dc0',
+            '@OUTPUT0@', '@OUTPUT1@', '@OUTPUT2@', game_srcs])
 
 # The 16-bit code reads the same bytes through different types, counts on wrapping
 # arithmetic, indexes rows past their end into the next ones, and its data is not aligned.

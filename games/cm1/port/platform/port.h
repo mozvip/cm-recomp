@@ -17,14 +17,21 @@
 #include <unistd.h>
 
 /* ---- the original data segments --------------------------------------------------
- * DGROUP and the far data segments, byte for byte as EUROPE.EXE has them, loaded from
- * the game's executable at start-up (image.c). Every data symbol the C does not define
- * itself is placed at its original address in it (data_symbols.S, made by
- * tools/port/mkdata.py), so arrays that run into each other still do. */
+ * DGROUP and the far data segments, byte for byte as EUROPE.EXE has them, loaded at
+ * start-up (image.c) from the files tools/port/extract.py cuts out of it, one per
+ * segment (segments.txt). Every data symbol the C does not define itself is placed at
+ * its original address in it (data_symbols.S, made by tools/port/mkdata.py), so arrays
+ * that run into each other still do. */
 #define IMAGE_START 0x0f330L            /* linear (file numbering): the first far data */
 #define IMAGE_END   0x57dc0L            /* the end of DGROUP */
 #define DGROUP_SEG  0x4d9c              /* DGROUP's segment (file numbering) */
 extern unsigned char port_image[];
+
+struct port_segment {                   /* a file of the data directory: NAME.bin */
+    const char *name;
+    uint32_t offset, size, crc32;       /* where in port_image; the bytes' CRC-32 */
+};
+extern const struct port_segment port_segments[];   /* data_segments.c, from segments.txt */
 
 /* Pointers kept in the original data, as they were: a near pointer is an offset in
  * DGROUP, a far pointer segment:offset. */

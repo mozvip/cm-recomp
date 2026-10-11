@@ -5,9 +5,10 @@ SDL3. The decompiled sources are left as they are: `src/` holds a copy, converte
 then edited by hand to compile with GCC/Clang on a 64-bit machine. `platform/` replaces
 the DOS machine and the five assembly modules.
 
-**No game files are included.** The build needs none. At run time the game's directory
-must hold your copy of the game, `EUROPE.EXE` included: the port reads its data segments
-from it (see "Data" below).
+**No game files are included.** The build needs none. The port's data segments are
+extracted once from your copy of `EUROPE.EXE` (`make data`, see "Data" below); at run time
+the game's directory must hold the rest of the game (`*.LBM`, `RECORDS`, `HISTORY`...), not
+`EUROPE.EXE`.
 
 ## Building and running
 
@@ -15,9 +16,20 @@ Needs meson, ninja, a C compiler, Python 3 and SDL3 (`pkg-config sdl3`).
 
 ```bash
 make -C games/cm1/port                         # or: meson setup build && meson compile -C build
-make -C games/cm1/port run GAME_DIR=/path/to/champman
+make -C games/cm1/port data GAME_DIR=/path/to/champman   # EUROPE.EXE's data -> build/data
+make -C games/cm1/port run GAME_DIR=/path/to/champman    # (runs `make data` first if needed)
 games/cm1/port/build/cm1 -g /path/to/champman  # -g: the game's directory (default: the current one, or $CM1_DIR)
 ```
+
+`make data` runs `tools/port/extract.py`, which writes one file per data segment of
+`EUROPE.EXE` (`segments.txt`) to `build/data`:
+
+```bash
+python3 tools/port/extract.py --segments games/cm1/port/segments.txt /path/to/champman/EUROPE.EXE DATADIR
+```
+
+The port looks for them in `data` next to its executable; `-d DATADIR` (or `$CM1_DATA`)
+names another directory.
 
 F11 switches between a window and full screen.
 
@@ -45,12 +57,14 @@ only.
 |---|---|
 | `src/*.c` | The game's 13 C modules, from `../decomp/src/*.C` |
 | `platform/port.h` | Included by every source in place of the Borland headers |
-| `platform/main.c`, `image.c` | Start-up; the original data segments, loaded from `EUROPE.EXE` |
+| `platform/main.c`, `image.c` | Start-up; the original data segments, loaded from the extracted files |
+| `segments.txt` | The data segments of `EUROPE.EXE`: where each goes, its size and CRC-32 |
 | `platform/sdl.c` | VGA mode 13h, mouse driver, keyboard, BIOS clock, on SDL3 |
 | `platform/dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, the printer |
 | `platform/14b7_keyboard.c` ... `1b05_ilbm.c` | The assembly modules, in C |
 | `../../../tools/port/convert.py` | The mechanical first pass from `decomp/src` to `src` |
-| `../../../tools/port/mkdata.py` | Generates the data symbols at build time |
+| `../../../tools/port/extract.py` | Extracts the data segments from `EUROPE.EXE`, one file each |
+| `../../../tools/port/mkdata.py` | Generates the data symbols, and the list of files to load, at build time |
 
 ## How the 16-bit code runs natively
 
@@ -65,7 +79,11 @@ come from the original executable (the matching build links them as blobs). The 
 also relies on how they are laid out: `team_stats[][82]` runs on into `ground_capacity`,
 the savegame is read in blocks that span several arrays. So the port keeps them as they
 were. `port_image` is the executable's load image from the first far data segment to the
-end of DGROUP (0x48a90 bytes), copied from `EUROPE.EXE` at start-up. `mkdata.py` places
+end of DGROUP (0x48a90 bytes). It is loaded at start-up from the files `extract.py` cut
+out of `EUROPE.EXE`, one per segment of `segments.txt` (`S23_DATA.bin`, `_DATA.bin`...),
+each checked against its size and CRC-32. The segments that are all zeros in the
+executable (S19-S22, `_BSS`) have no file, and the overlay manager's tables and stubs
+(0x4cca0-0x4d9b6) are left out: `port_image` keeps their place, zeroed. `mkdata.py` places
 every data symbol of `../names.txt`, and every `d_SSSS_OOOO` the sources use, at its
 original offset in it, as weak symbols (`build/data_symbols.S`). A definition in C (a
 module's initialised data, a platform variable) takes precedence.
