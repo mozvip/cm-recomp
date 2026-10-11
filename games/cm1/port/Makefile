@@ -1,6 +1,7 @@
 # Convenience wrapper around meson (see README.md):
 #   make                      build build/cm1
-#   make run GAME_DIR=...     run it in the game's directory (default: games/cm1)
+#   make data GAME_DIR=...    extract the data segments from GAME_DIR/EUROPE.EXE to build/data
+#   make run GAME_DIR=...     both, then run it in the game's directory (default: games/cm1)
 GAME_DIR ?= ..
 BUILD ?= build
 
@@ -10,10 +11,14 @@ all: $(BUILD)/build.ninja
 $(BUILD)/build.ninja:
 	meson setup $(BUILD)
 
+data:
+	python3 ../../../tools/port/extract.py --segments segments.txt $(GAME_DIR)/EUROPE.EXE $(BUILD)/data
+
 run: all
+	@test -d $(BUILD)/data || $(MAKE) data GAME_DIR=$(GAME_DIR)
 	$(BUILD)/cm1 -g $(GAME_DIR) $(ARGS)
 
 clean:
 	rm -rf $(BUILD)
 
-.PHONY: all run clean
+.PHONY: all data run clean

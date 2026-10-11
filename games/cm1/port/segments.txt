@@ -1,0 +1,23 @@
+# The data segments of EUROPE.EXE (version 1.02) that the port loads into port_image:
+# start and size in the executable's load image (file numbering, as ../decomp's
+# EUROPE.MAP has them), and the CRC-32 of their bytes. tools/port/extract.py writes
+# each to DATADIR/NAME.bin; platform/image.c reads them back at start-up.
+# "bss": all zeros in the executable (uninitialised data), not extracted.
+# Left out: 4cca0-4d9b6, the overlay manager's tables and stubs (_OVRDATA_ ... OV09_TEXT),
+# of no use to the port; port_image keeps their place, zeroed.
+#
+# name       start  size   crc32
+S17_DATA     0f330  0028   1cbf30b4
+S18_DATA     0f360  0078   986fc7ca
+S19_DATA     0f3e0  ffd5   bss
+S20_DATA     1f3c0  f057   bss
+S21_DATA     2e420  9f90   bss
+S22_DATA     383b0  c352   bss
+S23_DATA     44710  2c78   802069e2
+S24_DATA     47390  5902   187c41fa
+_DATA        4d9c0  998e   b99f36d1
+_CVTSEG      5734e  0004   2fa91109
+_SCNSEG      57352  000c   f255374a
+_INIT_       5735e  001e   fec2f186
+_EXIT_       5737c  000c   3f0f75bc
+_BSS         57388  0a38   bss
