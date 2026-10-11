@@ -2,6 +2,7 @@
 games/*/recomp/
 games/*/build/
 games/*/decomp/build/
+games/*/port/build*/
 games/*/*_rc
 games/*/missing_entries.txt
 games/*/last_run.log

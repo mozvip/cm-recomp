@@ -36,12 +36,19 @@ objects, which change that choice without leaving anything in the executable). C
 with Borland C++ 4.02, matches it with code-free statements naming a variable
 (`9007:511f`). See [docs/matching.md](docs/matching.md) on merged tails.
 
+## Native port
+
+`games/cm1/port/` builds CM1's decompiled sources as a native Linux program with SDL3
+(meson). It works from a converted copy and leaves `src/` as it is. See
+[its README](games/cm1/port/README.md).
+
 ## Repository layout
 
 | Path | Content |
 |---|---|
 | `games/<game>/decomp/` | The matching decompilation: `src/` (the C and assembly sources), makefile, symbols |
 | `tools/match/` | The decompilation's tools: relink, per-function compare, diff, porting between games |
+| `games/cm1/port/`, `tools/port/` | The native port of CM1 and its conversion tools |
 | `docs/matching.md` | Toolchain, workflow and techniques |
 
 ## Legal
