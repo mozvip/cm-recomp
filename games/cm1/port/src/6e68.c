@@ -310,7 +310,7 @@ extern unsigned char manager_captain[];
 extern char sub_minutes[][2];
 extern char sub_replaced_slot[][2];
 extern int16_t captain_slots[];
-extern struct pos { unsigned char c, d; char *s; } tactic_buttons_from1[];
+struct pos { unsigned char c, d; char *s; };
 extern unsigned char edited_tactics[][13];
 extern unsigned char slot_status[][13];
 extern unsigned char team_tactics[][3][13];
@@ -1706,6 +1706,8 @@ static struct pos tactic_buttons[] = {
     {1, 12, " FORW"}, {1, 12, " BACK"}, {1, 4, " CAPT"}, {1, 2, " STYLE"},
     {1, 2, " TACTIC"}
 };
+/* natively, entry i of the C table: the original's copy in port_image holds far pointers */
+#define tactic_buttons_from1 (tactic_buttons - 1)
 
 void tactics_editor(int16_t team)
 {
