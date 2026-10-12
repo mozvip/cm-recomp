@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Data symbols of a native port (see games/cm1/port/README.md).
+"""Data symbols of a native port (see port/README.md).
 
-  mkdata.py --names NAMES.TXT --segments SEGMENTS.TXT --start 0x0f330 --end 0x57dc0
+  mkdata.py [--names NAMES.TXT] --segments SEGMENTS.TXT --start 0x0f330 --end 0x57dc0
             OUT.S OUT.c OUT_SEGMENTS.c SRC.c...
 
 The port keeps the game's data segments as one block, port_image (the bytes from
@@ -80,9 +80,12 @@ def defined_pointer_arrays(text):
     return set(re.findall(r'^(?!extern\b)(?:static\s+)?[\w ]+\*\s*(\w+)\s*\[', text, re.M))
 
 
-def pointer_externs(text, defined):
-    """Names of the file-scope 'extern' variables declared as pointers."""
+def pointer_externs(text, defined, bad):
+    """Names of the file-scope 'extern' variables declared as pointers (arrays of
+    pointers, which cannot be in the image, go to bad). A declaration the source does
+    not use is left out: another module may use the same memory as something else."""
     out = set()
+    used = lambda name: len(re.findall(r'\b%s\b' % re.escape(name), text)) > 1
     for m in re.finditer(r'^\s*extern\s+([^;]*);', text, re.M):
         body = m.group(1)
         # the base type: up to the first declarator
@@ -92,26 +95,28 @@ def pointer_externs(text, defined):
             d = d.strip()
             fm = re.match(r'^\(\s*\*\s*(\w+)\s*\)\s*\(', d)
             if fm:                               # function pointer
-                out.add(fm.group(1))
+                if used(fm.group(1)):
+                    out.add(fm.group(1))
                 continue
             am = re.match(r'^\(\s*\*\s*(\w+)\s*\)\s*\[', d)
             if am:                               # pointer to array
-                out.add(am.group(1))
+                if used(am.group(1)):
+                    out.add(am.group(1))
                 continue
             pm = re.match(r'^\*+\s*(\w+)\s*$', d)
             if pm:                               # plain pointer (not an array of pointers)
-                out.add(pm.group(1))
+                if used(pm.group(1)):
+                    out.add(pm.group(1))
                 continue
             am = re.match(r'^\*+\s*(\w+)\s*\[', d)
-            if am and am.group(1) not in defined:
-                raise SystemExit('array of native pointers in the image: %r (make it nearptr/farptr '
-                                 'or define it in C)' % d)
+            if am and am.group(1) not in defined and used(am.group(1)):
+                bad.add(d)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--names', required=True)
+    ap.add_argument('--names', help='the game\'s names.txt, if its data symbols are named')
     ap.add_argument('--segments', required=True)
     ap.add_argument('--start', required=True, type=lambda x: int(x, 0))
     ap.add_argument('--end', required=True, type=lambda x: int(x, 0))
@@ -121,16 +126,19 @@ def main():
     ap.add_argument('srcs', nargs='+')
     a = ap.parse_args()
 
-    syms = parse_names(a.names)
+    syms = parse_names(a.names) if a.names else {}
     native = set()
     texts = [strip_comments(open(p, encoding='latin1').read()) for p in a.srcs]
-    defined = set()
+    defined, bad = set(), set()
     for text in texts:
         defined |= defined_pointer_arrays(text)
     for text in texts:
         for m in re.finditer(r'\bd_([0-9a-f]{4})_([0-9a-f]{4})\b', text):
             syms.setdefault(m.group(0), (int(m.group(1), 16) - RT_BASE) * 16 + int(m.group(2), 16))
-        native |= pointer_externs(text, defined)
+        native |= pointer_externs(text, defined, bad)
+    if bad:
+        raise SystemExit('arrays of native pointers in the image (make them nearptr/farptr or '
+                         'define them in C):\n  ' + '\n  '.join(sorted(bad)))
 
     size = a.end - a.start
     lines = [

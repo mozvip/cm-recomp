@@ -1,8 +1,8 @@
 /* The game's data segments (port_image, laid out by data_symbols.S): loaded at start-up
  * from the data directory, one file per segment of segments.txt (NAME.bin), as
- * tools/port/extract.py cut them out of EUROPE.EXE. Far pointers in them stay as the
- * executable has them (segment numbers from load segment 0), which is what FAR_PTR()
- * expects. The segments without a file were all zeros, and stay so. */
+ * tools/port/extract.py cut them out of the game's executable (GAME_EXE). Far pointers
+ * in them stay as the executable has them (segment numbers from load segment 0), which
+ * is what FAR_PTR() expects. The segments without a file were all zeros, and stay so. */
 #include <SDL3/SDL.h>
 
 #include "port.h"
@@ -42,7 +42,7 @@ void port_load_image(const char *dir)
     for (s = port_segments; s->name; s++) {
         snprintf(path, sizeof(path), "%s/%s.bin", dir, s->name);
         if ((f = fopen(path, "rb")) == NULL) {
-            fprintf(stderr, "%s not found: extract the game's data from EUROPE.EXE first "
+            fprintf(stderr, "%s not found: extract the game's data from " GAME_EXE " first "
                     "(make data, see README.md), or give its directory (-d DIR)\n", path);
             exit(1);
         }
@@ -54,7 +54,7 @@ void port_load_image(const char *dir)
         crc = crc32(port_image + s->offset, s->size);
         if (crc != s->crc32)
             fprintf(stderr, "warning: %s is not from the version this port was made from "
-                    "(EUROPE.EXE 1.02; crc %08x)\n", path, crc);
+                    "(" GAME_VERSION "; crc %08x)\n", path, crc);
     }
 }
 

@@ -2,8 +2,9 @@
 
 The matching decompilation (`../decomp/src`) rebuilt as a native Linux program with
 SDL3. The decompiled sources are left as they are: `src/` holds a copy, converted and
-then edited by hand to compile with GCC/Clang on a 64-bit machine. `platform/` replaces
-the DOS machine and the five assembly modules.
+then edited by hand to compile with GCC/Clang on a 64-bit machine. The platform layer,
+shared with the other games' ports (`../../../port`, see its README), replaces the DOS
+machine and the five assembly modules; `game.h` tells it what is specific to CM1.
 
 **No game files are included.** The build needs none. The port's data segments are
 extracted once from your copy of `EUROPE.EXE` (`make data`, see "Data" below); at run time
@@ -31,7 +32,8 @@ python3 tools/port/extract.py --segments games/cm1/port/segments.txt /path/to/ch
 The port looks for them in `data` next to its executable; `-d DATADIR` (or `$CM1_DATA`)
 names another directory.
 
-F11 switches between a window and full screen.
+F11 switches between a window and full screen; during a match, + and - make it run
+faster or slower (x1/4 to x16, in the window's title), see `../../../port/README.md`.
 
 The picture is sharp: each VGA pixel is a whole number of screen pixels, the same for
 all, and the rest of the window is black. For 4:3 the pixels are made as close to 1.2
@@ -56,12 +58,13 @@ only.
 | Path | Content |
 |---|---|
 | `src/*.c` | The game's 13 C modules, from `../decomp/src/*.C` |
-| `platform/port.h` | Included by every source in place of the Borland headers |
-| `platform/main.c`, `image.c` | Start-up; the original data segments, loaded from the extracted files |
+| `game.h` | CM1 for the platform: the executable, where its data segments are |
 | `segments.txt` | The data segments of `EUROPE.EXE`: where each goes, its size and CRC-32 |
-| `platform/sdl.c` | VGA mode 13h, mouse driver, keyboard, BIOS clock, on SDL3 |
-| `platform/dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, the printer |
-| `platform/14b7_keyboard.c` ... `1b05_ilbm.c` | The assembly modules, in C |
+| `../../../port/port.h` | Included by every source in place of the Borland headers |
+| `../../../port/main.c`, `image.c` | Start-up; the original data segments, loaded from the extracted files |
+| `../../../port/sdl.c` | VGA mode 13h, mouse driver, keyboard, BIOS clock, on SDL3 |
+| `../../../port/dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, the printer |
+| `../../../port/keyboard.c` ... `ilbm.c` | The assembly modules (14B7, 1A51, 1AB2, 1AB9, 1B05), in C |
 | `../../../tools/port/convert.py` | The mechanical first pass from `decomp/src` to `src` |
 | `../../../tools/port/extract.py` | Extracts the data segments from `EUROPE.EXE`, one file each |
 | `../../../tools/port/mkdata.py` | Generates the data symbols, and the list of files to load, at build time |
@@ -103,7 +106,7 @@ memory).
   the patched-out protection check without its NOPs; the virtual memory slots made native.
 - `a1c3.c`, `992a.c`: setting the palette (INT 10h AX=1012h); the order in which Borland
   evaluates arguments (right to left) where it matters.
-- `144e.c`: `main` is `game_main` (`platform/main.c` calls it); `history_file` is a `FILE *`.
+- `144e.c`: `main` is `game_main` (`../../../port/main.c` calls it); `history_file` is a `FILE *`.
 - `7555.c`, `7a28.c`: two functions that had no prototype get one; `(j = x) * j` keeps
   Borland's order and its 16-bit product.
 - `67ee.c`: two menu labels that the game rewrites are writable strings (Borland's literals were).
@@ -121,12 +124,12 @@ not the x87, so a few last-bit roundings can differ.
 ## Not done yet
 
 - **Music.** `ADLIB.DRV`/`MT32.DRV` are real-mode drivers called through INT 91h.
-  `platform/1ab2_music.c` is silent. The recompiled build plays them (`../../../runtime`).
+  `../../../port/music.c` is silent. The recompiled build plays them (`../../../runtime`).
   A native player for `CMAN2.ALB` and an OPL emulator would be needed here.
 - **EGA.** The planar mode's primitives are empty: the port always runs in VGA mode.
-- **Other games.** `tools/port` is not specific to CM1. CM93 and the Italian versions
-  share most of its modules (see `../../../DECOMPILATION.md`), but each needs its own
-  `IMAGE_START`/`IMAGE_END` and near/far tables.
+- **Other games.** CM93 has its port too (`../../cm93/port`), on the same platform. The
+  Italian versions and CM94 share most of their modules with it (see
+  `../../../DECOMPILATION.md`).
 
 ## Regenerating `src/`
 

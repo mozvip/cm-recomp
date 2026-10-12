@@ -1,7 +1,10 @@
-/* The native port's common header: every source of src/ includes it in place of the
- * Borland headers. It brings the C library, the fixed-width types the 16-bit code is
- * written in (int16_t for int, int32_t for long), the Borland library functions that
- * have no standard equivalent, and the platform layer (platform/*.c, SDL3). */
+/* The native ports' common header: every source of a game's port (games/<game>/port/src)
+ * includes it in place of the Borland headers. It brings the C library, the fixed-width
+ * types the 16-bit code is written in (int16_t for int, int32_t for long), the Borland
+ * library functions that have no standard equivalent, and the platform layer (port/,
+ * SDL3), shared by the games. What differs from one game to another (where its data
+ * segments are, the names of its symbols the platform uses) is in the game's own
+ * game.h (games/<game>/port/game.h), included first. */
 #ifndef PORT_H
 #define PORT_H
 
@@ -16,15 +19,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "game.h"
+
 /* ---- the original data segments --------------------------------------------------
- * DGROUP and the far data segments, byte for byte as EUROPE.EXE has them, loaded at
- * start-up (image.c) from the files tools/port/extract.py cuts out of it, one per
- * segment (segments.txt). Every data symbol the C does not define itself is placed at
- * its original address in it (data_symbols.S, made by tools/port/mkdata.py), so arrays
- * that run into each other still do. */
-#define IMAGE_START 0x0f330L            /* linear (file numbering): the first far data */
-#define IMAGE_END   0x57dc0L            /* the end of DGROUP */
-#define DGROUP_SEG  0x4d9c              /* DGROUP's segment (file numbering) */
+ * DGROUP and the far data segments, byte for byte as the game's executable (GAME_EXE)
+ * has them, loaded at start-up (image.c) from the files tools/port/extract.py cuts out
+ * of it, one per segment (the game's segments.txt). Every data symbol the C does not
+ * define itself is placed at its original address in it (data_symbols.S, made by
+ * tools/port/mkdata.py), so arrays that run into each other still do. game.h gives
+ * IMAGE_START (linear, file numbering: the first far data), IMAGE_END (the end of
+ * DGROUP) and DGROUP_SEG (DGROUP's segment, file numbering). */
 extern unsigned char port_image[];
 
 struct port_segment {                   /* a file of the data directory: NAME.bin */
@@ -56,6 +60,7 @@ nearptr to_near_ptr(const void *p);     /* the DGROUP offset of a pointer into D
 #define farfree free
 
 char *strupr(char *s);
+int stricmp(const char *a, const char *b);
 
 /* Borland's strcpy and strcat copy forwards a byte at a time, and the game counts on it
  * to shift a string left within itself (strcpy(s, s + 1)): glibc's may not. */
@@ -91,6 +96,7 @@ void port_vga_set_palette(int first, int count, const unsigned char *rgb6);
 void port_vga_restore_text_mode(void);
 void port_mouse_state(int16_t *buttons, int16_t *x, int16_t *y);
 void port_mouse_show(int show);
+void port_speed_control(int on);        /* + and - set the game's speed: on during a match */
 unsigned char *port_vga_memory(void);   /* 64000 bytes of mode 13h, A000:0000 */
 
 #pragma pack(push, 1)                   /* Borland lays structures out byte by byte */

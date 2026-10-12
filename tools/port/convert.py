@@ -117,8 +117,15 @@ def fix_includes(text, name):
             continue
         out.append(ln)
     if not done:                             # after the leading comments
-        k = 0
-        while k < len(out) and (out[k].startswith('/*') or out[k].strip() == ''):
+        k, in_comment = 0, False
+        while k < len(out):
+            ln = out[k].strip()
+            if in_comment:
+                in_comment = '*/' not in ln
+            elif ln.startswith('/*'):
+                in_comment = '*/' not in ln
+            elif ln:
+                break
             k += 1
         out.insert(k, '#include "port.h"\n')
     return '\n'.join(out)

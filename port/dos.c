@@ -79,6 +79,11 @@ int port_remove(const char *path)
 
 /* ---------------------------------------------------------------- the library */
 
+int stricmp(const char *a, const char *b)
+{
+    return strcasecmp(a, b);
+}
+
 char *strupr(char *s)
 {
     char *p;
