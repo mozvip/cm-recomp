@@ -36,11 +36,14 @@ objects, which change that choice without leaving anything in the executable). C
 with Borland C++ 4.02, matches it with code-free statements naming a variable
 (`9007:511f`). See [docs/matching.md](docs/matching.md) on merged tails.
 
-## Native port
+## Native ports
 
-`games/cm1/port/` builds CM1's decompiled sources as a native Linux program with SDL3
-(meson). It works from a converted copy and leaves `src/` as it is. See
-[its README](games/cm1/port/README.md).
+`games/cm1/port/` and `games/cm93/port/` build CM1's and CM93's decompiled sources as
+native Linux programs with SDL3 (meson). Each works from a converted copy and leaves
+`decomp/src/` as it is. Both run on the same platform layer, `port/`, which replaces DOS,
+the BIOS, the VGA card, the mouse and the games' assembly modules. See
+[port/README.md](port/README.md), and the games' READMEs
+([CM1](games/cm1/port/README.md), [CM93](games/cm93/port/README.md)).
 
 ## Repository layout
 
@@ -48,7 +51,8 @@ with Borland C++ 4.02, matches it with code-free statements naming a variable
 |---|---|
 | `games/<game>/decomp/` | The matching decompilation: `src/` (the C and assembly sources), makefile, symbols |
 | `tools/match/` | The decompilation's tools: relink, per-function compare, diff, porting between games |
-| `games/cm1/port/`, `tools/port/` | The native port of CM1 and its conversion tools |
+| `games/<game>/port/` | A game's native port (CM1, CM93): its converted sources and build |
+| `port/`, `tools/port/` | The ports' shared platform layer, and their conversion tools |
 | `docs/matching.md` | Toolchain, workflow and techniques |
 
 ## Legal

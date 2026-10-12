@@ -14,12 +14,13 @@ game_srcs = files(
   'src/7a28.c', 'src/7eeb.c', 'src/8352.c', 'src/88c9.c', 'src/9100.c', 'src/992a.c',
   'src/a1c3.c')
 
+# the platform, shared with the other games' ports (../../../port)
 platform_srcs = files(
-  'platform/main.c', 'platform/image.c', 'platform/sdl.c', 'platform/dos.c',
-  'platform/14b7_keyboard.c', 'platform/1a51_ems.c', 'platform/1ab2_music.c',
-  'platform/1ab9_gfx.c', 'platform/1b05_ilbm.c')
+  '../../../port/main.c', '../../../port/image.c', '../../../port/sdl.c',
+  '../../../port/dos.c', '../../../port/keyboard.c', '../../../port/ems.c',
+  '../../../port/music.c', '../../../port/gfx.c', '../../../port/ilbm.c')
 
-# the game's data symbols at their addresses in the original data (see platform/port.h)
+# the game's data symbols at their addresses in the original data (see ../../../port/port.h)
 # and the files it is loaded from (segments.txt, extracted by tools/port/extract.py)
 names = files('../names.txt')
 segments = files('segments.txt')
@@ -41,7 +42,7 @@ game_args = cc.get_supported_arguments(
   '-Wno-unused-parameter', '-Wno-main', '-Wno-pragma-pack')
 
 executable('cm1', game_srcs, platform_srcs, data_symbols,
-  include_directories: include_directories('platform'),
+  include_directories: include_directories('.', '../../../port'),
   c_args: game_args,
   dependencies: [sdl3, libm],
   install: true)

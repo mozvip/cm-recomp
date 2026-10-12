@@ -6,6 +6,10 @@
  * shown from port_pump(), which the game reaches whenever it polls the mouse, the
  * keyboard or the clock, at most every 16 ms.
  *
+ * Keys that are not the original's: F11 switches full screen; during a match, + and -
+ * make the game run faster or slower (its clock runs at x1/4 to x16, shown in the
+ * window's title); elsewhere they are typed as usual.
+ *
  * Environment:
  *   CM_SQUARE_PIXELS=1        show 320x200 as it is (default: stretched to 4:3, as on a CRT)
  *   CM_TEST_CLICKS="x,y@ms;..." scripted left clicks (x, y in 320x200), for headless tests
@@ -43,6 +47,9 @@ static int spin_count;
 static const char *dump_dir;
 static unsigned dump_count;
 static uint32_t dump_hash;
+
+static int speed_control;               /* + and - set the speed: the game is in a match */
+static void change_speed(int step);
 
 static void key_push(int code)
 {
@@ -317,7 +324,9 @@ void port_pump(void)
         case SDL_EVENT_TEXT_INPUT: {
             const unsigned char *t = (const unsigned char *)e.text.text;
             for (; *t; t++)
-                if (*t >= 32 && *t < 127)
+                if (speed_control && (*t == '+' || *t == '-'))  /* either row, any layout */
+                    change_speed(*t == '+' ? 1 : -1);
+                else if (*t >= 32 && *t < 127)
                     key_push(*t);
             break;
         }
@@ -360,7 +369,55 @@ int16_t getch(void)
 
 /* ---------------------------------------------------------------- the clock */
 
-static uint64_t midnight_ms;            /* SDL ticks at the last midnight */
+static uint64_t midnight_ms;            /* game clock at the last midnight */
+
+/* The game times everything (match commentary, pauses, demo) from the BIOS clock, so its
+ * speed is the speed of that clock: the game clock runs at speeds[speed] / 4 of real time,
+ * and a change of speed takes effect from now on, without a jump. */
+static const int speeds[] = { 1, 2, 4, 8, 16, 32, 64 };
+static int speed = 2;                   /* x1: the speed chosen, kept from match to match */
+static int speed_now = 2;               /* the speed the clock runs at: x1 outside matches */
+static uint64_t clock_real, clock_game4;        /* real ms, game ms x 4, when last read */
+
+static uint64_t game_ms(void)
+{
+    uint64_t now = SDL_GetTicks();
+
+    clock_game4 += (now - clock_real) * speeds[speed_now];
+    clock_real = now;
+    return clock_game4 / 4;
+}
+
+static void apply_speed(void)
+{
+    char title[128];
+
+    game_ms();                          /* the time so far at the old speed */
+    speed_now = speed_control ? speed : 2;
+    if (speeds[speed_now] == 4)
+        snprintf(title, sizeof(title), "%s", GAME_TITLE);
+    else if (speeds[speed_now] < 4)
+        snprintf(title, sizeof(title), "%s - speed x1/%d", GAME_TITLE, 4 / speeds[speed_now]);
+    else
+        snprintf(title, sizeof(title), "%s - speed x%d", GAME_TITLE, speeds[speed_now] / 4);
+    if (window)
+        SDL_SetWindowTitle(window, title);
+}
+
+static void change_speed(int step)
+{
+    if (speed + step < 0 || speed + step >= (int)(sizeof(speeds) / sizeof(speeds[0])))
+        return;
+    speed += step;
+    apply_speed();
+}
+
+/* The game says when a match starts and ends: the speed applies only then. */
+void port_speed_control(int on)
+{
+    speed_control = on;
+    apply_speed();
+}
 
 void _bios_timeofday(int16_t cmd, int32_t *ticks)
 {
@@ -368,8 +425,8 @@ void _bios_timeofday(int16_t cmd, int32_t *ticks)
 
     (void)cmd;
     port_pump();
-    ms = SDL_GetTicks() - midnight_ms;
-    if (ms >= 86400000u) {              /* the BIOS starts again from 0 at midnight */
+    ms = game_ms() - midnight_ms;
+    while (ms >= 86400000u) {           /* the BIOS starts again from 0 at midnight */
         midnight_ms += 86400000u;
         ms -= 86400000u;
     }
@@ -398,7 +455,7 @@ void port_platform_init(void)
         best_scale(desk.w * 9 / 10, desk.h * 9 / 10, &sx, &sy);
     else if (square_pixels)
         sy = 3;
-    if (!SDL_CreateWindowAndRenderer("Championship Manager", 320 * sx, 200 * sy,
+    if (!SDL_CreateWindowAndRenderer(GAME_TITLE, 320 * sx, 200 * sy,
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
         fprintf(stderr, "SDL_CreateWindowAndRenderer: %s\n", SDL_GetError());
         exit(1);
@@ -411,6 +468,8 @@ void port_platform_init(void)
     SDL_StartTextInput(window);
     dump_dir = getenv("CM_DUMP_FRAMES");
     midnight_ms = 0;
+    clock_real = SDL_GetTicks();
+    clock_game4 = clock_real * 4;
     if (lt)                             /* the clock counts from midnight, as the BIOS does */
         midnight_ms = (uint64_t)0 - (uint64_t)(lt->tm_hour * 3600 + lt->tm_min * 60 + lt->tm_sec) * 1000;
 }

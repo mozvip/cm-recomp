@@ -527,7 +527,9 @@ void play_week_matches(void)
         prepare_match();
         choose_match_venue();
         compute_gate_attendance();
+        port_speed_control(1);          /* port: + and - set the speed during a match */
         play_match();
+        port_speed_control(0);
         restore_match_tactics();
         went_to_extra_time = period_end_minute > 90 ? -1 : 0;
         period_end_minute = -1;
