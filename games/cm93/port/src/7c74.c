@@ -495,6 +495,9 @@ void f_7c74_00ce(int16_t team)
     }
 }
 
+/* port: a click makes the latest results, typed a letter at a time, show at once */
+static char results_fast;
+
 /* the week's matches, played in the background, with the latest results on screen
  * (CM1's f_7555_0634) */
 void f_7c74_00eb(void)
@@ -511,6 +514,7 @@ void f_7c74_00eb(void)
     d_471b_b5a2[d_60ae_dd9c] = d_60ae_dce0;
     f_7c74_08c5();
     d_60ae_dc78 = 1;
+    results_fast = 0;
     d_60ae_dc76 = ((d_60ae_dd9c & 1) && d_60ae_dd9c > 6 ? 910 : 440) + f_1bd3_0d69(3);
     if (f_14bc_248a(d_60ae_dd9c))
         d_60ae_dc76 += 5;
@@ -642,7 +646,10 @@ void f_7c74_0769(char flag, char *s)
             for (d_60ae_dd48 = 1; d_60ae_dd48 <= strlen(s); d_60ae_dd48++) {
                 sprintf(buf, "%c", s[d_60ae_dd48 - 1]);
                 f_14bc_356a((d_60ae_dd48 - 1) * 6 + 32, d_60ae_dc78 * 8 + 39, 1, buf);
-                f_1bd3_0dbc(1);
+                if (!results_fast && f_1bd3_0c16() > 0)  /* port: */
+                    results_fast = 1;
+                if (!results_fast)
+                    f_1bd3_0dbc(1);
             }
     }
     d_60ae_dc78++;

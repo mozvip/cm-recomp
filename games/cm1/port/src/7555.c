@@ -502,6 +502,9 @@ void draw_team_sheet(int16_t team, int16_t full_names)
     }
 }
 
+/* port: a click makes the latest results, typed a letter at a time, show at once */
+static char results_fast;
+
 void play_week_matches(void)
 {
     char buf[80];
@@ -516,6 +519,7 @@ void play_week_matches(void)
     week_fixture_counts[current_week] = week_match_count;
     order_week_fixtures();
     results_line = 1;
+    results_fast = 0;
     kickoff_time = (current_week & 1) && current_week > 6 ? 910 : 440;
     for (fixture_loop = 0; fixture_loop <= week_match_count - 1; fixture_loop++) {
         fixture_index = fixture_order[fixture_loop] - 32;
@@ -645,7 +649,10 @@ void print_results_line(char instant, char *line)
                 play_effect_stub(5);
                 sprintf(buf, "%c", line[loop_k - 1]);
                 draw_text_at((loop_k - 1) * 6 + 32, results_line * 8 + 39, 1, buf);
-                wait_ticks(2);
+                if (!results_fast && take_mouse_clicks() > 0)  /* port: */
+                    results_fast = 1;
+                if (!results_fast)
+                    wait_ticks(2);
             }
     }
     results_line++;

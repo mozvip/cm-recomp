@@ -24,6 +24,7 @@ port has them:
 |---|---|
 | F11 | Window or full screen |
 | `+`, `-` | During a match: the game's speed, from x1/4 to x16 (shown in the window's title when not x1), kept for the next match. The games time everything from the BIOS clock, and the port runs that clock faster or slower. Either keyboard row, any layout. Outside matches the clock runs at x1 and `+` and `-` are typed as usual |
+| Mouse click | While the week's "Latest Results" are typed out a letter at a time: the rest of them show at once, without the delay (the games' `port:` change to their results printer: CM1 `print_results_line`, CM93 `f_7c74_0769`) |
 
 The game says when a match starts and ends: its sources call `port_speed_control(1)` and
 `port_speed_control(0)` around the match (CM1 `play_match`, CM93 `f_7c74_2043`, both in
