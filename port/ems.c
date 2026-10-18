@@ -1,9 +1,9 @@
 /* Replaces James W. Birdsall's EMS interface library (CM1's 1A51.ASM, CM93's 1E19.ASM,
- * CM94's 23A7.ASM): the game's virtual memory (CM1's vm_alloc/vm_map) keeps its blocks
- * in expanded memory when there is some, else in a file, VM.$$$. Here the expanded
- * memory is plain memory, and there is always some. Every function leaves an EMM status
- * in ems_error (0: none). The names are CM1's: another game's game.h maps them to its
- * own. */
+ * CM94's 23A7.ASM, Italia's 1FA5.ASM): the game's virtual memory (CM1's vm_alloc/vm_map)
+ * keeps its blocks in expanded memory when there is some, else in a file, VM.$$$. Here
+ * the expanded memory is plain memory, and there is always some. Every function leaves an
+ * EMM status in ems_error (0: none). The names are CM1's: another game's game.h maps them
+ * to its own. */
 #include "port.h"
 
 extern char ems_error;
