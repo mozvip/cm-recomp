@@ -1,0 +1,26 @@
+# The data segments of CMEXE.EXE (Championship Manager 94, End of Season Edition) that the
+# port loads into port_image: start and size in the executable's load image (file
+# numbering, as ../decomp's CMAN93.MAP has them), and the CRC-32 of their bytes.
+# tools/port/extract.py writes each to DATADIR/NAME.bin; ../../../port/image.c reads them
+# back at start-up. "bss": all zeros in the executable (uninitialised data), not extracted.
+# Left out: 58ed0-59da0, the overlay manager's tables and stubs (_OVRDATA_ ... OV13_TEXT),
+# of no use to the port; port_image keeps their place, zeroed.
+#
+# name       start  size   crc32
+S19_DATA     18c70  0016   2f4201ca
+S20_DATA     18c90  0028   7aa69ee1
+S21_DATA     18cc0  0070   4b5e4f8f
+S22_DATA     18d30  0050   46a2b4ef
+S23_DATA     18d80  001f   2c74b479
+S24_DATA     18da0  d8d8   bss
+S25_DATA     26680  ea96   bss
+S26_DATA     35120  e5a8   bss
+S27_DATA     436d0  a515   bss
+S28_DATA     4dbf0  5252   88818842
+S29_DATA     52e50  6072   eea34664
+_DATA        59da0  d942   2b406cb4
+_CVTSEG      676e2  0004   5c3819e5
+_SCNSEG      676e6  000c   1dad47bb
+_INIT_       676f2  002a   37ee54f1
+_EXIT_       6771c  0012   c55f3a37
+_BSS         6772e  09ee   bss

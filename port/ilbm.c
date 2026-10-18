@@ -1,10 +1,10 @@
-/* Replaces the IFF ILBM pictures (the .LBM files; CM1's 1B05.ASM, CM93's 1DC5.ASM):
- * find the FORM ILBM, turn CMAP into 16 12-bit palette entries (0RGB, one nibble per
- * colour), and unpack the ByteRun1 BODY, four plane rows of 40 bytes per line, 200 lines.
- * As the original, chunk ids are compared as little-endian words (stepping two bytes at a
- * time), sizes are big-endian, and BMHD is read past. show_ilbm and copy_screen_page draw
- * through the EGA's planes: the ports always run in VGA mode, so they do nothing. The
- * names are CM1's: another game's game.h maps them to its own. */
+/* Replaces the IFF ILBM pictures (the .LBM files; CM1's 1B05.ASM, CM93's 1DC5.ASM,
+ * CM94's 2352.ASM): find the FORM ILBM, turn CMAP into 16 12-bit palette entries (0RGB,
+ * one nibble per colour), and unpack the ByteRun1 BODY, four plane rows of 40 bytes per
+ * line, 200 lines. As the original, chunk ids are compared as little-endian words
+ * (stepping two bytes at a time), sizes are big-endian, and BMHD is read past. show_ilbm
+ * and copy_screen_page draw through the EGA's planes: the ports always run in VGA mode,
+ * so they do nothing. The names are CM1's: another game's game.h maps them to its own. */
 #include "port.h"
 
 extern uint16_t picture_palette[16];    /* CMAP as 0RGB words, unused entries 0 */
