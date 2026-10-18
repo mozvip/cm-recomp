@@ -11,21 +11,26 @@ for how the 16-bit code runs natively. CM94 is CM93's code built again with Borl
 
 **No game files are included.** The port's data segments are extracted once from your
 copy of `CMEXE.EXE` (`make data`); at run time the game's directory must hold the rest
-of the game (`*.LBM`, `LEAGUE.DAT`, `PLHIST*`, `CLRECS*`, `SVGAME*`...), not `CMEXE.EXE`.
+of the game (`*.LBM`, `PLHIST*`, `CLRECS*`, `SVGAME*`...), not `CMEXE.EXE`. Its players and teams
+(`TEAM.DAT`, `LEAGUE.DAT`, `FOREIGN.DAT`, and the names in the executable) are put in a
+database by `make data` as well, and the port reads them from there
+([the database](../../../port/README.md#the-database)).
 
 ## Building and running
 
-Needs meson, ninja, a C compiler, Python 3 and SDL3 (`pkg-config sdl3`).
+Needs meson, ninja, a C compiler, Python 3, SDL3 (`pkg-config sdl3`) and SQLite 3
+(`pkg-config sqlite3`).
 
 ```bash
 make -C games/cmese/port                                  # build/cm94
-make -C games/cmese/port data GAME_DIR=/path/to/cmese     # CMEXE.EXE's data -> build/data
+make -C games/cmese/port data GAME_DIR=/path/to/cmese     # CMEXE.EXE's data, game.db -> build/data
 make -C games/cmese/port run GAME_DIR=/path/to/cmese ARGS=n
 games/cmese/port/build/cm94 -g /path/to/cmese n           # -g: the game's directory (or $CM94_DIR)
 ```
 
 The data files are looked for in `data` next to the executable; `-d DATADIR` (or
-`$CM94_DATA`) names another directory. The argument is the game's own: `A` or `R`
+`$CM94_DATA`) names another directory, and the database is `game.db` in it (`-b DB`, or
+`$CM94_DB`, names another). The argument is the game's own: `A` or `R`
 (AdLib, Roland) for music, anything else for none. The music is silent in the port
 either way (see `../../../port/music.c`), but `A`/`R` add the Music options to the menus,
 which moves the buttons.
@@ -48,6 +53,7 @@ original `SVGAME` and saving it again (byte-identical). VGA only, no music.
 |---|---|
 | `src/*.c` | The game's 17 C modules, from `../decomp/src/*.C` |
 | `game.h` | CM94 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
+| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CMEXE.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the five assembly modules (`2306` ... `23A7`) in C |
 
@@ -86,6 +92,9 @@ same places (CM93's module in brackets):
   `t[0][N * 1860 + i]` (how BCC 4.02 gave the original's code) are `t[N][i]`: the same
   byte, without an index past the row that GCC may take for undefined behaviour (63 of
   them, in nine modules; not marked).
+- `b085.c`: the teams (`f_b085_0000`), the players (`f_b085_0298`, `f_b085_0caf`) and
+  their careers (`f_b085_25df`) are read from the database (`port_db_query()`), not from
+  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
 
 CM93's two `__emit__` functions (`f_14bc_4b12`, `f_8683_16db`) and its `asm db` jump
 are plain C in CM94's decompilation (`1a70.c`, `8c32.c`, `829f.c`): nothing to change.

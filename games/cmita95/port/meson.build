@@ -8,17 +8,19 @@ project('cmita95', 'c',
 
 cc = meson.get_compiler('c')
 sdl3 = dependency('sdl3')
+sqlite3 = dependency('sqlite3')
 libm = cc.find_library('m', required: false)
 python = find_program('python3')
 
 game_srcs = files(
   'src/18f9.c', 'src/1a83.c', 'src/215d.c', 'src/6ffe.c', 'src/75a4.c', 'src/7a45.c',
   'src/7f4a.c', 'src/8402.c', 'src/87dc.c', 'src/8e0f.c', 'src/93a1.c', 'src/9a9e.c',
-  'src/9f8d.c', 'src/a214.c', 'src/a7b6.c', 'src/ab30.c', 'src/b26d.c', 'src/b6f6.c')
+  'src/9f8d.c', 'src/a214.c', 'src/a7b6.c', 'src/ab30.c', 'src/b26d.c', 'src/b6f6.c',
+  'db.c')                 # the database, at start-up
 
 # the platform, shared with the other games' ports (../../../port)
 platform_srcs = files(
-  '../../../port/main.c', '../../../port/image.c', '../../../port/sdl.c',
+  '../../../port/main.c', '../../../port/image.c', '../../../port/db.c', '../../../port/sdl.c',
   '../../../port/dos.c', '../../../port/keyboard.c', '../../../port/ems.c',
   '../../../port/music.c', '../../../port/gfx.c', '../../../port/ilbm.c')
 
@@ -45,5 +47,5 @@ game_args = cc.get_supported_arguments(
 executable('cmita95', game_srcs, platform_srcs, data_symbols,
   include_directories: include_directories('.', '../../../port'),
   c_args: game_args,
-  dependencies: [sdl3, libm],
+  dependencies: [sdl3, sqlite3, libm],
   install: true)

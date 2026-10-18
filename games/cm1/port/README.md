@@ -9,28 +9,35 @@ machine and the five assembly modules; `game.h` tells it what is specific to CM1
 **No game files are included.** The build needs none. The port's data segments are
 extracted once from your copy of `EUROPE.EXE` (`make data`, see "Data" below); at run time
 the game's directory must hold the rest of the game (`*.LBM`, `RECORDS`, `HISTORY`...), not
-`EUROPE.EXE`.
+`EUROPE.EXE`. Its teams, clubs and tables of names, which `EUROPE.EXE` holds, are put in
+a database by `make data` as well, and the port reads them from there
+([the database](../../../port/README.md#the-database)).
 
 ## Building and running
 
-Needs meson, ninja, a C compiler, Python 3 and SDL3 (`pkg-config sdl3`).
+Needs meson, ninja, a C compiler, Python 3, SDL3 (`pkg-config sdl3`) and SQLite 3
+(`pkg-config sqlite3`).
 
 ```bash
 make -C games/cm1/port                         # or: meson setup build && meson compile -C build
-make -C games/cm1/port data GAME_DIR=/path/to/champman   # EUROPE.EXE's data -> build/data
+make -C games/cm1/port data GAME_DIR=/path/to/champman   # EUROPE.EXE's data, game.db -> build/data
 make -C games/cm1/port run GAME_DIR=/path/to/champman    # (runs `make data` first if needed)
 games/cm1/port/build/cm1 -g /path/to/champman  # -g: the game's directory (default: the current one, or $CM1_DIR)
 ```
 
 `make data` runs `tools/port/extract.py`, which writes one file per data segment of
-`EUROPE.EXE` (`segments.txt`) to `build/data`:
+`EUROPE.EXE` (`segments.txt`) to `build/data`, then `tools/port/mkdb.py`, which makes the
+database of its teams (`game.db`):
 
 ```bash
 python3 tools/port/extract.py --segments games/cm1/port/segments.txt /path/to/champman/EUROPE.EXE DATADIR
+python3 tools/port/mkdb.py --game cm1 /path/to/champman DATADIR/game.db
 ```
 
 The port looks for them in `data` next to its executable; `-d DATADIR` (or `$CM1_DATA`)
-names another directory.
+names another directory, and `-b DB` (or `$CM1_DB`) another database. The database's
+teams, clubs and names are copied over `EUROPE.EXE`'s at start-up (`db.c`), and the game
+reads them there.
 
 F11 switches between a window and full screen; during a match, + and - make it run
 faster or slower (x1/4 to x16, in the window's title), see `../../../port/README.md`.
@@ -59,15 +66,18 @@ only.
 |---|---|
 | `src/*.c` | The game's 13 C modules, from `../decomp/src/*.C` |
 | `game.h` | CM1 for the platform: the executable, where its data segments are |
+| `db.c` | What the game's database gives at start-up: the teams, the other clubs and the names, over the executable's (`port_game_db()`) |
 | `segments.txt` | The data segments of `EUROPE.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/port.h` | Included by every source in place of the Borland headers |
 | `../../../port/main.c`, `image.c` | Start-up; the original data segments, loaded from the extracted files |
+| `../../../port/db.c` | The database of players and teams (SQLite) |
 | `../../../port/sdl.c` | VGA mode 13h, mouse driver, keyboard, BIOS clock, on SDL3 |
 | `../../../port/dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, the printer |
 | `../../../port/keyboard.c` ... `ilbm.c` | The assembly modules (14B7, 1A51, 1AB2, 1AB9, 1B05), in C |
 | `../../../tools/port/convert.py` | The mechanical first pass from `decomp/src` to `src` |
 | `../../../tools/port/extract.py` | Extracts the data segments from `EUROPE.EXE`, one file each |
 | `../../../tools/port/mkdata.py` | Generates the data symbols, and the list of files to load, at build time |
+| `../../../tools/port/mkdb.py` | Makes the database from the game's files |
 
 ## How the 16-bit code runs natively
 

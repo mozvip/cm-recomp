@@ -40,6 +40,7 @@ The game says when a match starts and ends: its sources call `port_speed_control
 | `port.h` | Included by every game source in place of the Borland headers; includes the game's `game.h` first |
 | `main.c` | Start-up: options, the data segments, the machine, then the game's `main()`, renamed `game_main` |
 | `image.c` | Loads the original data segments (`port_image`) from the files `tools/port/extract.py` cut out of the executable |
+| `db.c` | The game's database of players and teams (SQLite, below): the queries the games' sources make, and its names put in the executable's tables |
 | `sdl.c` | VGA mode 13h, mouse driver (INT 33h), BIOS keyboard and clock, on SDL3; scripted clicks, typing and frame dumps for tests |
 | `dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, `stricmp`, the printer (`PRINTER.TXT`) |
 | `keyboard.c` | The keyboard driver (CM1 `14B7.ASM`, CM93 `1DFE.ASM`, CM94 `238C.ASM`, Italia `1F89.ASM`, Italia 95 `2386.ASM`): not needed, there is always a mouse |
@@ -58,13 +59,14 @@ maps the names in its `game.h` (CM93's, CM94's and both Italias' sources still u
 
 A game's port directory (`games/<game>/port`) holds its converted sources (`src/`), its
 `segments.txt` (the data segments of its executable, for `tools/port/extract.py` and
-`tools/port/mkdata.py`), its `meson.build`, and `game.h`, which defines:
+`tools/port/mkdata.py`), its `meson.build`, `db.c` (`port_game_db()`, what the database
+gives at start-up, see below), and `game.h`, which defines:
 
 | Macro | |
 |---|---|
 | `GAME_TITLE` | The window's title |
 | `GAME_EXE`, `GAME_VERSION` | The executable the data comes from, and its version, for messages |
-| `GAME_ENV` | The prefix of the environment variables: `<GAME_ENV>_DIR` (the game's directory), `<GAME_ENV>_DATA` (the data directory) |
+| `GAME_ENV` | The prefix of the environment variables: `<GAME_ENV>_DIR` (the game's directory), `<GAME_ENV>_DATA` (the data directory), `<GAME_ENV>_DB` (the database) |
 | `GAME_ARGS` | The game's own argument, for the usage line |
 | `GAME_FILE` | A file of the game, checked for in its directory before it starts (the game does not check that its files open) |
 | `IMAGE_START`, `IMAGE_END`, `DGROUP_SEG` | The extent of `port_image` in the executable's load image (file numbering: the first far data segment, the end of DGROUP) and DGROUP's segment |
@@ -72,3 +74,49 @@ A game's port directory (`games/<game>/port`) holds its converted sources (`src/
 
 `meson.build` compiles the game's sources with the files above, and gives
 `tools/port/mkdata.py` the same `IMAGE_START`/`IMAGE_END`.
+
+## The database
+
+The players and teams the games start from are in an SQLite database, `game.db` in the
+data directory, and the ports read them from there: not from the game's `TEAM.DAT`,
+`LEAGUE.DAT` and `FOREIGN.DAT`, nor from the tables of names and teams in its
+executable. `make data` makes it from your copy of the game, with
+`tools/port/mkdb.py`; `-b DB` (or `$<GAME_ENV>_DB`) names another database, an edited
+copy for instance.
+
+```bash
+python3 tools/port/mkdb.py --game cm93 --check /path/to/cm93 build/data/game.db
+sqlite3 build/data/game.db "SELECT * FROM player_list WHERE team = 'Man Utd'"
+```
+
+`--check` writes the database back into the game's formats and compares them with the
+originals: every value is kept as the game has it (255 in a player's attribute: made up
+by the game), so the files come back byte for byte, and with the database as made, the
+games do exactly what they did with their files.
+
+| Table | Content | Read |
+|---|---|---|
+| `teams` | The league's clubs, by the game's number: name, and `TEAM.DAT` (capacity, seats, colours, strength, reputation, money, board confidence, manager and coach); CM1: name, reputation, capacity, colours, strength | A new game (CM1: start-up) |
+| `players` | `LEAGUE.DAT` then `FOREIGN.DAT` (`team` NULL: plays abroad), in the order the game reads them: names (numbers in `first_names`, `surnames`), positions and sides, age, character, nationality, ability, potential and the other attributes. Not in CM1, which makes its players up | A new game with the real players |
+| `careers` | Each player's seasons before the game's: season, club, appearances, goals | Likewise |
+| `clubs` | CM1: the 460 other clubs (80-539) of the cups and careers: name, country, rating, colours | Start-up |
+| `first_names`, `surnames`, `countries` | The executable's tables of names, which the players refer to (CM1 draws its players' names from them) | Start-up |
+| `player_list` | A view: the players with their names, team and nationality | |
+
+The game's sources read it through `port_db_query()` (`port.h`), in place of their
+`fopen`/`fgetc`: for CM93, `src/ad38.c` (`f_ad38_0000` the teams, `f_ad38_0256` and
+`f_ad38_08d6` the players, `f_ad38_2135` the careers); CM94 `src/b085.c`, Italia
+`src/a7f0.c`, Italia 95 `src/a7b6.c`, the same functions. Their numbers of players
+follow the database, within the game's arrays (`db.c` checks it: CM93 1700 in the
+league and 160 abroad, CM94 1680 and 180, the Italias 1000 and 500). What the
+executable held is put in place by the game's `port_game_db()` at start-up, before the
+game runs: the names, and CM1's teams and clubs.
+
+A name the database changes is written after the original data (`port_pool`, 128K,
+reserved by `tools/port/mkdata.py`) and its table entry pointed there; the others stay
+where they are. The teams' names are DGROUP offsets, so a changed one must fit in what is
+left of DGROUP's 64K after the game's data: 23K for CM1, 7-8K for CM94 and the Italias,
+only 378 bytes for CM93 (failing that, a name no longer than the one it replaces is
+written in its place). The database's text is UTF-8; the games' is code page 437.
+A save that holds a table of names (CM1's holds the teams') keeps the pointers to the
+pool: it loads again with the same database.

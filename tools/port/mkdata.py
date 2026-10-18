@@ -20,10 +20,15 @@ Variables the sources declare as pointers are not placed in the image: a native
 pointer is 8 bytes where the original had 2 or 4, and would overwrite what follows it.
 OUT.c gives each of them its own weak storage instead, pointing at port_null_page (the
 DOS null far pointer, 0000:0000, was memory the game could write to).
+
+OUT.S also reserves port_pool, right after port_image: where port/db.c writes the names
+the game's database changes, within reach of DGROUP's offsets and of segment:offset
+pointers.
 """
 import argparse, os, re
 
 RT_BASE = 0x1000
+POOL = 0x20000                  # port_pool's size
 
 
 def parse_names(path):
@@ -148,9 +153,15 @@ def main():
         '        .globl  port_image',
         '        .balign 16',
         '        .type   port_image, @object',
-        '        .size   port_image, %#x' % size,
+        '        .size   port_image, %#x' % (size + POOL),
         'port_image:',
         '        .zero   %#x' % size,
+        '/* room for the names the database changes (port/db.c): after the image, so that',
+        '   DGROUP\'s offsets and segment:offset pointers reach it */',
+        '        .globl  port_pool, port_pool_end',
+        'port_pool:',
+        '        .zero   %#x' % POOL,
+        'port_pool_end:',
     ]
     for name, lin in sorted(syms.items(), key=lambda kv: (kv[1], kv[0])):
         if name in native or not (a.start <= lin < a.end):

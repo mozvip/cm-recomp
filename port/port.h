@@ -91,6 +91,24 @@ int port_remove(const char *path);
 #define access port_access
 #define remove port_remove
 
+/* ---- the database (db.c) ----------------------------------------------------------
+ * The game's players and teams, in SQLite (game.db, made by tools/port/mkdb.py): the
+ * game's sources read it in place of TEAM.DAT, LEAGUE.DAT and FOREIGN.DAT. A query's
+ * parameters (?) are ints, given after the SQL. */
+typedef struct port_rows port_rows;
+port_rows *port_db_query(const char *sql, ...);
+int port_db_next(port_rows *r);         /* the next row; 0: no more */
+int port_db_int(port_rows *r, const char *column);
+const char *port_db_text(port_rows *r, const char *column);
+void port_db_done(port_rows *r);        /* NULL: nothing */
+int port_db_count(const char *sql, ...); /* the first column of the first row */
+/* for the game's port_game_db() (games/<game>/port/db.c), called at start-up */
+void port_game_db(void);
+void port_db_check_teams(int n);
+void port_db_check_players(int teams, int league, int abroad);
+void port_db_near_names(const char *sql, nearptr *table, int n);
+void port_db_far_names(const char *sql, farptr *table, int n);
+
 /* ---- platform -------------------------------------------------------------------- */
 void port_pump(void);                   /* events, mouse, keys, and the screen shown */
 void port_vga_set_palette(int first, int count, const unsigned char *rgb6);
