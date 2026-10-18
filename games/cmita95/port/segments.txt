@@ -1,0 +1,27 @@
+# The data segments of CM.EXE (Championship Manager Italia 95) that the port loads into
+# port_image: start and size in the executable's load image (file numbering, as
+# ../decomp's CMANITA.MAP has them), and the CRC-32 of their bytes. tools/port/extract.py
+# writes each to DATADIR/NAME.bin; ../../../port/image.c reads them back at start-up.
+# "bss": all zeros in the executable (uninitialised data), not extracted.
+# Left out: 50fc0-51eb0, the overlay manager's tables and stubs (_OVRDATA_ ... OV13_TEXT),
+# of no use to the port; port_image keeps their place, zeroed.
+# CM.EXE and the unpatched CM.EX_ have the same data.
+#
+# name       start  size   crc32
+S19_DATA     18c10  0016   2f4201ca
+S20_DATA     18c30  0028   7aa69ee1
+S21_DATA     18c60  0070   4b5e4f8f
+S22_DATA     18cd0  0050   46a2b4ef
+S23_DATA     18d20  001f   3b5963bd
+S24_DATA     18d40  a5f8   bss
+S25_DATA     23340  ff9e   bss
+S26_DATA     332e0  fe43   bss
+S27_DATA     43130  0e88   bss
+S28_DATA     43fc0  79e6   8d8ac747
+S29_DATA     4b9b0  560c   b637b488
+_DATA        51eb0  d542   f299d0a8
+_CVTSEG      5f3f2  0004   5c3819e5
+_SCNSEG      5f3f6  000c   1dad47bb
+_INIT_       5f402  002a   906e103d
+_EXIT_       5f42c  0012   566d0dfa
+_BSS         5f43e  0a50   bss

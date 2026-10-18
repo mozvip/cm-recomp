@@ -38,14 +38,14 @@ with Borland C++ 4.02, matches it with code-free statements naming a variable
 
 ## Native ports
 
-`games/cm1/port/`, `games/cm93/port/`, `games/cmese/port/` and `games/cmitalia/port/`
-build CM1's, CM93's, CM94's and CM Italia's decompiled sources as native Linux programs
+`games/cm1/port/`, `games/cm93/port/`, `games/cmese/port/`, `games/cmitalia/port/` and
+`games/cmita95/port/` build CM1's, CM93's, CM94's, CM Italia's and CM Italia 95's decompiled sources as native Linux programs
 with SDL3 (meson). Each works from a
 converted copy and leaves `decomp/src/` as it is. All run on the same platform layer, `port/`, which replaces DOS,
 the BIOS, the VGA card, the mouse and the games' assembly modules. See
 [port/README.md](port/README.md), and the games' READMEs
 ([CM1](games/cm1/port/README.md), [CM93](games/cm93/port/README.md),
-[CM94](games/cmese/port/README.md), [Italia](games/cmitalia/port/README.md)).
+[CM94](games/cmese/port/README.md), [Italia](games/cmitalia/port/README.md), [Italia 95](games/cmita95/port/README.md)).
 
 ## Repository layout
 
@@ -53,7 +53,7 @@ the BIOS, the VGA card, the mouse and the games' assembly modules. See
 |---|---|
 | `games/<game>/decomp/` | The matching decompilation: `src/` (the C and assembly sources), makefile, symbols |
 | `tools/match/` | The decompilation's tools: relink, per-function compare, diff, porting between games |
-| `games/<game>/port/` | A game's native port (CM1, CM93, CM94, Italia): its converted sources and build |
+| `games/<game>/port/` | A game's native port (CM1, CM93, CM94, Italia, Italia 95): its converted sources and build |
 | `port/`, `tools/port/` | The ports' shared platform layer, and their conversion tools |
 | `docs/matching.md` | Toolchain, workflow and techniques |
 
