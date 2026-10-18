@@ -9,11 +9,13 @@ It is shared by:
 |---|---|
 | Championship Manager (1992) | [games/cm1/port](../games/cm1/port/README.md) |
 | Championship Manager 93 | [games/cm93/port](../games/cm93/port/README.md) |
+| Championship Manager 94 (End of Season Edition) | [games/cmese/port](../games/cmese/port/README.md) |
+| Championship Manager Italia (1993) | [games/cmitalia/port](../games/cmitalia/port/README.md) |
 
 How the 16-bit sources are made to run natively (types, the original data segments kept
 as one block, near and far pointer tables) is described in
-[CM1's README](../games/cm1/port/README.md#how-the-16-bit-code-runs-natively); CM93's
-follows the same rules.
+[CM1's README](../games/cm1/port/README.md#how-the-16-bit-code-runs-natively); the
+other games' ports follow the same rules.
 
 ## Keys every port has
 
@@ -24,11 +26,11 @@ port has them:
 |---|---|
 | F11 | Window or full screen |
 | `+`, `-` | During a match: the game's speed, from x1/4 to x16 (shown in the window's title when not x1), kept for the next match. The games time everything from the BIOS clock, and the port runs that clock faster or slower. Either keyboard row, any layout. Outside matches the clock runs at x1 and `+` and `-` are typed as usual |
-| Mouse click | While the week's "Latest Results" are typed out a letter at a time: the rest of them show at once, without the delay (the games' `port:` change to their results printer: CM1 `print_results_line`, CM93 `f_7c74_0769`) |
+| Mouse click | While the week's "Latest Results" are typed out a letter at a time: the rest of them show at once, without the delay (the games' `port:` change to their results printer: CM1 `print_results_line`, CM93 `f_7c74_0769`, CM94 `f_829f_06d0`, Italia `f_76ea_074a`) |
 
 The game says when a match starts and ends: its sources call `port_speed_control(1)` and
-`port_speed_control(0)` around the match (CM1 `play_match`, CM93 `f_7c74_2043`, both in
-the week's matches loop).
+`port_speed_control(0)` around the match (CM1 `play_match`, CM93 `f_7c74_2043`, CM94
+`f_829f_1ef0`, Italia `f_76ea_2010`, all in the week's matches loop).
 
 ## Files
 
@@ -39,16 +41,17 @@ the week's matches loop).
 | `image.c` | Loads the original data segments (`port_image`) from the files `tools/port/extract.py` cut out of the executable |
 | `sdl.c` | VGA mode 13h, mouse driver (INT 33h), BIOS keyboard and clock, on SDL3; scripted clicks, typing and frame dumps for tests |
 | `dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, `stricmp`, the printer (`PRINTER.TXT`) |
-| `keyboard.c` | The keyboard driver (CM1 `14B7.ASM`, CM93 `1DFE.ASM`): not needed, there is always a mouse |
-| `ems.c` | The EMS library (CM1 `1A51.ASM`, CM93 `1E19.ASM`): plain memory |
-| `music.c` | The music driver interface (CM1 `1AB2.ASM`, CM93 `1DF8.ASM`): silent for now |
-| `gfx.c` | The line drawing (CM1 `1AB9.ASM`, CM93 `1D79.ASM`), pixel for pixel; the EGA's planar primitives are empty |
-| `ilbm.c` | The `.LBM` picture decoder (CM1 `1B05.ASM`, CM93 `1DC5.ASM`) |
+| `keyboard.c` | The keyboard driver (CM1 `14B7.ASM`, CM93 `1DFE.ASM`, CM94 `238C.ASM`, Italia `1F89.ASM`): not needed, there is always a mouse |
+| `ems.c` | The EMS library (CM1 `1A51.ASM`, CM93 `1E19.ASM`, CM94 `23A7.ASM`, Italia `1FA5.ASM`): plain memory |
+| `music.c` | The music driver interface (CM1 `1AB2.ASM`, CM93 `1DF8.ASM`, CM94 `2385.ASM`, Italia `1F83.ASM`): silent for now |
+| `gfx.c` | The line drawing (CM1 `1AB9.ASM`, CM93 `1D79.ASM`, CM94 `2306.ASM`, Italia `1F04.ASM`), pixel for pixel; the EGA's planar primitives are empty |
+| `ilbm.c` | The `.LBM` picture decoder (CM1 `1B05.ASM`, CM93 `1DC5.ASM`, CM94 `2352.ASM`, Italia `1F50.ASM`) |
 
-The games' assembly modules are the same code in CM1 and CM93 (byte for byte, apart from
-addresses), so one C version of each serves both. Their functions and data go by CM1's
-names (`../games/cm1/names.txt`); a game that names them otherwise maps the names in its
-`game.h` (CM93's sources still use `f_SSSS_OOOO` / `d_SSSS_OOOO`).
+The games' assembly modules are the same code in CM1, CM93, CM94 and Italia (byte for
+byte, apart from addresses), so one C version of each serves them all. Their functions
+and data go by CM1's names (`../games/cm1/names.txt`); a game that names them otherwise
+maps the names in its `game.h` (CM93's, CM94's and Italia's sources still use
+`f_SSSS_OOOO` / `d_SSSS_OOOO`).
 
 ## What a game provides
 

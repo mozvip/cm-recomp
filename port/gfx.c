@@ -1,8 +1,9 @@
-/* Replaces the graphics primitives (CM1's 1AB9.ASM, CM93's 1D79.ASM): Bresenham lines in
- * mode 13h (as the original draws them, pixel for pixel), and the 16-colour planar mode's
- * lines, glyphs and rectangle saves, which only the EGA uses: the ports always run in VGA
- * mode (the game's video mode detection is replaced), so those do nothing. The names are
- * CM1's: another game's game.h maps them to its own. */
+/* Replaces the graphics primitives (CM1's 1AB9.ASM, CM93's 1D79.ASM, CM94's 2306.ASM,
+ * Italia's 1F04.ASM): Bresenham lines in mode 13h (as the original draws them, pixel for
+ * pixel), and the 16-colour planar mode's lines, glyphs and rectangle saves, which only
+ * the EGA uses: the ports always run in VGA mode (the game's video mode detection is
+ * replaced), so those do nothing. The names are CM1's: another game's game.h maps them to
+ * its own. */
 #include "port.h"
 
 /* The byte of pixel (x, y) in A000: offsets wrap in the 64K segment. */
