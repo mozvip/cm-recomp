@@ -55,6 +55,7 @@ nearptr to_near_ptr(const void *p);     /* the DGROUP offset of a pointer into D
 #define _fstrcmp strcmp
 #define _fstrcpy strcpy
 #define _fstrlen strlen
+#define _fstrstr strstr
 #define farcalloc calloc
 #define farmalloc malloc
 #define farfree free
