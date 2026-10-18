@@ -11,21 +11,26 @@ module for module ([`../../cm93/port`](../../cm93/port/README.md)).
 
 **No game files are included.** The port's data segments are extracted once from your
 copy of `CM.EXE` (`make data`); at run time the game's directory must hold the rest of
-the game (`*.LBM`, `LEAGUE.DAT`, `PLHIST`, `CLRECS`, `SVGAME`...), not `CM.EXE`.
+the game (`*.LBM`, `PLHIST`, `CLRECS`, `SVGAME`...), not `CM.EXE`. Its players and teams
+(`TEAM.DAT`, `LEAGUE.DAT`, `FOREIGN.DAT`, and the names in the executable) are put in a
+database by `make data` as well, and the port reads them from there
+([the database](../../../port/README.md#the-database)).
 
 ## Building and running
 
-Needs meson, ninja, a C compiler, Python 3 and SDL3 (`pkg-config sdl3`).
+Needs meson, ninja, a C compiler, Python 3, SDL3 (`pkg-config sdl3`) and SQLite 3
+(`pkg-config sqlite3`).
 
 ```bash
 make -C games/cmitalia/port                                     # build/cmitalia
-make -C games/cmitalia/port data GAME_DIR=/path/to/cmitalia     # CM.EXE's data -> build/data
+make -C games/cmitalia/port data GAME_DIR=/path/to/cmitalia     # CM.EXE's data, game.db -> build/data
 make -C games/cmitalia/port run GAME_DIR=/path/to/cmitalia ARGS=n
 games/cmitalia/port/build/cmitalia -g /path/to/cmitalia n       # -g: the game's directory (or $CMITALIA_DIR)
 ```
 
 The data files are looked for in `data` next to the executable; `-d DATADIR` (or
-`$CMITALIA_DATA`) names another directory. `CM.EXE` and the original `CM.EX_` have the
+`$CMITALIA_DATA`) names another directory, and the database is `game.db` in it (`-b DB`, or
+`$CMITALIA_DB`, names another). `CM.EXE` and the original `CM.EX_` have the
 same data, and either will do. The argument is the game's own: `A` or `R` (AdLib,
 Roland) for music, anything else for none. This release of the game has no music
 drivers or music files, and the port's music is silent anyway (see
@@ -50,6 +55,7 @@ playing on from it, and saving it again (byte-identical). No protection screen (
 |---|---|
 | `src/*.c` | The game's 17 C modules, from `../decomp/src/*.C` |
 | `game.h` | CM Italia for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
+| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CM.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the five assembly modules (`1F04` ... `1FA5`) in C |
 
@@ -88,6 +94,9 @@ same places (CM93's module in brackets):
   ignores at a byte boundary but GCC makes start the next field at the next 16-bit unit.
 - `8119.c`: two writes one past the end of a row of `d_4f37_1200` (`[1][0][100]`,
   `[1][1][100]`, in the original) are written as the words they reach.
+- `a7f0.c`: the teams (`f_a7f0_0000`), the players (`f_a7f0_0290`, `f_a7f0_0990`) and
+  their careers (`f_a7f0_2207`) are read from the database (`port_db_query()`), not from
+  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
 
 CM93's other `__emit__` function (`f_14bc_4b12`, the division names: Italia's
 `f_1646_4b1e`) and its `asm db` jump (in the match set-up) are plain C in CM Italia's

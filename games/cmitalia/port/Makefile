@@ -1,6 +1,7 @@
 # Convenience wrapper around meson (see README.md):
 #   make                      build build/cmitalia
-#   make data GAME_DIR=...    extract the data segments from GAME_DIR/CM.EXE to build/data
+#   make data GAME_DIR=...    extract the data segments from GAME_DIR/CM.EXE to build/data,
+#                             and make the database of its players and teams (build/data/game.db)
 #   make run GAME_DIR=...     both, then run it in the game's directory (default: games/cmitalia)
 GAME_DIR ?= ..
 BUILD ?= build
@@ -13,6 +14,7 @@ $(BUILD)/build.ninja:
 
 data:
 	python3 ../../../tools/port/extract.py --segments segments.txt $(GAME_DIR)/CM.EXE $(BUILD)/data
+	python3 ../../../tools/port/mkdb.py --game cmitalia $(GAME_DIR) $(BUILD)/data/game.db
 
 run: all
 	@test -d $(BUILD)/data || $(MAKE) data GAME_DIR=$(GAME_DIR)

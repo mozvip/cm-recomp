@@ -8,17 +8,19 @@ project('cmitalia', 'c',
 
 cc = meson.get_compiler('c')
 sdl3 = dependency('sdl3')
+sqlite3 = dependency('sqlite3')
 libm = cc.find_library('m', required: false)
 python = find_program('python3')
 
 game_srcs = files(
   'src/1446.c', 'src/1646.c', 'src/1d5e.c', 'src/6b47.c', 'src/71c8.c', 'src/76ea.c',
   'src/7c1d.c', 'src/8119.c', 'src/8539.c', 'src/8ba7.c', 'src/9182.c', 'src/9915.c',
-  'src/9e79.c', 'src/a13d.c', 'src/a7f0.c', 'src/b0f1.c', 'src/b8e8.c')
+  'src/9e79.c', 'src/a13d.c', 'src/a7f0.c', 'src/b0f1.c', 'src/b8e8.c',
+  'db.c')                 # the database, at start-up
 
 # the platform, shared with the other games' ports (../../../port)
 platform_srcs = files(
-  '../../../port/main.c', '../../../port/image.c', '../../../port/sdl.c',
+  '../../../port/main.c', '../../../port/image.c', '../../../port/db.c', '../../../port/sdl.c',
   '../../../port/dos.c', '../../../port/keyboard.c', '../../../port/ems.c',
   '../../../port/music.c', '../../../port/gfx.c', '../../../port/ilbm.c')
 
@@ -45,5 +47,5 @@ game_args = cc.get_supported_arguments(
 executable('cmitalia', game_srcs, platform_srcs, data_symbols,
   include_directories: include_directories('.', '../../../port'),
   c_args: game_args,
-  dependencies: [sdl3, libm],
+  dependencies: [sdl3, sqlite3, libm],
   install: true)

@@ -9,21 +9,26 @@ The decompiled sources are left as they are: `src/` holds a copy, converted by
 
 **No game files are included.** The port's data segments are extracted once from your
 copy of `CMEXE.EXE` (`make data`); at run time the game's directory must hold the rest
-of the game (`*.LBM`, `LEAGUE.DAT`, `PLHIST`, `CLRECS`, `SVGAME`...), not `CMEXE.EXE`.
+of the game (`*.LBM`, `PLHIST`, `CLRECS`, `SVGAME`...), not `CMEXE.EXE`. Its players and teams
+(`TEAM.DAT`, `LEAGUE.DAT`, `FOREIGN.DAT`, and the names in the executable) are put in a
+database by `make data` as well, and the port reads them from there
+([the database](../../../port/README.md#the-database)).
 
 ## Building and running
 
-Needs meson, ninja, a C compiler, Python 3 and SDL3 (`pkg-config sdl3`).
+Needs meson, ninja, a C compiler, Python 3, SDL3 (`pkg-config sdl3`) and SQLite 3
+(`pkg-config sqlite3`).
 
 ```bash
 make -C games/cm93/port                                 # build/cm93
-make -C games/cm93/port data GAME_DIR=/path/to/cm93     # CMEXE.EXE's data -> build/data
+make -C games/cm93/port data GAME_DIR=/path/to/cm93     # CMEXE.EXE's data, game.db -> build/data
 make -C games/cm93/port run GAME_DIR=/path/to/cm93 ARGS=n
 games/cm93/port/build/cm93 -g /path/to/cm93 n           # -g: the game's directory (or $CM93_DIR)
 ```
 
 The data files are looked for in `data` next to the executable; `-d DATADIR` (or
-`$CM93_DATA`) names another directory. The argument is the game's own: `A` or `R`
+`$CM93_DATA`) names another directory, and the database is `game.db` in it (`-b DB`, or
+`$CM93_DB`, names another). The argument is the game's own: `A` or `R`
 (AdLib, Roland) for music, anything else for none. The music is silent in the port
 either way (see `../../../port/music.c`), but `A`/`R` add the Music options to the menus,
 which moves the buttons.
@@ -45,6 +50,7 @@ original `SVGAME` and saving it again (byte-identical). VGA only, no music.
 |---|---|
 | `src/*.c` | The game's 17 C modules, from `../decomp/src/*.C` |
 | `game.h` | CM93 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
+| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CMEXE.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the five assembly modules (`1D79` ... `1E19`) in C |
 
@@ -73,6 +79,9 @@ Each is marked `port:` in `src/`, or explained where it is made:
 - `ad38.c`: three formats end in a lone `%`, which Borland printed and glibc drops: `%%`.
 - `struct flags_a` (player flags, in ten modules): without its `: 0` bit field, which BCC
   ignores at a byte boundary but GCC makes start the next field at the next 16-bit unit.
+- `ad38.c`: the teams (`f_ad38_0000`), the players (`f_ad38_0256`, `f_ad38_08d6`) and
+  their careers (`f_ad38_2135`) are read from the database (`port_db_query()`), not from
+  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
 
 ## Regenerating `src/`
 

@@ -87,7 +87,6 @@ extern int16_t d_3668_ae60[][1860];
 extern int16_t d_3668_cb70[];
 extern unsigned char d_3668_0000[][1860];
 extern FILE *d_69da_0094;
-extern FILE *d_69da_df89;
 extern char d_69da_de3d;
 extern int16_t d_69da_d9a0;
 extern int16_t d_69da_d99a;
@@ -294,39 +293,43 @@ extern char d_536d_3066[];
 extern int16_t d_4512_1f3c[];
 extern unsigned char d_28da_c30c[];
 
+/* port: the players being read from the database (tools/port/mkdb.py), in place of
+   LEAGUE.DAT and FOREIGN.DAT (d_69da_df89) */
+static port_rows *db_players;
+static const char *const db_positions[7] = { "gk", "def", "mid", "att", "right", "left", "centre" };
+static const char *const db_attributes[14] = {
+    "passing", "tackling", "pace", "heading", "flair", "creativity", "goalscoring",
+    "attr8", "potential", "aggression", "attr11", "influence", "attr13", "attr14"
+};
 
+/* port: the teams come from the database, not TEAM.DAT */
 void f_b085_0000(void)
 {
     unsigned char i;
-    unsigned char c;
-    FILE *fp;
-    unsigned char b;
+    port_rows *r;
 
     f_2162_19f6(2);
-    fp = fopen("team.dat", "rb");
+    r = port_db_query("SELECT * FROM teams ORDER BY id");
     for (i = 0; i <= 79; i = i + 1) {
-        d_4512_0000[1][i] = fgetc(fp);
-        d_4512_1524[i] = fgetc(fp);
-        c = fgetc(fp);
-        b = fgetc(fp);
-        d_4512_0000[2][i] = (c << 4) + b;
-        c = fgetc(fp);
-        b = fgetc(fp);
-        d_4512_0000[3][i] = (c << 4) + b;
-        d_4512_0000[4][i] = fgetc(fp);
-        d_4512_0000[0][i] = fgetc(fp);
-        d_4512_1e90[0][i] = (int32_t)(uint16_t)f_1a70_5b36(fp) * 1000;
-        d_4512_0000[6][i] = fgetc(fp);
-        d_536d_2b66[0][i] = f_1a70_5b36(fp);
-        d_536d_2b66[1][i] = f_1a70_5b36(fp);
-        d_536d_2b66[2][i] = fgetc(fp);
-        d_536d_2b66[3][i] = fgetc(fp);
-        d_536d_2b66[4][i] = fgetc(fp);
-        d_536d_2b66[5][i] = fgetc(fp);
-        d_536d_2b66[6][i] = f_1a70_5b36(fp);
-        d_536d_2b66[7][i] = f_1a70_5b36(fp);
+        port_db_next(r);
+        d_4512_0000[1][i] = port_db_int(r, "capacity");
+        d_4512_1524[i] = port_db_int(r, "seats");
+        d_4512_0000[2][i] = port_db_int(r, "colours");
+        d_4512_0000[3][i] = port_db_int(r, "away_colours");
+        d_4512_0000[4][i] = port_db_int(r, "rating");
+        d_4512_0000[0][i] = port_db_int(r, "reputation");
+        d_4512_1e90[0][i] = (int32_t)(uint16_t)port_db_int(r, "balance") * 1000;
+        d_4512_0000[6][i] = port_db_int(r, "board_confidence");
+        d_536d_2b66[0][i] = port_db_int(r, "manager_first_name");
+        d_536d_2b66[1][i] = port_db_int(r, "manager_surname");
+        d_536d_2b66[2][i] = port_db_int(r, "manager_trait_a");
+        d_536d_2b66[3][i] = port_db_int(r, "manager_trait_b");
+        d_536d_2b66[4][i] = port_db_int(r, "manager_rating");
+        d_536d_2b66[5][i] = port_db_int(r, "manager_character");
+        d_536d_2b66[6][i] = port_db_int(r, "coach_first_name");
+        d_536d_2b66[7][i] = port_db_int(r, "coach_surname");
     }
-    fclose(fp);
+    port_db_done(r);
 }
 
 void f_b085_0298(void)
@@ -340,6 +343,11 @@ void f_b085_0298(void)
     n = 0;
     d_69da_d98e = 1626;
     d_69da_d990 = 170;
+    if (d_69da_de3d != 0) {
+        /* port: as many players as the database has */
+        d_69da_d98e = port_db_count("SELECT count(*) FROM players WHERE team IS NOT NULL");
+        d_69da_d990 = port_db_count("SELECT count(*) FROM players WHERE team IS NULL");
+    }
     for (i = 0; i <= 79; i = i + 1) {
         d_4512_023e[i] = 0;
         d_4512_0334[0][i] = 0;
@@ -349,8 +357,9 @@ void f_b085_0298(void)
     d_69da_0090 = fopen(d_536d_a49d, "rb+");
     if (d_69da_de3d != 0) {
         f_2162_19f6(2);
-        d_69da_df89 = fopen("league.dat", "rb");
         for (i = 0; i <= 79; i = i + 1) {
+            /* port: the team's players in the database, not LEAGUE.DAT */
+            db_players = port_db_query("SELECT * FROM players WHERE team = ? ORDER BY id", i);
             do {
                 done = f_b085_08ac(n, i, 4);
                 if (done == 0) {
@@ -358,10 +367,10 @@ void f_b085_0298(void)
                     n++;
                 }
             } while (done == 0);
+            port_db_done(db_players);
             for (j = 0; j <= 15; j = j + 1)
                 f_b085_36c7(i, j);
         }
-        fclose(d_69da_df89);
     } else if (d_69da_de3d == 0) {
         for (i = 0; i <= 79; i = i + 1) {
             float f;
@@ -384,7 +393,8 @@ void f_b085_0298(void)
     p = 1680;
     if (d_69da_de3d != 0) {
         f_2162_19f6(2);
-        d_69da_df89 = fopen("foreign.dat", "rb");
+        /* port: the players abroad in the database, not FOREIGN.DAT */
+        db_players = port_db_query("SELECT * FROM players WHERE team IS NULL ORDER BY id");
         do {
             done = f_b085_08ac(p, 255, 4);
             if (done == 0) {
@@ -393,7 +403,7 @@ void f_b085_0298(void)
                 n++;
             }
         } while (done == 0);
-        fclose(d_69da_df89);
+        port_db_done(db_players);
     } else if (d_69da_de3d == 0) {
         unsigned char m;
 
@@ -417,7 +427,6 @@ void f_b085_05a8(void)
     int16_t n;
     int16_t p;
     int16_t done;
-    char name[40];
 
     n = 0;
     d_69da_d98e = 1626;
@@ -431,9 +440,12 @@ void f_b085_05a8(void)
     d_69da_0090 = fopen(d_536d_a49d, "rb+");
     f_2162_19f6(2);
     for (i = 0; i <= 79; i = i + 1) {
-        sprintf(name, "team%d.dat", d_69da_de3d ? i : 255);
-        d_69da_df89 = fopen(name, "rb");
-        if (d_69da_df89 != 0) {
+        /* port: team%d.dat (team255.dat for made-up players): the team's players in the
+           database, if it has some (nothing calls this function) */
+        db_players = port_db_count("SELECT count(*) FROM players WHERE team = ?", d_69da_de3d ? i : 255)
+                     ? port_db_query("SELECT * FROM players WHERE team = ? ORDER BY id", d_69da_de3d ? i : 255)
+                     : NULL;
+        if (db_players != 0) {
             do {
                 done = f_b085_08ac(n, i, 4);
                 if (done == 0) {
@@ -443,7 +455,7 @@ void f_b085_05a8(void)
             } while (done == 0);
             for (j = 0; j <= 15; j = j + 1)
                 f_b085_36c7(i, j);
-            fclose(d_69da_df89);
+            port_db_done(db_players);
         } else {
             float f;
             unsigned char k;
@@ -464,8 +476,10 @@ void f_b085_05a8(void)
     }
     p = 1680;
     f_2162_19f6(2);
-    d_69da_df89 = fopen("foreign.dat", "rb");
-    if (d_69da_df89 != 0) {
+    /* port: the players abroad in the database, if it has some */
+    db_players = port_db_count("SELECT count(*) FROM players WHERE team IS NULL")
+                 ? port_db_query("SELECT * FROM players WHERE team IS NULL ORDER BY id") : NULL;
+    if (db_players != 0) {
         do {
             done = f_b085_08ac(p, 255, 4);
             if (done == 0) {
@@ -474,7 +488,7 @@ void f_b085_05a8(void)
                 n++;
             }
         } while (done == 0);
-        fclose(d_69da_df89);
+        port_db_done(db_players);
     } else {
         uint16_t m;
 
@@ -573,9 +587,12 @@ char f_b085_0caf(int16_t p, int16_t team, char mode)
     fromfile = mode == 4 ? -1 : 0;
     squad = mode == 2 || mode == 3 ? -1 : 0;
     if (fromfile) {
-        d_3668_bce8[p] = f_1a70_5b36(d_69da_df89);
-        if (d_3668_bce8[p] == 3000)
+        /* port: the next row of the database; the end of the list was a first name of 3000 */
+        if (port_db_next(db_players) == 0) {
+            d_3668_bce8[p] = 3000;
             return 1;
+        }
+        d_3668_bce8[p] = port_db_int(db_players, "first_name");
     } else if (squad) {
         k = f_b085_3c6d(team, mode == 3 ? 1 : 0);
         d_69da_dfbe = f_2162_1634(d_69da_dff8, 0);
@@ -583,20 +600,20 @@ char f_b085_0caf(int16_t p, int16_t team, char mode)
     } else
         d_3668_bce8[p] = 3000;
     if (fromfile)
-        d_3668_d9f8[p] = f_1a70_5b36(d_69da_df89);
+        d_3668_d9f8[p] = port_db_int(db_players, "surname");
     else if (squad) {
         d_69da_dfbe = f_2162_1634(d_69da_dff8, 0);
         d_3668_d9f8[p] = d_69da_dfbe[team][1][k];
     } else
         d_3668_d9f8[p] = 3000;
     if (fromfile) {
-        d_4512_bdc8[p].f9 = fgetc(d_69da_df89);
+        d_4512_bdc8[p].f9 = port_db_int(db_players, "settled");
         if (f_1a70_6d23(p))
-            d_28da_ad40[p] = fgetc(d_69da_df89);
-        d_4512_bdc8[p].f28 = fgetc(d_69da_df89);
+            d_28da_ad40[p] = port_db_int(db_players, "club");
+        d_4512_bdc8[p].f28 = port_db_int(db_players, "star");
     }
     for (i = 0; i <= 6; i = i + 1) {
-        a[i] = fromfile ? fgetc(d_69da_df89) : 100;
+        a[i] = fromfile ? port_db_int(db_players, db_positions[i]) : 100;
         if (a[i] == 1)
             a[i] = -1;
         if (squad && i <= 3)
@@ -606,20 +623,20 @@ char f_b085_0caf(int16_t p, int16_t team, char mode)
         a[2] = -1;
     if (fromfile && a[2] && !a[3] && !a[1] && !a[6])
         a[6] = -1;
-    d_28da_2a78[17][p] = fromfile ? fgetc(d_69da_df89) : -1;
+    d_28da_2a78[17][p] = fromfile ? port_db_int(db_players, "age") : -1;
     if (squad)
         d_28da_2a78[17][p] = d_4512_a4c8[team][1][k];
-    d_3668_0000[17][p] = fromfile ? fgetc(d_69da_df89) : -1;
+    d_3668_0000[17][p] = fromfile ? port_db_int(db_players, "character") : -1;
     d_69da_dfba = f_2162_1634(d_69da_dff6, 1);
-    d_69da_dfba[9][p] = fromfile ? fgetc(d_69da_df89) : -1;
-    d_28da_2a78[0][p] = fromfile ? fgetc(d_69da_df89) : -1;
+    d_69da_dfba[9][p] = fromfile ? port_db_int(db_players, "nationality") : -1;
+    d_28da_2a78[0][p] = fromfile ? port_db_int(db_players, "ability") : -1;
     if (squad) {
         d_28da_2a78[0][p] = d_4512_a4c8[team][2][k];
         f_b085_36c7(team, k);
     }
     for (i = 1; i <= 14; i = i + 1)
-        d_28da_2a78[i][p] = fromfile ? fgetc(d_69da_df89) : -1;
-    d_28da_2a78[22][p] = fromfile ? fgetc(d_69da_df89) : -1;
+        d_28da_2a78[i][p] = fromfile ? port_db_int(db_players, db_attributes[i - 1]) : -1;
+    d_28da_2a78[22][p] = fromfile ? port_db_int(db_players, "stamina") : -1;
     do {
         ok = 1;
         d_69da_db6a = f_2162_0da1(1000) + 1;
@@ -944,6 +961,7 @@ void f_b085_25df(int16_t p, unsigned char a, char kind)
     uint16_t v;
     float f;
     unsigned char tbl[12] = {80, 100, 100, 110, 125, 130, 145, 160, 165, 170, 170, 170};
+    port_rows *career = NULL;
 
     if (d_28da_2a78[0][p] == 0xff) {
         ed = f_1a70_6d23(p) ? (unsigned char)f_1a70_5e5a(p) : f_1a70_2bff(a);
@@ -983,16 +1001,20 @@ void f_b085_25df(int16_t p, unsigned char a, char kind)
         r = f_2162_134e(d_28da_2a78[0][p] / 2 + f_2162_0da1(20) - f_2162_0da1(20), 20);
         week = c4 ? 0 : 95 - (d_28da_2a78[17][p] - 16);
         team = c4 ? 0 : f_b085_2cc3(p, r, -1);
+        if (c4)                 /* port: his seasons in the database, which LEAGUE.DAT had next */
+            career = port_db_query("SELECT * FROM careers WHERE player = ? ORDER BY seq",
+                                   port_db_int(db_players, "id"));
         do {
             if (week < 95) {
                 last = week;
                 if (c4) {
-                    week = fgetc(d_69da_df89);
+                    /* port: the player's careers rows; the end of the list was a season of 255 */
+                    week = port_db_next(career) ? port_db_int(career, "season") : 255;
                     if (week < 255) {
-                        team = fgetc(d_69da_df89);
-                        goals = fgetc(d_69da_df89);
+                        team = port_db_int(career, "club");
+                        goals = port_db_int(career, "apps");
                         ed = goals == 255 ? 50 : goals;
-                        perf = fgetc(d_69da_df89);
+                        perf = port_db_int(career, "goals");
                         f_b085_2db0(p, week, team, r, goals, perf, 255, ed);
                     } else
                         week = 95;
@@ -1011,6 +1033,7 @@ void f_b085_25df(int16_t p, unsigned char a, char kind)
                     r = (d_28da_2a78[17][p] - (95 - week) >= 30 ? r * 2 + 100 : r * 2 + d_28da_2a78[9][p]) / 3;
             }
         } while (week < 95);
+        port_db_done(career);
     }
     if (!f_1a70_6d23(p))
         d_28da_2a78[18][p] = a;
