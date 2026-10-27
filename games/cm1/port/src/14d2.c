@@ -36,15 +36,10 @@ void draw_text_box(float x, float y, int16_t bg, int16_t fg, int16_t w, char *s)
 void draw_text_font2(float x, float y, int16_t colour, char *s);
 void prompt_text_input(float x, int16_t w, char *prompt);
 void restore_system(void);
-void ems_free(int16_t handle);
 void remove_music_driver(void);
 void remove_keyboard_handler(void);
 void start_music(char *music);
 void mt32_music_setup(void);
-int16_t ems_init(void);                                  /* EMS present: 0 */
-int16_t ems_alloc(int32_t size);                             /* allocate EMS */
-void ems_write(int32_t size, char *buf, int16_t handle, int32_t off);   /* write to EMS */
-void ems_read(int32_t size, int16_t handle, int32_t off, char *buf);   /* read from EMS */
 
 extern char *screen_buffer;           /* screen buffer */
 extern char startup_video_mode;                /* video mode at start-up */
@@ -71,18 +66,15 @@ extern char pointer_background[64];            /* 8x8 block under the mouse poin
 extern float text_x;
 extern int32_t protection_answers[];              /* protection answers */
 extern char input_text[];          /* text typed in */
-extern int16_t vm_in_ems;                 /* virtual memory in EMS/extended memory */
-extern int16_t ems_handle;
 extern char *music_mem;           /* music memory */
 extern char *music_data;           /* the music, paragraph aligned */
 extern char *vm_work_buffer;          /* virtual memory work buffer (64124 bytes) */
-extern char ems_error;                /* EMS library error */
 extern char mouse_initialised;                /* mouse initialised */
 extern int16_t pointer_drawn_x, pointer_drawn_y;    /* where the pointer is drawn */
 
 struct vmblock {                        /* a virtual memory block */
     int32_t size;
-    int32_t off;                           /* in EMS or VM.$$$ */
+    int32_t off;                           /* in vm_store */
 };
 extern struct vmblock vm_blocks[40];
 
@@ -92,6 +84,7 @@ struct vmslot {                         /* a block in the work buffer */
     char *p;
 };
 struct vmslot vm_slots[40];             /* port: native, it holds a pointer */
+static char *vm_store;                  /* port: the blocks, in memory: not in EMS or VM.$$$ */
 
 struct window {                         /* a font */
     char *buf;
@@ -809,10 +802,6 @@ void protection_check(void)
 
 void restore_system(void)
 {
-    if (vm_in_ems)
-        ems_free(ems_handle);
-    else
-        remove("VM.$$$");
     port_vga_restore_text_mode();       /* INT 10h AH=0, AL=startup_video_mode */
     if (sound_device)
         remove_music_driver();
@@ -896,34 +885,19 @@ int16_t vm_alloc(int32_t size)
             printf("No room for virtual memory\n");
             exit(-1);
         }
-        if (ems_init() == 0) {
-            ems_handle = ems_alloc(300000);
-            if (ems_error == 0)
-                vm_in_ems = -1;
-        }
-        if (vm_in_ems == 0) {
-            fd = open("VM.$$$", O_CREAT | O_TRUNC | O_WRONLY, S_IREAD | S_IWRITE);
-            write(fd, vm_work_buffer, 1);
-            close(fd);
-        }
         for (fd = 0; fd < 40; fd++) {
             vm_slots[fd].block = -1;
             vm_blocks[fd].size = 0;
         }
     }
     vm_blocks[vm_block_count].size = size;
-    if (vm_in_ems) {
-        vm_blocks[vm_block_count].off = vm_block_count == 0 ? 0 :
-            vm_blocks[vm_block_count - 1].off + vm_blocks[vm_block_count - 1].size;
-        ems_write(vm_blocks[vm_block_count].size, vm_work_buffer, ems_handle, vm_blocks[vm_block_count].off);
-    } else {
-        vm_blocks[vm_block_count].off = vm_block_count == 0 ? 0 :
-            vm_blocks[vm_block_count - 1].off + vm_blocks[vm_block_count - 1].size;
-        fd = open("VM.$$$", O_RDWR);
-        lseek(fd, vm_blocks[vm_block_count].off, 0);
-        write(fd, vm_work_buffer, size);
-        close(fd);
+    vm_blocks[vm_block_count].off = vm_block_count == 0 ? 0 :
+        vm_blocks[vm_block_count - 1].off + vm_blocks[vm_block_count - 1].size;
+    if ((vm_store = realloc(vm_store, vm_blocks[vm_block_count].off + size)) == NULL) {
+        printf("Not enough memory.\n");
+        exit(-1);
     }
+    memcpy(vm_store + vm_blocks[vm_block_count].off, vm_work_buffer, size);
     return vm_block_count++;
 }
 
@@ -932,7 +906,6 @@ void *vm_map(int16_t handle, int16_t dirty)
 {
     char *mem;
     int16_t i;
-    int16_t fd;
 
     for (i = 0; i < 40; i++)
         if (vm_slots[i].block == handle) {
@@ -940,19 +913,12 @@ void *vm_map(int16_t handle, int16_t dirty)
                 vm_slots[i].dirty = dirty;
             return vm_slots[i].p;
         }
-    if (vm_in_ems == 0)
-        fd = open("VM.$$$", O_RDWR);
     if (vm_buffer_used + vm_blocks[handle].size > 64124) {
         for (i = 0; i < 40; i++)
             if (vm_slots[i].block >= 0) {
-                if (vm_slots[i].dirty == 1) {
-                    if (vm_in_ems == 0) {
-                        lseek(fd, vm_blocks[vm_slots[i].block].off, 0);
-                        write(fd, vm_slots[i].p, vm_blocks[vm_slots[i].block].size);
-                    } else
-                        ems_write(vm_blocks[vm_slots[i].block].size, vm_slots[i].p, ems_handle,
-                                    vm_blocks[vm_slots[i].block].off);
-                }
+                if (vm_slots[i].dirty == 1)
+                    memcpy(vm_store + vm_blocks[vm_slots[i].block].off, vm_slots[i].p,
+                           vm_blocks[vm_slots[i].block].size);
                 vm_slots[i].block = -1;
             }
         vm_buffer_used = 0;
@@ -961,12 +927,7 @@ void *vm_map(int16_t handle, int16_t dirty)
         if (vm_slots[i].block == -1)
             break;
     mem = vm_work_buffer + vm_buffer_used;
-    if (vm_in_ems == 0) {
-        lseek(fd, vm_blocks[handle].off, 0);
-        read(fd, mem, vm_blocks[handle].size);
-        close(fd);
-    } else
-        ems_read(vm_blocks[handle].size, ems_handle, vm_blocks[handle].off, mem);
+    memcpy(mem, vm_store + vm_blocks[handle].off, vm_blocks[handle].size);
     vm_slots[i].block = handle;
     vm_slots[i].dirty = dirty;
     vm_slots[i].p = mem;

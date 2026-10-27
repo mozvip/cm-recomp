@@ -44,7 +44,6 @@ The game says when a match starts and ends: its sources call `port_speed_control
 | `sdl.c` | VGA mode 13h, mouse driver (INT 33h), BIOS keyboard and clock, on SDL3; scripted clicks, typing and frame dumps for tests |
 | `dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, `stricmp`, the printer (`PRINTER.TXT`) |
 | `keyboard.c` | The keyboard driver (CM1 `14B7.ASM`, CM93 `1DFE.ASM`, CM94 `238C.ASM`, Italia `1F89.ASM`, Italia 95 `2386.ASM`): not needed, there is always a mouse |
-| `ems.c` | The EMS library (CM1 `1A51.ASM`, CM93 `1E19.ASM`, CM94 `23A7.ASM`, Italia `1FA5.ASM`, Italia 95 `23A1.ASM`): plain memory |
 | `music.c` | The music driver interface (CM1 `1AB2.ASM`, CM93 `1DF8.ASM`, CM94 `2385.ASM`, Italia `1F83.ASM`, Italia 95 `2380.ASM`): silent for now |
 | `gfx.c` | The line drawing (CM1 `1AB9.ASM`, CM93 `1D79.ASM`, CM94 `2306.ASM`, Italia `1F04.ASM`, Italia 95 `2301.ASM`), pixel for pixel; the EGA's planar primitives are empty |
 | `ilbm.c` | The `.LBM` picture decoder (CM1 `1B05.ASM`, CM93 `1DC5.ASM`, CM94 `2352.ASM`, Italia `1F50.ASM`, Italia 95 `234D.ASM`) |
@@ -54,6 +53,12 @@ byte, apart from addresses), so one C version of each serves them all. Their fun
 and data go by CM1's names (`../games/cm1/names.txt`); a game that names them otherwise
 maps the names in its `game.h` (CM93's, CM94's and both Italias' sources still use
 `f_SSSS_OOOO` / `d_SSSS_OOOO`).
+
+The EMS library (CM1 `1A51.ASM`, CM93 `1E19.ASM`, CM94 `23A7.ASM`, Italia `1FA5.ASM`,
+Italia 95 `23A1.ASM`) has no counterpart: the games' virtual memory (CM1's `vm_alloc` and
+`vm_map`), which kept its blocks in expanded memory or in a file, `VM.$$$`, keeps them in
+memory in each port's source (`vm_store`). Blocks are still mapped through the 64124-byte
+work buffer, as in the original, so what the game sees is unchanged.
 
 ## What a game provides
 

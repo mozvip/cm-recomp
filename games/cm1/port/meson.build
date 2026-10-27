@@ -19,7 +19,7 @@ game_srcs = files(
 # the platform, shared with the other games' ports (../../../port)
 platform_srcs = files(
   '../../../port/main.c', '../../../port/image.c', '../../../port/db.c', '../../../port/sdl.c',
-  '../../../port/dos.c', '../../../port/keyboard.c', '../../../port/ems.c',
+  '../../../port/dos.c', '../../../port/keyboard.c',
   '../../../port/music.c', '../../../port/gfx.c', '../../../port/ilbm.c')
 
 # the game's data symbols at their addresses in the original data (see ../../../port/port.h)

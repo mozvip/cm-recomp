@@ -37,11 +37,5 @@
 #define music_off                f_2385_0065
 #define install_keyboard_handler f_238c_0002     /* 238C.ASM, keyboard driver */
 #define remove_keyboard_handler  f_238c_003c
-#define ems_init                 f_23a7_0006     /* 23A7.ASM, EMS library */
-#define ems_alloc                f_23a7_0161
-#define ems_free                 f_23a7_01a0
-#define ems_write                f_23a7_02d8
-#define ems_read                 f_23a7_0438
-#define ems_error                d_69da_cde3
 
 #endif

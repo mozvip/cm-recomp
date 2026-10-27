@@ -59,7 +59,7 @@ no team picked). VGA only, no music.
 | `game.h` | CM Italia 95 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
 | `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CM.EXE`: where each goes, its size and CRC-32 |
-| `../../../port/` | The platform: start-up, SDL3, DOS, and the five assembly modules (`2301` ... `23A1`) in C |
+| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`2301` ... `23A1`) in C, but for the EMS library (`23A1`): the virtual memory is kept in memory |
 
 The sources keep the decompilation's names (`f_SSSS_OOOO`, `d_SSSS_OOOO`), and, as for
 CM93, `meson.build` gives `tools/port/mkdata.py` no names file: the data symbols are

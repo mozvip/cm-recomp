@@ -30,15 +30,10 @@ int32_t f_1bd3_0df6(void);
 void f_1d79_0006(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, int16_t colour);
 void f_14bc_4d4c(float x, int16_t w, char *prompt);
 void f_1bd3_1215(void);
-void f_1e19_01a8(int16_t handle);
 void f_1df8_0052(void);
 void f_1dfe_0044(void);
 void f_1df8_001f(char *music);
 void f_1df8_0004(void);
-int16_t f_1e19_000e(void);                                  /* EMS present: 0 */
-int16_t f_1e19_0169(int32_t size);                             /* allocate EMS */
-void f_1e19_02e0(int32_t size, char *buf, int16_t handle, int32_t off);   /* write to EMS */
-void f_1e19_0440(int32_t size, int16_t handle, int32_t off, char *buf);   /* read from EMS */
 
 extern char *d_60ae_fdca;           /* screen buffer */
 extern char d_60ae_fdb7;                /* video mode at start-up */
@@ -70,19 +65,16 @@ extern char d_60ae_fd4e[64];            /* 8x8 block under the mouse pointer */
 extern float d_60ae_d8f1;
 extern int32_t d_60ae_0254[];              /* protection answers */
 extern char d_2289_4fcc[];          /* text typed in */
-extern int16_t d_60ae_9616;                 /* virtual memory in EMS/extended memory */
-extern int16_t d_60ae_fdb2;
 extern char *d_60ae_fdb8;           /* music memory */
 extern char *d_60ae_fdbc;           /* the music, paragraph aligned */
 extern char *d_60ae_fd42;          /* virtual memory work buffer (64124 bytes) */
-extern char d_60ae_d119;                /* EMS library error */
 extern char d_60ae_9612;                /* mouse initialised */
 extern char d_60ae_9613;                /* the mouse driver counts x in 0-639 */
 extern int16_t d_60ae_fb08, d_60ae_fb06;    /* where the pointer is drawn */
 
 struct vmblock {                        /* a virtual memory block */
     int32_t size;
-    int32_t off;                           /* in EMS or VM.$$$ */
+    int32_t off;                           /* in vm_store */
 };
 extern struct vmblock d_60ae_fb12[40];
 
@@ -92,6 +84,7 @@ struct vmslot {                         /* a block in the work buffer */
     char *p;
 };
 struct vmslot d_60ae_fc52[40];          /* port: native, it holds a pointer */
+static char *vm_store;                  /* port: the blocks, in memory: not in EMS or VM.$$$ */
 
 struct window {                         /* a font */
     char *buf;
@@ -822,10 +815,6 @@ void f_1bd3_114b(uint16_t x, int16_t y, uint16_t x2, uint16_t y2, int16_t dy, in
 
 void f_1bd3_1215(void)
 {
-    if (d_60ae_9616)
-        f_1e19_01a8(d_60ae_fdb2);
-    else
-        remove("VM.$$$");
     port_vga_restore_text_mode();       /* INT 10h AH=0, AL=d_60ae_fdb7 */
     if (d_60ae_9615)
         f_1df8_0052();
@@ -898,7 +887,6 @@ void f_1bd3_13a3(char *a, char *b, uint16_t n)
 /* Allocate a virtual memory block of size bytes; returns its handle. */
 int16_t f_1bd3_13df(int32_t size)
 {
-    int16_t h;
     int16_t i;
 
     if (d_60ae_9677 == 0) {
@@ -910,34 +898,19 @@ int16_t f_1bd3_13df(int32_t size)
             }
             exit(-1);
         }
-        if (f_1e19_000e() == 0) {
-            d_60ae_fdb2 = f_1e19_0169(250000);
-            if (d_60ae_d119 == 0)
-                d_60ae_9616 = -1;
-        }
-        if (d_60ae_9616 == 0) {
-            h = open("VM.$$$", O_CREAT | O_TRUNC | O_WRONLY, S_IREAD | S_IWRITE);
-            write(h, d_60ae_fd42, 1);
-            close(h);
-        }
         for (i = 0; i < 40; i++) {
             d_60ae_fc52[i].block = -1;
             d_60ae_fb12[i].size = 0;
         }
     }
     d_60ae_fb12[d_60ae_9677].size = size;
-    if (d_60ae_9616) {
-        d_60ae_fb12[d_60ae_9677].off = d_60ae_9677 == 0 ? 0 :
-            d_60ae_fb12[d_60ae_9677 - 1].off + d_60ae_fb12[d_60ae_9677 - 1].size;
-        f_1e19_02e0(d_60ae_fb12[d_60ae_9677].size, d_60ae_fd42, d_60ae_fdb2, d_60ae_fb12[d_60ae_9677].off);
-    } else {
-        d_60ae_fb12[d_60ae_9677].off = d_60ae_9677 == 0 ? 0 :
-            d_60ae_fb12[d_60ae_9677 - 1].off + d_60ae_fb12[d_60ae_9677 - 1].size;
-        h = open("VM.$$$", O_RDWR);
-        lseek(h, d_60ae_fb12[d_60ae_9677].off, 0);
-        write(h, d_60ae_fd42, size);
-        close(h);
+    d_60ae_fb12[d_60ae_9677].off = d_60ae_9677 == 0 ? 0 :
+        d_60ae_fb12[d_60ae_9677 - 1].off + d_60ae_fb12[d_60ae_9677 - 1].size;
+    if ((vm_store = realloc(vm_store, d_60ae_fb12[d_60ae_9677].off + size)) == NULL) {
+        printf("Not enough memory.\n");
+        exit(-1);
     }
+    memcpy(vm_store + d_60ae_fb12[d_60ae_9677].off, d_60ae_fd42, size);
     return d_60ae_9677++;
 }
 
@@ -946,7 +919,6 @@ void *f_1bd3_1617(int16_t handle, int16_t dirty)
 {
     char *p;
     int16_t i;
-    int16_t fd;
 
     for (i = 0; i < 40; i++)
         if (d_60ae_fc52[i].block == handle) {
@@ -954,19 +926,12 @@ void *f_1bd3_1617(int16_t handle, int16_t dirty)
                 d_60ae_fc52[i].dirty = dirty;
             return d_60ae_fc52[i].p;
         }
-    if (d_60ae_9616 == 0)
-        fd = open("VM.$$$", O_RDWR);
     if (d_60ae_9679 + d_60ae_fb12[handle].size > 64124) {
         for (i = 0; i < 40; i++)
             if (d_60ae_fc52[i].block >= 0) {
-                if (d_60ae_fc52[i].dirty == 1) {
-                    if (d_60ae_9616 == 0) {
-                        lseek(fd, d_60ae_fb12[d_60ae_fc52[i].block].off, 0);
-                        write(fd, d_60ae_fc52[i].p, d_60ae_fb12[d_60ae_fc52[i].block].size);
-                    } else
-                        f_1e19_02e0(d_60ae_fb12[d_60ae_fc52[i].block].size, d_60ae_fc52[i].p, d_60ae_fdb2,
-                                    d_60ae_fb12[d_60ae_fc52[i].block].off);
-                }
+                if (d_60ae_fc52[i].dirty == 1)
+                    memcpy(vm_store + d_60ae_fb12[d_60ae_fc52[i].block].off, d_60ae_fc52[i].p,
+                           d_60ae_fb12[d_60ae_fc52[i].block].size);
                 d_60ae_fc52[i].block = -1;
             }
         d_60ae_9679 = 0;
@@ -975,12 +940,7 @@ void *f_1bd3_1617(int16_t handle, int16_t dirty)
         if (d_60ae_fc52[i].block == -1)
             break;
     p = d_60ae_fd42 + d_60ae_9679;
-    if (d_60ae_9616 == 0) {
-        lseek(fd, d_60ae_fb12[handle].off, 0);
-        read(fd, p, d_60ae_fb12[handle].size);
-        close(fd);
-    } else
-        f_1e19_0440(d_60ae_fb12[handle].size, d_60ae_fdb2, d_60ae_fb12[handle].off, p);
+    memcpy(p, vm_store + d_60ae_fb12[handle].off, d_60ae_fb12[handle].size);
     d_60ae_fc52[i].block = handle;
     d_60ae_fc52[i].dirty = dirty;
     d_60ae_fc52[i].p = p;
