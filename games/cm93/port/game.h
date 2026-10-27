@@ -36,11 +36,5 @@
 #define music_off                f_1df8_005d
 #define install_keyboard_handler f_1dfe_000a     /* 1DFE.ASM, keyboard driver */
 #define remove_keyboard_handler  f_1dfe_0044
-#define ems_init                 f_1e19_000e     /* 1E19.ASM, EMS library */
-#define ems_alloc                f_1e19_0169
-#define ems_free                 f_1e19_01a8
-#define ems_write                f_1e19_02e0
-#define ems_read                 f_1e19_0440
-#define ems_error                d_60ae_d119
 
 #endif

@@ -4,7 +4,7 @@ The matching decompilation (`../decomp/src`) rebuilt as a native Linux program w
 SDL3. The decompiled sources are left as they are: `src/` holds a copy, converted and
 then edited by hand to compile with GCC/Clang on a 64-bit machine. The platform layer,
 shared with the other games' ports (`../../../port`, see its README), replaces the DOS
-machine and the five assembly modules; `game.h` tells it what is specific to CM1.
+machine and four of the five assembly modules (the EMS library is not needed); `game.h` tells it what is specific to CM1.
 
 **No game files are included.** The build needs none. The port's data segments are
 extracted once from your copy of `EUROPE.EXE` (`make data`, see "Data" below); at run time
@@ -73,7 +73,7 @@ only.
 | `../../../port/db.c` | The database of players and teams (SQLite) |
 | `../../../port/sdl.c` | VGA mode 13h, mouse driver, keyboard, BIOS clock, on SDL3 |
 | `../../../port/dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, the printer |
-| `../../../port/keyboard.c` ... `ilbm.c` | The assembly modules (14B7, 1A51, 1AB2, 1AB9, 1B05), in C |
+| `../../../port/keyboard.c` ... `ilbm.c` | The assembly modules (14B7, 1AB2, 1AB9, 1B05), in C; the EMS library (1A51) is not needed: `vm_alloc` keeps its blocks in memory |
 | `../../../tools/port/convert.py` | The mechanical first pass from `decomp/src` to `src` |
 | `../../../tools/port/extract.py` | Extracts the data segments from `EUROPE.EXE`, one file each |
 | `../../../tools/port/mkdata.py` | Generates the data symbols, and the list of files to load, at build time |

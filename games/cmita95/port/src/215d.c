@@ -30,15 +30,10 @@ int32_t f_215d_0e27(void);
 void f_2301_0002(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, int16_t colour);
 void f_1a83_4a35(float x, int16_t w, char *prompt);
 void f_215d_124b(void);
-void f_23a1_01a4(int16_t handle);
 void f_2380_004e(void);
 void f_2386_0040(void);
 void f_2380_001b(char *music);
 void f_2380_0000(void);
-int16_t f_23a1_000a(void);                                  /* EMS present: 0 */
-int16_t f_23a1_0165(int32_t size);                             /* allocate EMS */
-void f_23a1_02dc(int32_t size, char *buf, int16_t handle, int32_t off);   /* write to EMS */
-void f_23a1_043c(int32_t size, int16_t handle, int32_t off, char *buf);   /* read from EMS */
 
 extern char *d_61eb_dc68;           /* screen buffer */
 extern char d_61eb_dc7e;                /* video mode at start-up */
@@ -67,19 +62,16 @@ extern char d_61eb_918c;                /* 1: text drawn with its background */
 extern unsigned char d_61eb_d9bb;
 extern char d_5313_0640[6][320];    /* text buffers */
 extern char d_61eb_dc84[64];            /* 8x8 block under the mouse pointer */
-extern int16_t d_61eb_918e;                 /* virtual memory in EMS/extended memory */
-extern int16_t d_61eb_dc82;
 extern char *d_61eb_dc7a;           /* music memory */
 extern char *d_61eb_dc76;           /* the music, paragraph aligned */
 extern char *d_61eb_dcf0;          /* virtual memory work buffer (64124 bytes) */
-extern char d_61eb_c9d9;                /* EMS library error */
 extern char d_61eb_918a;                /* mouse initialised */
 extern char d_61eb_918b;                /* the mouse driver counts x in 0-639 */
 extern int16_t d_61eb_df2c, d_61eb_df2e;    /* where the pointer is drawn */
 
 struct vmblock {                        /* a virtual memory block */
     int32_t size;
-    int32_t off;                           /* in EMS or VM.$$$ */
+    int32_t off;                           /* in vm_store */
 };
 extern struct vmblock d_61eb_dde4[40];
 
@@ -89,6 +81,7 @@ struct vmslot {                         /* a block in the work buffer */
     char *p;
 };
 struct vmslot d_61eb_dcf4[40];          /* port: native, it holds a pointer */
+static char *vm_store;                  /* port: the blocks, in memory: not in EMS or VM.$$$ */
 
 struct window {                         /* a font */
     char *buf;
@@ -820,10 +813,6 @@ void f_215d_118b(uint16_t x, int16_t y, uint16_t x2, uint16_t y2, int16_t dy, in
 
 void f_215d_124b(void)
 {
-    if (d_61eb_918e)
-        f_23a1_01a4(d_61eb_dc82);
-    else
-        remove("VM.$$$");
     port_vga_restore_text_mode();       /* INT 10h AH=0, AL=d_61eb_dc7e */
     if (d_61eb_918d)
         f_2380_004e();
@@ -896,7 +885,6 @@ void f_215d_13f1(char *a, char *b, uint16_t n)
 /* Allocate a virtual memory block of size bytes; returns its handle. */
 int16_t f_215d_142b(int32_t size)
 {
-    int16_t h;
     int16_t i;
 
     if (d_61eb_91ef == 0) {
@@ -908,41 +896,25 @@ int16_t f_215d_142b(int32_t size)
             }
             exit(-1);
         }
-        if (f_23a1_000a() == 0) {
-            d_61eb_dc82 = f_23a1_0165(200000);
-            if (d_61eb_c9d9 == 0)
-                d_61eb_918e = -1;
-        }
-        if (d_61eb_918e == 0) {
-            h = open("VM.$$$", O_CREAT | O_TRUNC | O_WRONLY, S_IREAD | S_IWRITE);
-            write(h, d_61eb_dcf0, 1);
-            close(h);
-        }
         for (i = 0; i < 40; i++) {
             d_61eb_dcf4[i].block = -1;
             d_61eb_dde4[i].size = 0;
         }
     }
     d_61eb_dde4[d_61eb_91ef].size = size;
-    if (d_61eb_918e) {
-        d_61eb_dde4[d_61eb_91ef].off = d_61eb_91ef == 0 ? 0 :
-            d_61eb_dde4[d_61eb_91ef - 1].off + d_61eb_dde4[d_61eb_91ef - 1].size;
-        f_23a1_02dc(d_61eb_dde4[d_61eb_91ef].size, d_61eb_dcf0, d_61eb_dc82, d_61eb_dde4[d_61eb_91ef].off);
-    } else {
-        d_61eb_dde4[d_61eb_91ef].off = d_61eb_91ef == 0 ? 0 :
-            d_61eb_dde4[d_61eb_91ef - 1].off + d_61eb_dde4[d_61eb_91ef - 1].size;
-        h = open("VM.$$$", O_RDWR);
-        lseek(h, d_61eb_dde4[d_61eb_91ef].off, 0);
-        write(h, d_61eb_dcf0, size);
-        close(h);
+    d_61eb_dde4[d_61eb_91ef].off = d_61eb_91ef == 0 ? 0 :
+        d_61eb_dde4[d_61eb_91ef - 1].off + d_61eb_dde4[d_61eb_91ef - 1].size;
+    if ((vm_store = realloc(vm_store, d_61eb_dde4[d_61eb_91ef].off + size)) == NULL) {
+        printf("Not enough memory.\n");
+        exit(-1);
     }
+    memcpy(vm_store + d_61eb_dde4[d_61eb_91ef].off, d_61eb_dcf0, size);
     return d_61eb_91ef++;
 }
 
 /* Map a virtual memory block into the work buffer (dirty: it will be changed). */
 void *f_215d_1629(int16_t handle, int16_t dirty)
 {
-    int16_t fd;
     int16_t i;
     char *p;
 
@@ -952,19 +924,12 @@ void *f_215d_1629(int16_t handle, int16_t dirty)
                 d_61eb_dcf4[i].dirty = dirty;
             return d_61eb_dcf4[i].p;
         }
-    if (d_61eb_918e == 0)
-        fd = open("VM.$$$", O_RDWR);
     if (d_61eb_91f1 + d_61eb_dde4[handle].size > 64124) {
         for (i = 0; i < 40; i++)
             if (d_61eb_dcf4[i].block >= 0) {
-                if (d_61eb_dcf4[i].dirty == 1) {
-                    if (d_61eb_918e == 0) {
-                        lseek(fd, d_61eb_dde4[d_61eb_dcf4[i].block].off, 0);
-                        write(fd, d_61eb_dcf4[i].p, d_61eb_dde4[d_61eb_dcf4[i].block].size);
-                    } else
-                        f_23a1_02dc(d_61eb_dde4[d_61eb_dcf4[i].block].size, d_61eb_dcf4[i].p, d_61eb_dc82,
-                                    d_61eb_dde4[d_61eb_dcf4[i].block].off);
-                }
+                if (d_61eb_dcf4[i].dirty == 1)
+                    memcpy(vm_store + d_61eb_dde4[d_61eb_dcf4[i].block].off, d_61eb_dcf4[i].p,
+                           d_61eb_dde4[d_61eb_dcf4[i].block].size);
                 d_61eb_dcf4[i].block = -1;
             }
         d_61eb_91f1 = 0;
@@ -973,12 +938,7 @@ void *f_215d_1629(int16_t handle, int16_t dirty)
         if (d_61eb_dcf4[i].block == -1)
             break;
     p = d_61eb_dcf0 + d_61eb_91f1;
-    if (d_61eb_918e == 0) {
-        lseek(fd, d_61eb_dde4[handle].off, 0);
-        read(fd, p, d_61eb_dde4[handle].size);
-        close(fd);
-    } else
-        f_23a1_043c(d_61eb_dde4[handle].size, d_61eb_dc82, d_61eb_dde4[handle].off, p);
+    memcpy(p, vm_store + d_61eb_dde4[handle].off, d_61eb_dde4[handle].size);
     d_61eb_dcf4[i].block = handle;
     d_61eb_dcf4[i].dirty = dirty;
     d_61eb_dcf4[i].p = p;
