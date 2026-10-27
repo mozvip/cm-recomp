@@ -2,9 +2,10 @@
  * made by tools/port/mkdb.py from the game's files), read in place of TEAM.DAT,
  * LEAGUE.DAT and FOREIGN.DAT and of the executable's tables of teams and names.
  *
- * The game's sources read it through port_db_query() and the functions below. What the
- * executable holds (the names, CM1's teams) is copied into port_image at start-up by
- * the game's port_game_db() (games/<game>/port/db.c), before the game runs. */
+ * The game's sources read it through port_db_query() and the functions below (the later
+ * games through db93.c). What the executable holds (the names, CM1's teams) is copied
+ * into port_image at start-up by port_game_db() (CM1: games/cm1/port/db.c; the others:
+ * db93.c), before the game runs. */
 #include <sqlite3.h>
 #include <stdarg.h>
 

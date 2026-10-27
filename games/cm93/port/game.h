@@ -153,4 +153,22 @@
 #define DEFAULT_BRIGHTNESS 4                   /* a new picture's */
 #define LOGO_FILE          "domark.lbm"       /* the publisher's picture, before the title */
 
+/* The database (../../../port/db93.c): the names it puts in the executable's tables, and
+ * the teams a new game reads (../decomp/src/AD38.C's first function), as this game names them. */
+#define load_teams                  f_ad38_0000
+#define team_stats                  d_323f_4c14
+#define team_seats                  d_323f_6138
+#define team_balances               d_323f_3f94
+#define team_staff                  d_2289_7486
+#define club_names                  d_60ae_b572
+#define first_names                 d_59f5_0000
+#define surnames                    d_59f5_0fc0
+#define country_names               d_54d9_0000
+#define TEAMS          80                     /* the league's clubs */
+#define LEAGUE_PLAYERS 1700                   /* player numbers: league 0-1699, abroad 1700-1859 */
+#define ABROAD_PLAYERS 160
+#define FIRST_NAMES    392                    /* the executable's tables of names */
+#define SURNAMES       1385
+#define COUNTRIES      60
+
 #endif

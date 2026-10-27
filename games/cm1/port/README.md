@@ -19,7 +19,7 @@ Needs meson, ninja, a C compiler, Python 3, SDL3 (`pkg-config sdl3`) and SQLite 
 (`pkg-config sqlite3`).
 
 ```bash
-make -C games/cm1/port                         # or: meson setup build && meson compile -C build
+make -C games/cm1/port                         # or: meson setup build ../../.. -Dgame=cm1 && meson compile -C build
 make -C games/cm1/port data GAME_DIR=/path/to/champman   # EUROPE.EXE's data, game.db -> build/data
 make -C games/cm1/port run GAME_DIR=/path/to/champman    # (runs `make data` first if needed)
 games/cm1/port/build/cm1 -g /path/to/champman  # -g: the game's directory (default: the current one, or $CM1_DIR)

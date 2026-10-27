@@ -50,6 +50,7 @@ The game says when a match starts and ends: its sources call `port_speed_control
 | `ilbm.c` | The `.LBM` picture decoder (CM1 `1B05.ASM`, CM93 `1DC5.ASM`, CM94 `2352.ASM`, Italia `1F50.ASM`, Italia 95 `234D.ASM`) |
 | `system.c` | The games' system module (CM1 `14D2.C`, CM93 `1BD3.C`, CM94 `2162.C`, Italia `1D5E.C`, Italia 95 `215D.C`), as far as it is the same in all five: screen buffer, palette, rectangles, lines and text, the mouse pointer, the clock, random numbers, strings, files, the virtual memory |
 | `system93.c` | What the later four changed in it or added (CM1 keeps its own): the sound and screen set-up, the title screens, 30-bit random numbers, capitals of accented letters, the music |
+| `db93.c` | What the later four read from their database, the same in all of them (CM1 has its own `db.c`): the names put in the executable's tables at start-up, the teams of a new game, and its players and their careers a row at a time |
 
 The games' assembly modules are the same code in CM1, CM93, CM94, Italia and Italia 95 (byte for
 byte, apart from addresses), so one C version of each serves them all. Their functions
@@ -67,8 +68,9 @@ The games' system module is C, decompiled with each game, but all five have it, 
 same: `system.c` and `system93.c` replace it, in CM1's names as well (with a few new
 ones, for what CM1 does not have). What is a game's own stays in its `src/`: its fonts,
 its virtual memory blocks, CM1's protection check and the functions CM1 has in its own
-way. `meson.build` gives `tools/port/mkdata.py` these two files and `game.h`, whose
-mappings it applies to them, so that their data is placed at the game's addresses.
+way. The build gives `tools/port/mkdata.py` these two files (and `db93.c`) and
+`game.h`, whose mappings it applies to them, so that their data is placed at the game's
+addresses.
 
 There is no EGA: the ports always run in VGA mode, and CM1's EGA paths (the planar
 primitives, `TITLEEGA.LBM`, `PICEGA.LBM`) are gone.
@@ -77,8 +79,9 @@ primitives, `TITLEEGA.LBM`, `PICEGA.LBM`) are gone.
 
 A game's port directory (`games/<game>/port`) holds its converted sources (`src/`), its
 `segments.txt` (the data segments of its executable, for `tools/port/extract.py` and
-`tools/port/mkdata.py`), its `meson.build`, `db.c` (`port_game_db()`, what the database
-gives at start-up, see below), and `game.h`, which defines:
+`tools/port/mkdata.py`), its `meson.build` and `Makefile` (below), for CM1 a `db.c`
+(`port_game_db()`, what the database gives at start-up, see below; the later games' is
+`db93.c`'s), and `game.h`, which defines:
 
 | Macro | |
 |---|---|
@@ -91,9 +94,27 @@ gives at start-up, see below), and `game.h`, which defines:
 | platform names | `#define draw_line_vga256 f_1d79_0006`... when the game's names for the assembly modules' and the system module's symbols are not CM1's (CM1 maps three variables `names.txt` leaves unnamed) |
 | `FONT_FIRST_CHAR`, `DEFAULT_BRIGHTNESS` | The fonts' first character (CM1: 32, the others 0), a new picture's brightness (`system.c`) |
 | `LOGO_FILE` | The publisher's picture shown before the title (`system93.c`; not CM1) |
+| `TEAMS`, `LEAGUE_PLAYERS`, `ABROAD_PLAYERS`, `FIRST_NAMES`, `SURNAMES`, `COUNTRIES` | The league's clubs, the players the game has room for in the league and abroad, and the sizes of the executable's tables of names (`db93.c`; not CM1) |
+| database names | `#define load_teams f_ad38_0000`, `team_stats`, `team_seats`, `team_balances`, `team_staff`, `club_names`, `first_names`, `surnames`, `country_names`: the game's new-game team loader and the tables `db93.c` fills (not CM1) |
 
-`meson.build` compiles the game's sources with the files above, and gives
-`tools/port/mkdata.py` the same `IMAGE_START`/`IMAGE_END`, and `game.h` (`--aliases`).
+### The build
+
+One meson project, the repository's `meson.build`, builds every port, one game per build
+directory: `-Dgame=<game>` (`meson.options`) picks it. It holds what is the same for all
+five: the platform's files, the compiler's options, `tools/port/mkdata.py`'s data symbols
+(from `game.h`, `--aliases`, which gives `IMAGE_START`/`IMAGE_END` as well, and
+`segments.txt`) and the executable. The game's `meson.build`, read with `subdir()`,
+gives only its name (`game_name`), its sources (`game_srcs`), and adds to `system_srcs`
+the later games' files (`later_srcs`: `system93.c`, `db93.c`); CM1's gives its
+`names.txt` (`names`).
+
+The game's `Makefile` gives its directory's name (`GAME`), its executable's (`BIN`) and
+the original executable the data comes from (`EXE`), and includes `game.mk`, which sets
+the build directory up and does the rest (`make`, `make data`, `make run`):
+
+```bash
+make -C games/cm93/port                 # meson setup games/cm93/port/build . -Dgame=cm93, then meson compile
+```
 
 ## The database
 
@@ -123,13 +144,16 @@ games do exactly what they did with their files.
 | `first_names`, `surnames`, `countries` | The executable's tables of names, which the players refer to (CM1 draws its players' names from them) | Start-up |
 | `player_list` | A view: the players with their names, team and nationality | |
 
-The game's sources read it through `port_db_query()` (`port.h`), in place of their
-`fopen`/`fgetc`: for CM93, `src/ad38.c` (`f_ad38_0000` the teams, `f_ad38_0256` and
-`f_ad38_08d6` the players, `f_ad38_2135` the careers); CM94 `src/b085.c`, Italia
-`src/a7f0.c`, Italia 95 `src/a7b6.c`, the same functions. Their numbers of players
-follow the database, within the game's arrays (`db.c` checks it: CM93 1700 in the
-league and 160 abroad, CM94 1680 and 180, the Italias 1000 and 500). What the
-executable held is put in place by the game's `port_game_db()` at start-up, before the
+The later games read it in place of their `fopen`/`fgetc`. Their teams are read whole by
+`db93.c`'s `load_teams()`, which is the first function of the new-game module (CM93
+`f_ad38_0000`; CM94 `b085`, Italia `a7f0`, Italia 95 `a7b6`). The players and their
+careers are read a row at a time by the module's own code, through `port_db_players()`
+and `port_db_careers()` (`port.h`), which hand it each row as a `struct port_player` or
+a `struct port_career`: for CM93 `f_ad38_0256` and `f_ad38_08d6` the players,
+`f_ad38_2135` the careers, and the same functions in the other three. Their numbers of
+players follow the database, within the game's arrays (`port_game_db()` checks it:
+CM93 1700 in the league and 160 abroad, CM94 1680 and 180, the Italias 1000 and 500).
+What the executable held is put in place by `port_game_db()` at start-up, before the
 game runs: the names, and CM1's teams and clubs.
 
 A name the database changes is written after the original data (`port_pool`, 128K,

@@ -52,8 +52,7 @@ original `SVGAME` and saving it again (byte-identical). VGA only, no music.
 | Path | Content |
 |---|---|
 | `src/*.c` | The game's 17 C modules, from `../decomp/src/*.C` |
-| `game.h` | CM94 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
-| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
+| `game.h` | CM94 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols and for what `../../../port/db93.c` reads from the database (`port_game_db()`, `load_teams()`) |
 | `segments.txt` | The data segments of `CMEXE.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`2306` ... `23A7`) in C, but for the EMS library (`23A7`): the virtual memory is kept in memory; most of the system module (`2162`) too |
 
@@ -92,9 +91,11 @@ same places (CM93's module in brackets):
   `t[0][N * 1860 + i]` (how BCC 4.02 gave the original's code) are `t[N][i]`: the same
   byte, without an index past the row that GCC may take for undefined behaviour (63 of
   them, in nine modules; not marked).
-- `b085.c`: the teams (`f_b085_0000`), the players (`f_b085_0298`, `f_b085_0caf`) and
-  their careers (`f_b085_25df`) are read from the database (`port_db_query()`), not from
-  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
+- `b085.c`: the teams, the players (`f_b085_0298`, `f_b085_0caf`) and their careers (`f_b085_25df`) are read from
+  the database, not from `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of
+  players are the database's. The teams' function (`f_b085_0000`) is the platform's
+  `load_teams()` (`../../../port/db93.c`); the players and careers come a row at a time
+  from `port_db_players()` and `port_db_careers()`.
 
 CM93's two `__emit__` functions (`f_14bc_4b12`, `f_8683_16db`) and its `asm db` jump
 are plain C in CM94's decompilation (`1a70.c`, `8c32.c`, `829f.c`): nothing to change.
