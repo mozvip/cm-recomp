@@ -56,8 +56,7 @@ no team picked). VGA only, no music.
 | Path | Content |
 |---|---|
 | `src/*.c` | The game's 18 C modules, from `../decomp/src/*.C` |
-| `game.h` | CM Italia 95 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
-| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
+| `game.h` | CM Italia 95 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols and for what `../../../port/db93.c` reads from the database (`port_game_db()`, `load_teams()`) |
 | `segments.txt` | The data segments of `CM.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`2301` ... `23A1`) in C, but for the EMS library (`23A1`): the virtual memory is kept in memory; most of the system module (`215D`) too |
 
@@ -102,9 +101,11 @@ same places (CM94's module in brackets; CM94's `b085` is two overlays here, `a7b
 - `8402.c`: two writes one past the end of a row of `d_53fc_11fc` (`[1][0][100]`,
   `[1][1][100]`, in the original) are written as the words they reach (the first
   Italia's, [`../../cmitalia/port`](../../cmitalia/port/README.md)).
-- `a7b6.c`: the teams (`f_a7b6_0000`), the players (`f_a7b6_0298`, `f_a7b6_09ac`) and
-  their careers (`f_a7b6_22f4`) are read from the database (`port_db_query()`), not from
-  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
+- `a7b6.c`: the teams, the players (`f_a7b6_0298`, `f_a7b6_09ac`) and their careers (`f_a7b6_22f4`) are read from
+  the database, not from `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of
+  players are the database's. The teams' function (`f_a7b6_0000`) is the platform's
+  `load_teams()` (`../../../port/db93.c`); the players and careers come a row at a time
+  from `port_db_players()` and `port_db_careers()`.
 
 The decompilation has no `__emit__` or `asm` outside `215d.c`: nothing else to change.
 

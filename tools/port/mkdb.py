@@ -27,7 +27,7 @@ RT_BASE = 0x1000            # runtime segment numbering (d_SSSS_OOOO) = file num
 
 # Where each game keeps what: segments in runtime numbering. Name tables are far
 # pointer tables (team names: near, DGROUP) whose strings follow them; their sizes are
-# the ports' (see games/<game>/port/db.c, which reads the same tables back).
+# the ports' (see port/db93.c, and CM1's games/cm1/port/db.c, which read the same tables back).
 GAMES = {
     'cm1': dict(exe='EUROPE.EXE', dgroup=0x5d9c, teams=80, team_names=0x08bc,
                 first_names=(0x5471, 0x0000, 500), surnames=(0x5471, 0x0a70, 880),

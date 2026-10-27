@@ -49,8 +49,7 @@ original `SVGAME` and saving it again (byte-identical). VGA only, no music.
 | Path | Content |
 |---|---|
 | `src/*.c` | The game's 17 C modules, from `../decomp/src/*.C` |
-| `game.h` | CM93 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
-| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
+| `game.h` | CM93 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols and for what `../../../port/db93.c` reads from the database (`port_game_db()`, `load_teams()`) |
 | `segments.txt` | The data segments of `CMEXE.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`1D79` ... `1E19`) in C, but for the EMS library (`1E19`): the virtual memory is kept in memory; most of the system module (`1BD3`) too |
 
@@ -79,9 +78,11 @@ Each is marked `port:` in `src/`, or explained where it is made:
 - `ad38.c`: three formats end in a lone `%`, which Borland printed and glibc drops: `%%`.
 - `struct flags_a` (player flags, in ten modules): without its `: 0` bit field, which BCC
   ignores at a byte boundary but GCC makes start the next field at the next 16-bit unit.
-- `ad38.c`: the teams (`f_ad38_0000`), the players (`f_ad38_0256`, `f_ad38_08d6`) and
-  their careers (`f_ad38_2135`) are read from the database (`port_db_query()`), not from
-  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
+- `ad38.c`: the teams, the players (`f_ad38_0256`, `f_ad38_08d6`) and their careers (`f_ad38_2135`) are read from
+  the database, not from `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of
+  players are the database's. The teams' function (`f_ad38_0000`) is the platform's
+  `load_teams()` (`../../../port/db93.c`); the players and careers come a row at a time
+  from `port_db_players()` and `port_db_careers()`.
 
 ## Regenerating `src/`
 

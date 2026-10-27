@@ -14,16 +14,17 @@ python = find_program('python3')
 game_srcs = files(
   'src/1446.c', 'src/14bc.c', 'src/1bd3.c', 'src/70a9.c', 'src/7732.c', 'src/7c74.c',
   'src/817e.c', 'src/8683.c', 'src/8aa1.c', 'src/9107.c', 'src/96bb.c', 'src/9e77.c',
-  'src/a3de.c', 'src/a694.c', 'src/ad38.c', 'src/b628.c', 'src/be31.c',
-  'db.c')                 # the database, at start-up
+  'src/a3de.c', 'src/a694.c', 'src/ad38.c', 'src/b628.c', 'src/be31.c')
 
 # the platform, shared with the other games' ports (../../../port)
 platform_srcs = files(
   '../../../port/main.c', '../../../port/image.c', '../../../port/db.c', '../../../port/sdl.c',
   '../../../port/dos.c', '../../../port/keyboard.c',
   '../../../port/music.c', '../../../port/gfx.c', '../../../port/ilbm.c')
-# the games' system module, in CM1's names (game.h gives the game's own)
-system_srcs = files('../../../port/system.c', '../../../port/system93.c')
+# the games' system module, in CM1's names, and what they read from the database
+# (game.h gives the game's names)
+system_srcs = files('../../../port/system.c', '../../../port/system93.c',
+  '../../../port/db93.c')
 
 
 # the game's data symbols at their addresses in the original data (see ../../../port/port.h)

@@ -54,8 +54,7 @@ playing on from it, and saving it again (byte-identical). No protection screen (
 | Path | Content |
 |---|---|
 | `src/*.c` | The game's 17 C modules, from `../decomp/src/*.C` |
-| `game.h` | CM Italia for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
-| `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
+| `game.h` | CM Italia for the platform: the executable, where its data segments are, its names for the assembly modules' symbols and for what `../../../port/db93.c` reads from the database (`port_game_db()`, `load_teams()`) |
 | `segments.txt` | The data segments of `CM.EXE`: where each goes, its size and CRC-32 |
 | `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`1F04` ... `1FA5`) in C, but for the EMS library (`1FA5`): the virtual memory is kept in memory; most of the system module (`1D5E`) too |
 
@@ -94,9 +93,11 @@ same places (CM93's module in brackets):
   ignores at a byte boundary but GCC makes start the next field at the next 16-bit unit.
 - `8119.c`: two writes one past the end of a row of `d_4f37_1200` (`[1][0][100]`,
   `[1][1][100]`, in the original) are written as the words they reach.
-- `a7f0.c`: the teams (`f_a7f0_0000`), the players (`f_a7f0_0290`, `f_a7f0_0990`) and
-  their careers (`f_a7f0_2207`) are read from the database (`port_db_query()`), not from
-  `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of players are the database's.
+- `a7f0.c`: the teams, the players (`f_a7f0_0290`, `f_a7f0_0990`) and their careers (`f_a7f0_2207`) are read from
+  the database, not from `TEAM.DAT`, `LEAGUE.DAT` and `FOREIGN.DAT`; the numbers of
+  players are the database's. The teams' function (`f_a7f0_0000`) is the platform's
+  `load_teams()` (`../../../port/db93.c`); the players and careers come a row at a time
+  from `port_db_players()` and `port_db_careers()`.
 
 CM93's other `__emit__` function (`f_14bc_4b12`, the division names: Italia's
 `f_1646_4b1e`) and its `asm db` jump (in the match set-up) are plain C in CM Italia's

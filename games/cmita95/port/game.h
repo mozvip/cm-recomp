@@ -154,4 +154,22 @@
 #define DEFAULT_BRIGHTNESS 2                   /* a new picture's */
 #define LOGO_FILE          "intelek.lbm"      /* the publisher's picture, before the title */
 
+/* The database (../../../port/db93.c): the names it puts in the executable's tables, and
+ * the teams a new game reads (../decomp/src/A7B6.C's first function), as this game names them. */
+#define load_teams                  f_a7b6_0000
+#define team_stats                  d_3334_bdb2
+#define team_seats                  d_3334_c802
+#define team_balances               d_3334_cc82
+#define team_staff                  d_432e_8568
+#define club_names                  d_61eb_b0ec
+#define first_names                 d_5b9b_0000
+#define surnames                    d_5b9b_1395
+#define country_names               d_53fc_0000
+#define TEAMS          38                     /* the league's clubs */
+#define LEAGUE_PLAYERS 1000                   /* player numbers: league 0-999, abroad 1000-1499 */
+#define ABROAD_PLAYERS 500
+#define FIRST_NAMES    443                    /* the executable's tables of names */
+#define SURNAMES       1135
+#define COUNTRIES      76
+
 #endif

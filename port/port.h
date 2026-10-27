@@ -102,12 +102,28 @@ int port_db_int(port_rows *r, const char *column);
 const char *port_db_text(port_rows *r, const char *column);
 void port_db_done(port_rows *r);        /* NULL: nothing */
 int port_db_count(const char *sql, ...); /* the first column of the first row */
-/* for the game's port_game_db() (games/<game>/port/db.c), called at start-up */
+/* for port_game_db(), called at start-up: CM1's (games/cm1/port/db.c), the others' (db93.c) */
 void port_game_db(void);
 void port_db_check_teams(int n);
 void port_db_check_players(int teams, int league, int abroad);
 void port_db_near_names(const char *sql, nearptr *table, int n);
 void port_db_far_names(const char *sql, farptr *table, int n);
+/* the later games' players and careers (db93.c), a row at a time */
+#define PORT_DB_LEAGUE (-1)             /* all the league's teams' players */
+#define PORT_DB_ABROAD (-2)             /* the players abroad (FOREIGN.DAT) */
+struct port_player {
+    int id, first_name, surname, settled, club, star;
+    int position[7];                    /* gk, def, mid, att, right, left, centre */
+    int age, character, nationality, ability;
+    int attribute[14];                  /* passing ... attr14, the game's rows 1-14 */
+    int stamina;
+};
+struct port_career { int season, club, apps, goals; };
+int port_db_count_players(int team);    /* a team's, or PORT_DB_LEAGUE, PORT_DB_ABROAD */
+port_rows *port_db_players(int team);   /* the same, by id */
+int port_db_next_player(port_rows *r, struct port_player *p);   /* 0: no more */
+port_rows *port_db_careers(int player); /* the player's seasons, by id */
+int port_db_next_career(port_rows *r, struct port_career *c);   /* 0: no more */
 
 /* ---- platform -------------------------------------------------------------------- */
 void port_pump(void);                   /* events, mouse, keys, and the screen shown */

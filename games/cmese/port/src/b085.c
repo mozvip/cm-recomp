@@ -293,44 +293,14 @@ extern char d_536d_3066[];
 extern int16_t d_4512_1f3c[];
 extern unsigned char d_28da_c30c[];
 
-/* port: the players being read from the database (tools/port/mkdb.py), in place of
-   LEAGUE.DAT and FOREIGN.DAT (d_69da_df89) */
+/* port: the players being read from the database (../../../port/db93.c), in place of
+   LEAGUE.DAT and FOREIGN.DAT (d_69da_df89), and their careers */
 static port_rows *db_players;
-static const char *const db_positions[7] = { "gk", "def", "mid", "att", "right", "left", "centre" };
-static const char *const db_attributes[14] = {
-    "passing", "tackling", "pace", "heading", "flair", "creativity", "goalscoring",
-    "attr8", "potential", "aggression", "attr11", "influence", "attr13", "attr14"
-};
+static struct port_player db_player;
+static struct port_career db_career;
 
-/* port: the teams come from the database, not TEAM.DAT */
-void f_b085_0000(void)
-{
-    unsigned char i;
-    port_rows *r;
-
-    f_2162_19f6(2);
-    r = port_db_query("SELECT * FROM teams ORDER BY id");
-    for (i = 0; i <= 79; i = i + 1) {
-        port_db_next(r);
-        d_4512_0000[1][i] = port_db_int(r, "capacity");
-        d_4512_1524[i] = port_db_int(r, "seats");
-        d_4512_0000[2][i] = port_db_int(r, "colours");
-        d_4512_0000[3][i] = port_db_int(r, "away_colours");
-        d_4512_0000[4][i] = port_db_int(r, "rating");
-        d_4512_0000[0][i] = port_db_int(r, "reputation");
-        d_4512_1e90[0][i] = (int32_t)(uint16_t)port_db_int(r, "balance") * 1000;
-        d_4512_0000[6][i] = port_db_int(r, "board_confidence");
-        d_536d_2b66[0][i] = port_db_int(r, "manager_first_name");
-        d_536d_2b66[1][i] = port_db_int(r, "manager_surname");
-        d_536d_2b66[2][i] = port_db_int(r, "manager_trait_a");
-        d_536d_2b66[3][i] = port_db_int(r, "manager_trait_b");
-        d_536d_2b66[4][i] = port_db_int(r, "manager_rating");
-        d_536d_2b66[5][i] = port_db_int(r, "manager_character");
-        d_536d_2b66[6][i] = port_db_int(r, "coach_first_name");
-        d_536d_2b66[7][i] = port_db_int(r, "coach_surname");
-    }
-    port_db_done(r);
-}
+/* port: f_b085_0000, the teams, read from the database in place of TEAM.DAT, is the
+   platform's load_teams() (../../../port/db93.c) */
 
 void f_b085_0298(void)
 {
@@ -345,8 +315,8 @@ void f_b085_0298(void)
     d_69da_d990 = 170;
     if (d_69da_de3d != 0) {
         /* port: as many players as the database has */
-        d_69da_d98e = port_db_count("SELECT count(*) FROM players WHERE team IS NOT NULL");
-        d_69da_d990 = port_db_count("SELECT count(*) FROM players WHERE team IS NULL");
+        d_69da_d98e = port_db_count_players(PORT_DB_LEAGUE);
+        d_69da_d990 = port_db_count_players(PORT_DB_ABROAD);
     }
     for (i = 0; i <= 79; i = i + 1) {
         d_4512_023e[i] = 0;
@@ -359,7 +329,7 @@ void f_b085_0298(void)
         f_2162_19f6(2);
         for (i = 0; i <= 79; i = i + 1) {
             /* port: the team's players in the database, not LEAGUE.DAT */
-            db_players = port_db_query("SELECT * FROM players WHERE team = ? ORDER BY id", i);
+            db_players = port_db_players(i);
             do {
                 done = f_b085_08ac(n, i, 4);
                 if (done == 0) {
@@ -394,7 +364,7 @@ void f_b085_0298(void)
     if (d_69da_de3d != 0) {
         f_2162_19f6(2);
         /* port: the players abroad in the database, not FOREIGN.DAT */
-        db_players = port_db_query("SELECT * FROM players WHERE team IS NULL ORDER BY id");
+        db_players = port_db_players(PORT_DB_ABROAD);
         do {
             done = f_b085_08ac(p, 255, 4);
             if (done == 0) {
@@ -442,8 +412,8 @@ void f_b085_05a8(void)
     for (i = 0; i <= 79; i = i + 1) {
         /* port: team%d.dat (team255.dat for made-up players): the team's players in the
            database, if it has some (nothing calls this function) */
-        db_players = port_db_count("SELECT count(*) FROM players WHERE team = ?", d_69da_de3d ? i : 255)
-                     ? port_db_query("SELECT * FROM players WHERE team = ? ORDER BY id", d_69da_de3d ? i : 255)
+        db_players = port_db_count_players(d_69da_de3d ? i : 255)
+                     ? port_db_players(d_69da_de3d ? i : 255)
                      : NULL;
         if (db_players != 0) {
             do {
@@ -477,8 +447,8 @@ void f_b085_05a8(void)
     p = 1680;
     f_2162_19f6(2);
     /* port: the players abroad in the database, if it has some */
-    db_players = port_db_count("SELECT count(*) FROM players WHERE team IS NULL")
-                 ? port_db_query("SELECT * FROM players WHERE team IS NULL ORDER BY id") : NULL;
+    db_players = port_db_count_players(PORT_DB_ABROAD)
+                 ? port_db_players(PORT_DB_ABROAD) : NULL;
     if (db_players != 0) {
         do {
             done = f_b085_08ac(p, 255, 4);
@@ -588,11 +558,11 @@ char f_b085_0caf(int16_t p, int16_t team, char mode)
     squad = mode == 2 || mode == 3 ? -1 : 0;
     if (fromfile) {
         /* port: the next row of the database; the end of the list was a first name of 3000 */
-        if (port_db_next(db_players) == 0) {
+        if (port_db_next_player(db_players, &db_player) == 0) {
             d_3668_bce8[p] = 3000;
             return 1;
         }
-        d_3668_bce8[p] = port_db_int(db_players, "first_name");
+        d_3668_bce8[p] = db_player.first_name;
     } else if (squad) {
         k = f_b085_3c6d(team, mode == 3 ? 1 : 0);
         d_69da_dfbe = f_2162_1634(d_69da_dff8, 0);
@@ -600,20 +570,20 @@ char f_b085_0caf(int16_t p, int16_t team, char mode)
     } else
         d_3668_bce8[p] = 3000;
     if (fromfile)
-        d_3668_d9f8[p] = port_db_int(db_players, "surname");
+        d_3668_d9f8[p] = db_player.surname;
     else if (squad) {
         d_69da_dfbe = f_2162_1634(d_69da_dff8, 0);
         d_3668_d9f8[p] = d_69da_dfbe[team][1][k];
     } else
         d_3668_d9f8[p] = 3000;
     if (fromfile) {
-        d_4512_bdc8[p].f9 = port_db_int(db_players, "settled");
+        d_4512_bdc8[p].f9 = db_player.settled;
         if (f_1a70_6d23(p))
-            d_28da_ad40[p] = port_db_int(db_players, "club");
-        d_4512_bdc8[p].f28 = port_db_int(db_players, "star");
+            d_28da_ad40[p] = db_player.club;
+        d_4512_bdc8[p].f28 = db_player.star;
     }
     for (i = 0; i <= 6; i = i + 1) {
-        a[i] = fromfile ? port_db_int(db_players, db_positions[i]) : 100;
+        a[i] = fromfile ? db_player.position[i] : 100;
         if (a[i] == 1)
             a[i] = -1;
         if (squad && i <= 3)
@@ -623,20 +593,20 @@ char f_b085_0caf(int16_t p, int16_t team, char mode)
         a[2] = -1;
     if (fromfile && a[2] && !a[3] && !a[1] && !a[6])
         a[6] = -1;
-    d_28da_2a78[17][p] = fromfile ? port_db_int(db_players, "age") : -1;
+    d_28da_2a78[17][p] = fromfile ? db_player.age : -1;
     if (squad)
         d_28da_2a78[17][p] = d_4512_a4c8[team][1][k];
-    d_3668_0000[17][p] = fromfile ? port_db_int(db_players, "character") : -1;
+    d_3668_0000[17][p] = fromfile ? db_player.character : -1;
     d_69da_dfba = f_2162_1634(d_69da_dff6, 1);
-    d_69da_dfba[9][p] = fromfile ? port_db_int(db_players, "nationality") : -1;
-    d_28da_2a78[0][p] = fromfile ? port_db_int(db_players, "ability") : -1;
+    d_69da_dfba[9][p] = fromfile ? db_player.nationality : -1;
+    d_28da_2a78[0][p] = fromfile ? db_player.ability : -1;
     if (squad) {
         d_28da_2a78[0][p] = d_4512_a4c8[team][2][k];
         f_b085_36c7(team, k);
     }
     for (i = 1; i <= 14; i = i + 1)
-        d_28da_2a78[i][p] = fromfile ? port_db_int(db_players, db_attributes[i - 1]) : -1;
-    d_28da_2a78[22][p] = fromfile ? port_db_int(db_players, "stamina") : -1;
+        d_28da_2a78[i][p] = fromfile ? db_player.attribute[i - 1] : -1;
+    d_28da_2a78[22][p] = fromfile ? db_player.stamina : -1;
     do {
         ok = 1;
         d_69da_db6a = f_2162_0da1(1000) + 1;
@@ -1002,19 +972,18 @@ void f_b085_25df(int16_t p, unsigned char a, char kind)
         week = c4 ? 0 : 95 - (d_28da_2a78[17][p] - 16);
         team = c4 ? 0 : f_b085_2cc3(p, r, -1);
         if (c4)                 /* port: his seasons in the database, which LEAGUE.DAT had next */
-            career = port_db_query("SELECT * FROM careers WHERE player = ? ORDER BY seq",
-                                   port_db_int(db_players, "id"));
+            career = port_db_careers(db_player.id);
         do {
             if (week < 95) {
                 last = week;
                 if (c4) {
                     /* port: the player's careers rows; the end of the list was a season of 255 */
-                    week = port_db_next(career) ? port_db_int(career, "season") : 255;
+                    week = port_db_next_career(career, &db_career) ? db_career.season : 255;
                     if (week < 255) {
-                        team = port_db_int(career, "club");
-                        goals = port_db_int(career, "apps");
+                        team = db_career.club;
+                        goals = db_career.apps;
                         ed = goals == 255 ? 50 : goals;
-                        perf = port_db_int(career, "goals");
+                        perf = db_career.goals;
                         f_b085_2db0(p, week, team, r, goals, perf, 255, ed);
                     } else
                         week = 95;
