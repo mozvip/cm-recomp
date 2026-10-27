@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Data symbols of a native port (see port/README.md).
 
-  mkdata.py [--names NAMES.TXT] [--aliases GAME.H] --segments SEGMENTS.TXT
-            --start 0x0f330 --end 0x57dc0 OUT.S OUT.c OUT_SEGMENTS.c SRC.c...
+  mkdata.py [--names NAMES.TXT] --aliases GAME.H --segments SEGMENTS.TXT
+            [--start 0x0f330 --end 0x57dc0] OUT.S OUT.c OUT_SEGMENTS.c SRC.c...
 
 The port keeps the game's data segments as one block, port_image (the bytes from
-IMAGE_START to IMAGE_END of the executable's load image, loaded at start-up from the
+IMAGE_START to IMAGE_END of the executable's load image, as GAME.H gives them or
+--start and --end, loaded at start-up from the
 files tools/port/extract.py makes, one per segment of SEGMENTS.TXT; OUT_SEGMENTS.c is
 that list, for the loader). OUT.S places every data symbol the sources use at its
 original address in it:
@@ -63,6 +64,14 @@ def parse_segments(path, start, end):
 def parse_aliases(path):
     """The game.h macros that give a platform name the game's own: NAME -> TARGET."""
     return dict(re.findall(r'^#define[ \t]+([A-Za-z_]\w*)[ \t]+([A-Za-z_]\w*)\b', open(path).read(), re.M))
+
+
+def parse_image(path):
+    """game.h's IMAGE_START and IMAGE_END."""
+    text = open(path).read()
+    get = lambda name: re.search(r'^#define[ \t]+%s[ \t]+(0x[0-9a-fA-F]+)L?\b' % name, text, re.M)
+    start, end = get('IMAGE_START'), get('IMAGE_END')
+    return (int(start.group(1), 16) if start else None, int(end.group(1), 16) if end else None)
 
 
 def apply_aliases(text, aliases):
@@ -137,8 +146,8 @@ def main():
     ap.add_argument('--names', help='the game\'s names.txt, if its data symbols are named')
     ap.add_argument('--aliases', help='the game\'s game.h: its names for the platform\'s')
     ap.add_argument('--segments', required=True)
-    ap.add_argument('--start', required=True, type=lambda x: int(x, 0))
-    ap.add_argument('--end', required=True, type=lambda x: int(x, 0))
+    ap.add_argument('--start', type=lambda x: int(x, 0), help='default: game.h\'s IMAGE_START')
+    ap.add_argument('--end', type=lambda x: int(x, 0), help='default: game.h\'s IMAGE_END')
     ap.add_argument('out_s')
     ap.add_argument('out_c')
     ap.add_argument('out_segments')
@@ -148,6 +157,12 @@ def main():
     syms = parse_names(a.names) if a.names else {}
     native = set()
     aliases = parse_aliases(a.aliases) if a.aliases else {}
+    if a.start is None or a.end is None:
+        start, end = parse_image(a.aliases) if a.aliases else (None, None)
+        a.start = start if a.start is None else a.start
+        a.end = end if a.end is None else a.end
+        if a.start is None or a.end is None:
+            raise SystemExit('mkdata.py: no --start/--end, and no IMAGE_START/IMAGE_END in --aliases')
     texts = [apply_aliases(strip_comments(open(p, encoding='latin1').read()), aliases)
              for p in a.srcs]
     defined, bad = set(), set()

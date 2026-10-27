@@ -68,7 +68,7 @@ The games' system module is C, decompiled with each game, but all five have it, 
 same: `system.c` and `system93.c` replace it, in CM1's names as well (with a few new
 ones, for what CM1 does not have). What is a game's own stays in its `src/`: its fonts,
 its virtual memory blocks, CM1's protection check and the functions CM1 has in its own
-way. `meson.build` gives `tools/port/mkdata.py` these two files (and `db93.c`) and
+way. The build gives `tools/port/mkdata.py` these two files (and `db93.c`) and
 `game.h`, whose mappings it applies to them, so that their data is placed at the game's
 addresses.
 
@@ -79,9 +79,9 @@ primitives, `TITLEEGA.LBM`, `PICEGA.LBM`) are gone.
 
 A game's port directory (`games/<game>/port`) holds its converted sources (`src/`), its
 `segments.txt` (the data segments of its executable, for `tools/port/extract.py` and
-`tools/port/mkdata.py`), its `meson.build`, for CM1 a `db.c` (`port_game_db()`, what
-the database gives at start-up, see below; the later games' is `db93.c`'s), and
-`game.h`, which defines:
+`tools/port/mkdata.py`), its `meson.build` and `Makefile` (below), for CM1 a `db.c`
+(`port_game_db()`, what the database gives at start-up, see below; the later games' is
+`db93.c`'s), and `game.h`, which defines:
 
 | Macro | |
 |---|---|
@@ -97,8 +97,24 @@ the database gives at start-up, see below; the later games' is `db93.c`'s), and
 | `TEAMS`, `LEAGUE_PLAYERS`, `ABROAD_PLAYERS`, `FIRST_NAMES`, `SURNAMES`, `COUNTRIES` | The league's clubs, the players the game has room for in the league and abroad, and the sizes of the executable's tables of names (`db93.c`; not CM1) |
 | database names | `#define load_teams f_ad38_0000`, `team_stats`, `team_seats`, `team_balances`, `team_staff`, `club_names`, `first_names`, `surnames`, `country_names`: the game's new-game team loader and the tables `db93.c` fills (not CM1) |
 
-`meson.build` compiles the game's sources with the files above, and gives
-`tools/port/mkdata.py` the same `IMAGE_START`/`IMAGE_END`, and `game.h` (`--aliases`).
+### The build
+
+One meson project, the repository's `meson.build`, builds every port, one game per build
+directory: `-Dgame=<game>` (`meson.options`) picks it. It holds what is the same for all
+five: the platform's files, the compiler's options, `tools/port/mkdata.py`'s data symbols
+(from `game.h`, `--aliases`, which gives `IMAGE_START`/`IMAGE_END` as well, and
+`segments.txt`) and the executable. The game's `meson.build`, read with `subdir()`,
+gives only its name (`game_name`), its sources (`game_srcs`), and adds to `system_srcs`
+the later games' files (`later_srcs`: `system93.c`, `db93.c`); CM1's gives its
+`names.txt` (`names`).
+
+The game's `Makefile` gives its directory's name (`GAME`), its executable's (`BIN`) and
+the original executable the data comes from (`EXE`), and includes `game.mk`, which sets
+the build directory up and does the rest (`make`, `make data`, `make run`):
+
+```bash
+make -C games/cm93/port                 # meson setup games/cm93/port/build . -Dgame=cm93, then meson compile
+```
 
 ## The database
 

@@ -1,0 +1,2 @@
+option('game', type: 'combo', choices: ['', 'cm1', 'cm93', 'cmese', 'cmitalia', 'cmita95'],
+  value: '', description: 'the game to build: games/<game>/port')
