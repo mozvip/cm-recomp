@@ -57,7 +57,7 @@ playing on from it, and saving it again (byte-identical). No protection screen (
 | `game.h` | CM Italia for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
 | `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CM.EXE`: where each goes, its size and CRC-32 |
-| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`1F04` ... `1FA5`) in C, but for the EMS library (`1FA5`): the virtual memory is kept in memory |
+| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`1F04` ... `1FA5`) in C, but for the EMS library (`1FA5`): the virtual memory is kept in memory; most of the system module (`1D5E`) too |
 
 The sources keep the decompilation's names (`f_SSSS_OOOO`, `d_SSSS_OOOO`), and, as for
 CM93, `meson.build` gives `tools/port/mkdata.py` no names file: the data symbols are
@@ -72,8 +72,8 @@ and stubs (0x4c650-0x4d510) have no file.
 Each is marked `port:` in `src/`, or explained where it is made. They are CM93's, in the
 same places (CM93's module in brackets):
 
-- `1d5e.c` (`1bd3.c`): the BIOS video, mouse and palette calls; the screen copies
-  without assembly; the virtual memory slots (`d_5d51_dc08`) made native.
+- `1d5e.c` (`1bd3.c`): only the fonts and the virtual memory blocks are left; the rest of the
+  system module is the platform's (`../../../port/system.c`, `system93.c`).
 - `1446.c`: `main` is `game_main`; `d_5d51_0094` and `d_5d51_0098` (the open `PLHIST`,
   two of them where CM93 has one) are `FILE *`.
 - `8119.c` (`8683.c`): `f_8119_16ae`, given with `__emit__` jumps in the decompilation,

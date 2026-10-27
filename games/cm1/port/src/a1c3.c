@@ -172,7 +172,6 @@ extern char mouse_initialised;
 extern farptr number_words_base[];
 extern int32_t manager_points;
 extern float menu_start_ticks;
-extern char d_5d9c_9b1a;
 extern char d_5d9c_9b47;
 extern int16_t d_5d9c_9bd5;
 extern int16_t d_5d9c_9bd7;
@@ -186,7 +185,6 @@ extern int16_t stats_division;
 extern int16_t d_5d9c_9f71;
 extern int16_t manager_award_winners[];
 extern int32_t *manager_points_ptr;
-extern char video_mode;
 extern int16_t manager_points_handle;
 extern int16_t mouse_driver_present;
 void install_keyboard_handler(void);
@@ -975,22 +973,6 @@ void clear_screen(void)
     init_video_and_memory();
     set_fill_colour(0);
     fill_rect(0, 0, 0x13f, 0xc7);
-}
-
-void blank_and_flip_screen(void)
-{
-    char pal[48];
-
-    memset(pal, 0, 48);
-    set_text_opaque(1);
-    if (d_5d9c_9b1a != 0 && video_mode == 2) {
-        port_vga_set_palette(0, 16, (unsigned char *)pal);   /* INT 10h AX=1012h, ES:DX = pal */
-    }
-    present_screen(0);
-    if (d_5d9c_9b1a != 0) {
-        set_picture_palette();
-        d_5d9c_9b1a = 0;
-    }
 }
 
 /* colours 16-31 of the palette, as RGB triples */

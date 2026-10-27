@@ -3,9 +3,8 @@
  * palette entries (0RGB, one nibble per colour), and unpack the ByteRun1 BODY, four plane
  * rows of 40 bytes per line, 200 lines. As the original, chunk ids are compared as
  * little-endian words (stepping two bytes at a time), sizes are big-endian, and BMHD is
- * read past. show_ilbm and copy_screen_page draw through the EGA's planes: the ports
- * always run in VGA mode, so they do nothing. The names are CM1's: another game's game.h
- * maps them to its own. */
+ * read past. The EGA's show_ilbm and copy_screen_page are left out: the ports always run
+ * in VGA mode. The names are CM1's: another game's game.h maps them to its own. */
 #include "port.h"
 
 extern uint16_t picture_palette[16];    /* CMAP as 0RGB words, unused entries 0 */
@@ -97,14 +96,4 @@ void unpack_ilbm(char *file, char *screen)
     for (row = 0; row < 200; row++)
         for (plane = 0; plane < 4; plane++)
             unpack_row(&si, di + plane * 8000 + row * 40);
-}
-
-void show_ilbm(char *buf, uint16_t size)
-{
-    (void)buf;
-    (void)size;
-}
-
-void copy_screen_page(void)
-{
 }

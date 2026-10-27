@@ -400,18 +400,11 @@ extern int16_t d_5d9c_9fad;
 extern int32_t hall_of_fame_scores[];
 extern int16_t hall_of_fame_handle;
 void write_line(FILE *fp, char *s);
-void planar_to_chunky(char *src);
-void unpack_ilbm(char *src, char *dst);
-void show_ilbm(char *buf, uint16_t size);
 extern char loaded_picture[];
-extern char video_mode;
 extern int16_t screen_vm_block;
 extern char *screen_buffer;
-extern char d_5d9c_9b1a;
 extern char d_5d9c_9b23;
 extern int16_t picture_palette[];
-extern int16_t d_5d9c_9e67;
-extern int16_t d_5d9c_9dd7;
 void prompt_text_input(float x, int16_t w, char *prompt);
 extern int16_t d_5d9c_9c1b;
 extern unsigned char match_interest;
@@ -1976,78 +1969,6 @@ void save_hall_of_fame(void)
     }
     fwrite(hall_of_fame_scores, 80, 1, fp);
     fclose(fp);
-}
-
-void load_title_picture(char reset_palette)
-{
-    int16_t handle;
-
-    if (_fstrcmp(picture_file, loaded_picture) != 0) {
-        if (video_mode == 2) {
-            if ((handle = open(picture_file, O_RDONLY)) >= 0) {
-                screen_buffer = vm_map(screen_vm_block, 1);
-                read(handle, screen_buffer + 0x7d00, 32000);
-                close(handle);
-                unpack_ilbm(screen_buffer + 0x7d00, screen_buffer);
-                planar_to_chunky(screen_buffer);
-            }
-        } else {
-            if ((handle = open("picega.lbm", O_RDONLY)) != 0) {
-                screen_buffer = vm_map(screen_vm_block, 0);
-                read(handle, screen_buffer, 32000);
-                close(handle);
-                show_ilbm(screen_buffer, 0xa400);
-            }
-        }
-        if (reset_palette) {
-            background_colour = 5;
-            background_brightness = 4;
-        }
-        d_5d9c_9b1a = -1;
-        _fstrcpy(loaded_picture, picture_file);
-    }
-}
-
-void set_picture_palette(void)
-{
-    float brightness;
-    char *p;
-    register int16_t avg;
-    char pal[48];
-
-    if (video_mode == 2) {
-        p = pal;
-        brightness = background_brightness * 0.15 + 0.4;
-        for (loop_i = 0; loop_i <= 15; loop_i++) {
-            loop_j = picture_palette[loop_i] & 0xf;
-            d_5d9c_9e67 = (picture_palette[loop_i] >> 4) & 0xf;
-            d_5d9c_9dd7 = (picture_palette[loop_i] >> 8) & 0xf;
-            avg = (d_5d9c_9dd7 + d_5d9c_9e67 + loop_j) / 3;
-            if (background_colour < 5) {
-                if (background_colour == 1) {
-                    d_5d9c_9dd7 = avg / 2;
-                    d_5d9c_9e67 = avg / 2;
-                    loop_j = avg;
-                } else if (background_colour == 2) {
-                    d_5d9c_9dd7 = avg;
-                    d_5d9c_9e67 = avg;
-                    loop_j = avg;
-                } else if (background_colour == 3) {
-                    d_5d9c_9dd7 = avg;
-                    d_5d9c_9e67 = avg / 2;
-                    loop_j = avg / 2;
-                } else {
-                    d_5d9c_9dd7 = avg / 2;
-                    d_5d9c_9e67 = avg;
-                    loop_j = avg / 2;
-                }
-            }
-            *p++ = (char)(d_5d9c_9dd7 * brightness) << 2;
-            *p++ = (char)(d_5d9c_9e67 * brightness) << 2;
-            *p++ = (char)(loop_j * brightness) << 2;
-        }
-        port_vga_set_palette(0, 16, (unsigned char *)pal);   /* INT 10h AX=1012h, ES:DX = pal */
-    }
 }
 
 void show_status_box(char *s)

@@ -74,6 +74,7 @@ only.
 | `../../../port/sdl.c` | VGA mode 13h, mouse driver, keyboard, BIOS clock, on SDL3 |
 | `../../../port/dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, the printer |
 | `../../../port/keyboard.c` ... `ilbm.c` | The assembly modules (14B7, 1AB2, 1AB9, 1B05), in C; the EMS library (1A51) is not needed: `vm_alloc` keeps its blocks in memory |
+| `../../../port/system.c` | Most of the system module (`14D2.C`), shared with the other games; `src/14d2.c` keeps what is CM1's own |
 | `../../../tools/port/convert.py` | The mechanical first pass from `decomp/src` to `src` |
 | `../../../tools/port/extract.py` | Extracts the data segments from `EUROPE.EXE`, one file each |
 | `../../../tools/port/mkdata.py` | Generates the data symbols, and the list of files to load, at build time |
@@ -112,8 +113,12 @@ memory).
 
 **Hand-written changes** in `src/`, each marked `port:` or explained where it is made:
 
-- `14d2.c`: the BIOS video, mouse and palette calls; `present_screen*` without assembly;
-  the patched-out protection check without its NOPs; the virtual memory slots made native.
+- `14d2.c`: what is CM1's own of the system module, the rest being the platform's
+  (`../../../port/system.c`, which also has `a1c3.c`'s `blank_and_flip_screen` and
+  `992a.c`'s `load_title_picture` and `set_picture_palette`): the fonts, the screen and
+  virtual memory set-up, the patched-out protection check without its NOPs.
+- `6e68.c`, `14d2.c`: the EGA's choices are gone (`TITLEEGA.LBM`, `PICEGA.LBM`, the one
+  background picture): the port always runs in VGA mode.
 - `a1c3.c`, `992a.c`: setting the palette (INT 10h AX=1012h); the order in which Borland
   evaluates arguments (right to left) where it matters.
 - `144e.c`: `main` is `game_main` (`../../../port/main.c` calls it); `history_file` is a `FILE *`.
@@ -136,7 +141,6 @@ not the x87, so a few last-bit roundings can differ.
 - **Music.** `ADLIB.DRV`/`MT32.DRV` are real-mode drivers called through INT 91h.
   `../../../port/music.c` is silent. The recompiled build plays them (`../../../runtime`).
   A native player for `CMAN2.ALB` and an OPL emulator would be needed here.
-- **EGA.** The planar mode's primitives are empty: the port always runs in VGA mode.
 - **Other games.** CM93 has its port too (`../../cm93/port`), on the same platform. The
   Italian versions and CM94 share most of their modules with it (see
   `../../../DECOMPILATION.md`).

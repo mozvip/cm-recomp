@@ -59,7 +59,7 @@ no team picked). VGA only, no music.
 | `game.h` | CM Italia 95 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
 | `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CM.EXE`: where each goes, its size and CRC-32 |
-| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`2301` ... `23A1`) in C, but for the EMS library (`23A1`): the virtual memory is kept in memory |
+| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`2301` ... `23A1`) in C, but for the EMS library (`23A1`): the virtual memory is kept in memory; most of the system module (`215D`) too |
 
 The sources keep the decompilation's names (`f_SSSS_OOOO`, `d_SSSS_OOOO`), and, as for
 CM93, `meson.build` gives `tools/port/mkdata.py` no names file: the data symbols are
@@ -75,8 +75,8 @@ Each is marked `port:` in `src/`, or explained where it is made. They are CM94's
 same places (CM94's module in brackets; CM94's `b085` is two overlays here, `a7b6` and
 `b26d`):
 
-- `215d.c` (`2162.c`): the BIOS video, mouse and palette calls; the screen copies
-  without assembly; the virtual memory slots (`d_61eb_dcf4`) made native.
+- `215d.c` (`2162.c`): only the fonts and the virtual memory blocks are left; the rest of the
+  system module is the platform's (`../../../port/system.c`, `system93.c`).
 - `18f9.c`: `main` is `game_main`; `d_61eb_0094` (the open `PLHIST`) is a `FILE *`.
 - `7a45.c` (`829f.c`): `f_7a45_4357` gets its prototype; `port_speed_control` around the
   match in the week's matches; a click shows the Latest Results at once.

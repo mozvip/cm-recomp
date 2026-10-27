@@ -52,7 +52,7 @@ original `SVGAME` and saving it again (byte-identical). VGA only, no music.
 | `game.h` | CM93 for the platform: the executable, where its data segments are, its names for the assembly modules' symbols |
 | `db.c` | What the game's database gives at start-up: the names in the executable's tables (`port_game_db()`) |
 | `segments.txt` | The data segments of `CMEXE.EXE`: where each goes, its size and CRC-32 |
-| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`1D79` ... `1E19`) in C, but for the EMS library (`1E19`): the virtual memory is kept in memory |
+| `../../../port/` | The platform: start-up, SDL3, DOS, and the assembly modules (`1D79` ... `1E19`) in C, but for the EMS library (`1E19`): the virtual memory is kept in memory; most of the system module (`1BD3`) too |
 
 The sources keep the decompilation's names (`f_SSSS_OOOO`, `d_SSSS_OOOO`): CM93 has no
 `names.txt` for its data, so `meson.build` gives `tools/port/mkdata.py` no names, and the
@@ -66,8 +66,8 @@ and stubs (0x4fc10-0x50ad0) have no file.
 
 Each is marked `port:` in `src/`, or explained where it is made:
 
-- `1bd3.c` (CM1's `14d2.c`): the BIOS video, mouse and palette calls; the screen copies
-  without assembly; the virtual memory slots (`d_60ae_fc52`) made native.
+- `1bd3.c` (CM1's `14d2.c`): only the fonts and the virtual memory blocks are left; the rest of the
+  system module is the platform's (`../../../port/system.c`, `system93.c`).
 - `1446.c`: `main` is `game_main`; `d_60ae_0094` (the open `PLHIST`) is a `FILE *`.
 - `14bc.c` (`f_14bc_4b12`), `8683.c` (`f_8683_16db`): given byte for byte with `__emit__`
   in the decompilation; here the C they stand for.

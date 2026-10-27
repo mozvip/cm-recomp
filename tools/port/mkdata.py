@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Data symbols of a native port (see port/README.md).
 
-  mkdata.py [--names NAMES.TXT] --segments SEGMENTS.TXT --start 0x0f330 --end 0x57dc0
-            OUT.S OUT.c OUT_SEGMENTS.c SRC.c...
+  mkdata.py [--names NAMES.TXT] [--aliases GAME.H] --segments SEGMENTS.TXT
+            --start 0x0f330 --end 0x57dc0 OUT.S OUT.c OUT_SEGMENTS.c SRC.c...
 
 The port keeps the game's data segments as one block, port_image (the bytes from
 IMAGE_START to IMAGE_END of the executable's load image, loaded at start-up from the
@@ -14,7 +14,9 @@ original address in it:
   - the d_SSSS_OOOO names the sources use;
 
 all as weak symbols, so that a definition in C (a module's own initialised data, a
-platform variable) takes precedence.
+platform variable) takes precedence. The platform's sources among SRC.c (port/system.c)
+use CM1's names: GAME.H's "#define NAME d_SSSS_OOOO" lines give the game's own, and the
+sources are read with them replaced.
 
 Variables the sources declare as pointers are not placed in the image: a native
 pointer is 8 bytes where the original had 2 or 4, and would overwrite what follows it.
@@ -56,6 +58,17 @@ def parse_segments(path, start, end):
         if ln[3] != 'bss':
             segs.append((name, lin - start, size, int(ln[3], 16)))
     return segs
+
+
+def parse_aliases(path):
+    """The game.h macros that give a platform name the game's own: NAME -> TARGET."""
+    return dict(re.findall(r'^#define[ \t]+([A-Za-z_]\w*)[ \t]+([A-Za-z_]\w*)\b', open(path).read(), re.M))
+
+
+def apply_aliases(text, aliases):
+    if not aliases:
+        return text
+    return re.sub(r'\b[A-Za-z_]\w*\b', lambda m: aliases.get(m.group(0), m.group(0)), text)
 
 
 def strip_comments(text):
@@ -122,6 +135,7 @@ def pointer_externs(text, defined, bad):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--names', help='the game\'s names.txt, if its data symbols are named')
+    ap.add_argument('--aliases', help='the game\'s game.h: its names for the platform\'s')
     ap.add_argument('--segments', required=True)
     ap.add_argument('--start', required=True, type=lambda x: int(x, 0))
     ap.add_argument('--end', required=True, type=lambda x: int(x, 0))
@@ -133,7 +147,9 @@ def main():
 
     syms = parse_names(a.names) if a.names else {}
     native = set()
-    texts = [strip_comments(open(p, encoding='latin1').read()) for p in a.srcs]
+    aliases = parse_aliases(a.aliases) if a.aliases else {}
+    texts = [apply_aliases(strip_comments(open(p, encoding='latin1').read()), aliases)
+             for p in a.srcs]
     defined, bad = set(), set()
     for text in texts:
         defined |= defined_pointer_arrays(text)
