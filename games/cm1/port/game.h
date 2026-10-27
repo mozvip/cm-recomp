@@ -16,6 +16,12 @@
 #define IMAGE_END   0x57dc0L
 #define DGROUP_SEG  0x4d9c
 
-/* the platform's names are this game's (../names.txt): nothing to map */
+/* The platform's names are this game's (../names.txt), but for three variables of the
+ * system module (../../../port/system.c) that names.txt leaves unnamed. */
+#define picture_palette_pending d_5d9c_9b1a     /* the picture's palette is to be set */
+#define palette_green           d_5d9c_9e67     /* set_picture_palette's */
+#define palette_red             d_5d9c_9dd7
+#define FONT_FIRST_CHAR    32                   /* the fonts start at the space */
+#define DEFAULT_BRIGHTNESS 4                    /* a new picture's */
 
 #endif

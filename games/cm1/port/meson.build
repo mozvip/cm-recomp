@@ -21,17 +21,21 @@ platform_srcs = files(
   '../../../port/main.c', '../../../port/image.c', '../../../port/db.c', '../../../port/sdl.c',
   '../../../port/dos.c', '../../../port/keyboard.c',
   '../../../port/music.c', '../../../port/gfx.c', '../../../port/ilbm.c')
+# the games' system module, in CM1's names (game.h gives the game's own)
+system_srcs = files('../../../port/system.c')
+
 
 # the game's data symbols at their addresses in the original data (see ../../../port/port.h)
 # and the files it is loaded from (segments.txt, extracted by tools/port/extract.py)
 names = files('../names.txt')
 segments = files('segments.txt')
+game_h = files('game.h')
 data_symbols = custom_target('data_symbols',
-  input: [names, segments, game_srcs],
+  input: [names, segments, game_h, game_srcs, system_srcs],
   output: ['data_symbols.S', 'data_native.c', 'data_segments.c'],
-  command: [python, files('../../../tools/port/mkdata.py'), '--names', names,
+  command: [python, files('../../../tools/port/mkdata.py'), '--names', names, '--aliases', game_h,
             '--segments', segments, '--start', '0x0f330', '--end', '0x57dc0',
-            '@OUTPUT0@', '@OUTPUT1@', '@OUTPUT2@', game_srcs])
+            '@OUTPUT0@', '@OUTPUT1@', '@OUTPUT2@', game_srcs, system_srcs])
 
 # The 16-bit code reads the same bytes through different types, counts on wrapping
 # arithmetic, indexes rows past their end into the next ones, and its data is not aligned.
@@ -43,7 +47,7 @@ game_args = cc.get_supported_arguments(
   '-Wno-implicit-function-declaration', '-Wno-return-type', '-Wno-builtin-declaration-mismatch',
   '-Wno-unused-parameter', '-Wno-main', '-Wno-pragma-pack')
 
-executable('cm1', game_srcs, platform_srcs, data_symbols,
+executable('cm1', game_srcs, platform_srcs, system_srcs, data_symbols,
   include_directories: include_directories('.', '../../../port'),
   c_args: game_args,
   dependencies: [sdl3, sqlite3, libm],

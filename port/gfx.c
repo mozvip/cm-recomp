@@ -1,9 +1,8 @@
 /* Replaces the graphics primitives (CM1's 1AB9.ASM, CM93's 1D79.ASM, CM94's 2306.ASM,
  * Italia's 1F04.ASM): Bresenham lines in mode 13h (as the original draws them, pixel for
- * pixel), and the 16-colour planar mode's lines, glyphs and rectangle saves, which only
- * the EGA uses: the ports always run in VGA mode (the game's video mode detection is
- * replaced), so those do nothing. The names are CM1's: another game's game.h maps them to
- * its own. */
+ * pixel). The 16-colour planar mode's lines, glyphs and rectangle saves, which only the
+ * EGA used, are left out: the ports always run in VGA mode. The names are CM1's: another
+ * game's game.h maps them to its own. */
 #include "port.h"
 
 /* The byte of pixel (x, y) in A000: offsets wrap in the 64K segment. */
@@ -78,24 +77,4 @@ void draw_line_vga256(uint16_t from_x, uint16_t from_y, uint16_t to_x, uint16_t 
                 err += both;
         }
     }
-}
-
-void draw_line_planar(uint16_t from_x, uint16_t from_y, uint16_t to_x, uint16_t to_y, int16_t colour)
-{
-    (void)from_x; (void)from_y; (void)to_x; (void)to_y; (void)colour;
-}
-
-void draw_glyph_planar(char *glyph, int16_t x, int16_t y, int16_t colour, int16_t fill, int16_t mode, int16_t rows)
-{
-    (void)glyph; (void)x; (void)y; (void)colour; (void)fill; (void)mode; (void)rows;
-}
-
-void save_planar_rect(uint16_t left, uint16_t top, uint16_t right, uint16_t bottom, char *buf, uint16_t seg)
-{
-    (void)left; (void)top; (void)right; (void)bottom; (void)buf; (void)seg;
-}
-
-void restore_planar_rect(uint16_t x, uint16_t y, char *buf, uint16_t seg)
-{
-    (void)x; (void)y; (void)buf; (void)seg;
 }

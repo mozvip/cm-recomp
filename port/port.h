@@ -118,6 +118,13 @@ void port_mouse_show(int show);
 void port_speed_control(int on);        /* + and - set the game's speed: on during a match */
 unsigned char *port_vga_memory(void);   /* 64000 bytes of mode 13h, A000:0000 */
 
+/* ---- the games' system module (system.c, system93.c) ------------------------------ */
+struct window {                         /* a font: the game's module defines its three */
+    char *buf;
+    int16_t pad[2];
+    int16_t w, h, base;
+};
+
 #pragma pack(push, 1)                   /* Borland lays structures out byte by byte */
 
 #endif

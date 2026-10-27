@@ -130,7 +130,6 @@ extern int16_t background_colour;
 extern char d_5d9c_9b82;
 extern char d_5d9c_9b83;
 extern char menu_choice_done;
-extern char video_mode;
 extern int16_t team_manager[];
 extern unsigned char staff_contract[];
 extern unsigned char staff_age[];
@@ -654,10 +653,7 @@ void background_picture_menu(void)
 {
     do {
         new_screen("Background Picture");
-        if (video_mode == 2)
-            show_menu(5, "", "*Exit|Picture 1|Picture 2|Picture 3|Change Colour|Change Brightness|");
-        else
-            show_menu(5, "", "*Exit|Picture 1|");
+        show_menu(5, "", "*Exit|Picture 1|Picture 2|Picture 3|Change Colour|Change Brightness|");
         strcpy(old_picture_file, picture_file);
         menu_choice_done = 0;
         do {
@@ -669,7 +665,7 @@ void background_picture_menu(void)
             case 1:
             case 2:
             case 3:
-                sprintf(picture_file, video_mode == 2 ? "picture%d.lbm" : "picega.lbm", menu_choice);
+                sprintf(picture_file, "picture%d.lbm", menu_choice);
                 if (strcmp(picture_file, old_picture_file) != 0) {
                     show_status_box("Loading picture");
                     load_title_picture(-1);

@@ -2,7 +2,8 @@
 
 The layer the native ports of the decompiled games run on, in place of the DOS machine:
 DOS and the Borland C library where Linux differs, the BIOS, the VGA in mode 13h, the
-mouse driver, the keyboard, the clock, and the games' assembly modules rewritten in C.
+mouse driver, the keyboard, the clock, the games' assembly modules rewritten in C, and
+the C module they all build their screens, strings and memory on.
 It is shared by:
 
 | Game | Port |
@@ -45,8 +46,10 @@ The game says when a match starts and ends: its sources call `port_speed_control
 | `dos.c` | DOS and Borland library: file names in any case, `rand`, `strcpy`, `stricmp`, the printer (`PRINTER.TXT`) |
 | `keyboard.c` | The keyboard driver (CM1 `14B7.ASM`, CM93 `1DFE.ASM`, CM94 `238C.ASM`, Italia `1F89.ASM`, Italia 95 `2386.ASM`): not needed, there is always a mouse |
 | `music.c` | The music driver interface (CM1 `1AB2.ASM`, CM93 `1DF8.ASM`, CM94 `2385.ASM`, Italia `1F83.ASM`, Italia 95 `2380.ASM`): silent for now |
-| `gfx.c` | The line drawing (CM1 `1AB9.ASM`, CM93 `1D79.ASM`, CM94 `2306.ASM`, Italia `1F04.ASM`, Italia 95 `2301.ASM`), pixel for pixel; the EGA's planar primitives are empty |
+| `gfx.c` | The line drawing (CM1 `1AB9.ASM`, CM93 `1D79.ASM`, CM94 `2306.ASM`, Italia `1F04.ASM`, Italia 95 `2301.ASM`), pixel for pixel |
 | `ilbm.c` | The `.LBM` picture decoder (CM1 `1B05.ASM`, CM93 `1DC5.ASM`, CM94 `2352.ASM`, Italia `1F50.ASM`, Italia 95 `234D.ASM`) |
+| `system.c` | The games' system module (CM1 `14D2.C`, CM93 `1BD3.C`, CM94 `2162.C`, Italia `1D5E.C`, Italia 95 `215D.C`), as far as it is the same in all five: screen buffer, palette, rectangles, lines and text, the mouse pointer, the clock, random numbers, strings, files, the virtual memory |
+| `system93.c` | What the later four changed in it or added (CM1 keeps its own): the sound and screen set-up, the title screens, 30-bit random numbers, capitals of accented letters, the music |
 
 The games' assembly modules are the same code in CM1, CM93, CM94, Italia and Italia 95 (byte for
 byte, apart from addresses), so one C version of each serves them all. Their functions
@@ -57,8 +60,18 @@ maps the names in its `game.h` (CM93's, CM94's and both Italias' sources still u
 The EMS library (CM1 `1A51.ASM`, CM93 `1E19.ASM`, CM94 `23A7.ASM`, Italia `1FA5.ASM`,
 Italia 95 `23A1.ASM`) has no counterpart: the games' virtual memory (CM1's `vm_alloc` and
 `vm_map`), which kept its blocks in expanded memory or in a file, `VM.$$$`, keeps them in
-memory in each port's source (`vm_store`). Blocks are still mapped through the 64124-byte
-work buffer, as in the original, so what the game sees is unchanged.
+memory (`vm_store`, in `system.c`). Blocks are still mapped through the 64124-byte work
+buffer, as in the original, so what the game sees is unchanged.
+
+The games' system module is C, decompiled with each game, but all five have it, nearly the
+same: `system.c` and `system93.c` replace it, in CM1's names as well (with a few new
+ones, for what CM1 does not have). What is a game's own stays in its `src/`: its fonts,
+its virtual memory blocks, CM1's protection check and the functions CM1 has in its own
+way. `meson.build` gives `tools/port/mkdata.py` these two files and `game.h`, whose
+mappings it applies to them, so that their data is placed at the game's addresses.
+
+There is no EGA: the ports always run in VGA mode, and CM1's EGA paths (the planar
+primitives, `TITLEEGA.LBM`, `PICEGA.LBM`) are gone.
 
 ## What a game provides
 
@@ -75,10 +88,12 @@ gives at start-up, see below), and `game.h`, which defines:
 | `GAME_ARGS` | The game's own argument, for the usage line |
 | `GAME_FILE` | A file of the game, checked for in its directory before it starts (the game does not check that its files open) |
 | `IMAGE_START`, `IMAGE_END`, `DGROUP_SEG` | The extent of `port_image` in the executable's load image (file numbering: the first far data segment, the end of DGROUP) and DGROUP's segment |
-| platform names | Optional: `#define draw_line_vga256 f_1d79_0006`... when the game's names for the assembly modules' symbols are not CM1's |
+| platform names | `#define draw_line_vga256 f_1d79_0006`... when the game's names for the assembly modules' and the system module's symbols are not CM1's (CM1 maps three variables `names.txt` leaves unnamed) |
+| `FONT_FIRST_CHAR`, `DEFAULT_BRIGHTNESS` | The fonts' first character (CM1: 32, the others 0), a new picture's brightness (`system.c`) |
+| `LOGO_FILE` | The publisher's picture shown before the title (`system93.c`; not CM1) |
 
 `meson.build` compiles the game's sources with the files above, and gives
-`tools/port/mkdata.py` the same `IMAGE_START`/`IMAGE_END`.
+`tools/port/mkdata.py` the same `IMAGE_START`/`IMAGE_END`, and `game.h` (`--aliases`).
 
 ## The database
 
